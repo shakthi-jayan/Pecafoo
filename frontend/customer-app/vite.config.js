@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-
 export default defineConfig({
+  base: "/",
+
   plugins: [react()],
+
   optimizeDeps: {
     noDiscovery: true,
     include: [
@@ -22,6 +24,7 @@ export default defineConfig({
     ],
     exclude: ['firebase', 'recharts'],
   },
+
   server: {
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
@@ -32,15 +35,15 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8000',
+        target: 'http://136.185.11.23:8000',
         changeOrigin: true,
       },
       '/media': {
-        target: 'http://127.0.0.1:8000',
+        target: 'http://136.185.11.23:8000',
         changeOrigin: true,
       },
       '/ws': {
-        target: 'ws://127.0.0.1:8000',
+        target: 'ws://136.185.11.23:8000',
         ws: true,
       }
     }
