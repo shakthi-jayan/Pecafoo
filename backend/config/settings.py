@@ -185,18 +185,47 @@ SIMPLE_JWT = {
 # CORS / CSRF
 # ==================================================
 
+# ==================================================
+# CORS / CSRF
+# ==================================================
+
 CORS_ALLOWED_ORIGINS = [
     "http://136.185.11.23",
     "http://136.185.11.23:8000",
+
+    # Frontend apps
+    "http://136.185.11.23:3001",   # customer
+    "http://136.185.11.23:3002",   # restaurant
+    "http://136.185.11.23:3003",   # delivery
+    "http://136.185.11.23:3004",   # admin
+
+    # local dev
     "http://localhost:5173",
     "http://localhost:5174",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
 CSRF_TRUSTED_ORIGINS = [
     "http://136.185.11.23",
     "http://136.185.11.23:8000",
+
+    "http://136.185.11.23:3001",
+    "http://136.185.11.23:3002",
+    "http://136.185.11.23:3003",
+    "http://136.185.11.23:3004",
 ]
 
 # ==================================================
