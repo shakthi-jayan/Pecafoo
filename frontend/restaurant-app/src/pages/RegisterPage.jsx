@@ -40,10 +40,14 @@ const RegisterPage = () => {
         );
     };
 
-    const handleRegister = async (e) => {
+        const handleRegister = async (e) => {
         e.preventDefault();
         if (formData.password !== formData.password_confirm) {
             toast.error('Passwords do not match.');
+            return;
+        }
+        if (!formData.latitude || !formData.longitude) {
+            toast.error('Please fetch your restaurant GPS location.');
             return;
         }
         setLoading(true);
