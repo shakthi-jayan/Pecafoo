@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, FileText, Upload, MapPin, Loader2 } from 'lucide-react';
@@ -22,9 +22,17 @@ const RegisterPage = () => {
     const [loading, setLoading] = useState(false);
     const [fetchingLocation, setFetchingLocation] = useState(false);
 
+    // Check if API base URL is configured
+    useEffect(() => {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+        console.log('API URL:', apiUrl);
+        if (!apiUrl) {
+            toast.error('API configuration missing. Please check your environment variables.');
+        }
+    }, []);
+
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    // Function to request location permission and get coordinates
     const requestLocationPermission = async () => {
         if (!navigator.geolocation) {
             toast.error('Geolocation is not supported by your browser.', { duration: 5000 });
@@ -32,20 +40,17 @@ const RegisterPage = () => {
         }
 
         try {
-            // Check permission status if supported
             if (navigator.permissions && navigator.permissions.query) {
                 const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
-                
                 if (permissionStatus.state === 'denied') {
                     toast.error(
-                        'Location permission is blocked. Please enable it in your browser settings to continue with restaurant registration.',
+                        'Location permission is blocked. Please enable it in your browser settings.',
                         { duration: 7000 }
                     );
                     return false;
                 }
             }
 
-            // Request location with promise
             const position = await new Promise((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(resolve, reject, {
                     enableHighAccuracy: true,
@@ -63,19 +68,15 @@ const RegisterPage = () => {
             return true;
             
         } catch (err) {
-            // Handle different error types
             switch(err.code) {
-                case 1: // PERMISSION_DENIED
-                    toast.error(
-                        'Location access is required for delivery routing. Please allow location access when prompted by your browser.',
-                        { duration: 6000 }
-                    );
+                case 1:
+                    toast.error('Please allow location access when prompted by your browser.', { duration: 6000 });
                     break;
-                case 2: // POSITION_UNAVAILABLE
-                    toast.error('Location information is unavailable. Please check your GPS or network connection.', { duration: 5000 });
+                case 2:
+                    toast.error('Location unavailable. Please check your GPS.', { duration: 5000 });
                     break;
-                case 3: // TIMEOUT
-                    toast.error('Location request timed out. Please try again or check your connection.', { duration: 5000 });
+                case 3:
+                    toast.error('Location request timed out. Please try again.', { duration: 5000 });
                     break;
                 default:
                     toast.error('Failed to get location. Please try again.', { duration: 5000 });
@@ -100,24 +101,37 @@ const RegisterPage = () => {
         }
         
         if (!formData.latitude || !formData.longitude) {
-            toast.error('Please allow location access and fetch your restaurant GPS coordinates.', {
+            toast.error('Please allow location access and fetch GPS coordinates.', {
                 duration: 5000,
                 icon: '📍'
+            });
+            return;
+        }
+
+        // Validate required documents
+        if (!docs.business_license || !docs.food_safety_certificate || !docs.owner_id_proof) {
+            toast.error('Please upload all required verification documents.', {
+                duration: 5000
             });
             return;
         }
         
         setLoading(true);
         try {
-            await register({
+            // Register user first
+            const userData = {
                 first_name: formData.first_name,
                 last_name: formData.last_name,
                 email: formData.email,
                 phone_number: formData.phone_number,
                 password: formData.password,
                 password_confirm: formData.password_confirm,
-            });
+            };
+            
+            console.log('Registering user:', userData.email);
+            await register(userData);
 
+            // Create restaurant
             const restaurantData = new FormData();
             restaurantData.append('name', formData.restaurant_name);
             restaurantData.append('description', formData.description);
@@ -129,26 +143,36 @@ const RegisterPage = () => {
             restaurantData.append('phone', formData.restaurant_phone || formData.phone_number);
             restaurantData.append('slug', formData.restaurant_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''));
             
-            if (docs.business_license) restaurantData.append('business_license', docs.business_license);
-            if (docs.food_safety_certificate) restaurantData.append('food_safety_certificate', docs.food_safety_certificate);
-            if (docs.owner_id_proof) restaurantData.append('owner_id_proof', docs.owner_id_proof);
-            if (formData.latitude) restaurantData.append('latitude', formData.latitude);
-            if (formData.longitude) restaurantData.append('longitude', formData.longitude);
+            restaurantData.append('business_license', docs.business_license);
+            restaurantData.append('food_safety_certificate', docs.food_safety_certificate);
+            restaurantData.append('owner_id_proof', docs.owner_id_proof);
+            restaurantData.append('latitude', formData.latitude);
+            restaurantData.append('longitude', formData.longitude);
 
+            console.log('Creating restaurant...');
             await restaurantsAPI.createRestaurant(restaurantData);
 
             toast.success('Account created successfully!');
             navigate('/', { replace: true });
         } catch (err) {
-            toast.error(err.response?.data?.email?.[0] || err.response?.data?.detail || 'Registration failed.');
+            console.error('Registration error:', err);
+            if (err.response?.status === 404) {
+                toast.error('API server not found. Please check if backend is running on port 8000');
+            } else if (err.response?.status === 500) {
+                toast.error('Server error. Please try again later.');
+            } else {
+                toast.error(err.response?.data?.email?.[0] || err.response?.data?.detail || err.message || 'Registration failed.');
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    const FileField = ({ label, name }) => (
+    const FileField = ({ label, name, required = true }) => (
         <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6, fontWeight: 700 }}>{label}</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6, fontWeight: 700 }}>
+                {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
+            </label>
             <label className="input" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, cursor: 'pointer' }}>
                 <span style={{ color: docs[name] ? 'var(--text-primary)' : 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {docs[name]?.name || 'Choose file'}
@@ -160,6 +184,7 @@ const RegisterPage = () => {
                     type="file" 
                     accept="image/*,.pdf" 
                     style={{ display: 'none' }} 
+                    required={required}
                     onChange={(e) => setDocs({ ...docs, [name]: e.target.files?.[0] || null })} 
                 />
             </label>
@@ -172,7 +197,7 @@ const RegisterPage = () => {
                 <div style={{ textAlign: 'center', marginBottom: 28 }}>
                     <div style={{ width: 64, height: 64, margin: '0 auto 16px', background: 'var(--gradient-primary)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 800, color: 'white', boxShadow: 'var(--shadow-accent)' }}>Chef</div>
                     <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 4 }}>Create Restaurant Account</h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Register your restaurant and upload your verification documents</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Register your restaurant and upload verification documents</p>
                 </div>
                 
                 <form onSubmit={handleRegister}>
@@ -180,7 +205,7 @@ const RegisterPage = () => {
                         <input 
                             className="input" 
                             name="first_name" 
-                            placeholder="First Name" 
+                            placeholder="First Name *" 
                             value={formData.first_name} 
                             onChange={handleChange} 
                             required 
@@ -188,7 +213,7 @@ const RegisterPage = () => {
                         <input 
                             className="input" 
                             name="last_name" 
-                            placeholder="Last Name" 
+                            placeholder="Last Name *" 
                             value={formData.last_name} 
                             onChange={handleChange} 
                             required 
@@ -199,7 +224,7 @@ const RegisterPage = () => {
                         className="input" 
                         type="email" 
                         name="email" 
-                        placeholder="Email" 
+                        placeholder="Email *" 
                         value={formData.email} 
                         onChange={handleChange} 
                         required 
@@ -210,7 +235,7 @@ const RegisterPage = () => {
                         className="input" 
                         type="tel" 
                         name="phone_number" 
-                        placeholder="Owner Phone" 
+                        placeholder="Owner Phone *" 
                         value={formData.phone_number} 
                         onChange={handleChange} 
                         required 
@@ -220,26 +245,27 @@ const RegisterPage = () => {
                     <input 
                         className="input" 
                         name="restaurant_name" 
-                        placeholder="Restaurant Name" 
+                        placeholder="Restaurant Name *" 
                         value={formData.restaurant_name} 
                         onChange={handleChange} 
                         required 
                         style={{ marginBottom: 12 }} 
                     />
                     
-                    <input 
+                    <textarea 
                         className="input" 
                         name="description" 
                         placeholder="Restaurant Description" 
                         value={formData.description} 
                         onChange={handleChange} 
-                        style={{ marginBottom: 12 }} 
+                        rows="3"
+                        style={{ marginBottom: 12, resize: 'vertical' }} 
                     />
                     
                     <input 
                         className="input" 
                         name="cuisine_type" 
-                        placeholder="Cuisine Type (e.g., Italian, Chinese, Indian)" 
+                        placeholder="Cuisine Type * (e.g., Italian, Chinese, Indian)" 
                         value={formData.cuisine_type} 
                         onChange={handleChange} 
                         required 
@@ -249,7 +275,7 @@ const RegisterPage = () => {
                     <input 
                         className="input" 
                         name="address" 
-                        placeholder="Full Address" 
+                        placeholder="Full Address *" 
                         value={formData.address} 
                         onChange={handleChange} 
                         required 
@@ -260,7 +286,7 @@ const RegisterPage = () => {
                         <input 
                             className="input" 
                             name="city" 
-                            placeholder="City" 
+                            placeholder="City *" 
                             value={formData.city} 
                             onChange={handleChange} 
                             required 
@@ -268,7 +294,7 @@ const RegisterPage = () => {
                         <input 
                             className="input" 
                             name="state" 
-                            placeholder="State" 
+                            placeholder="State *" 
                             value={formData.state} 
                             onChange={handleChange} 
                             required 
@@ -279,7 +305,7 @@ const RegisterPage = () => {
                         <input 
                             className="input" 
                             name="pincode" 
-                            placeholder="Pincode" 
+                            placeholder="Pincode *" 
                             value={formData.pincode} 
                             onChange={handleChange} 
                             required 
@@ -300,7 +326,7 @@ const RegisterPage = () => {
                         padding: 16, 
                         background: 'var(--bg-alt)', 
                         borderRadius: 12, 
-                        border: formData.latitude ? '1px solid var(--accent)' : '1px solid var(--border-color)'
+                        border: formData.latitude ? '1px solid #10b981' : '1px solid var(--border-color)'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
                             <div style={{ flex: 1 }}>
@@ -312,8 +338,8 @@ const RegisterPage = () => {
                                     {!formData.latitude && (
                                         <span style={{ 
                                             fontSize: '0.7rem', 
-                                            background: 'rgba(245, 158, 11, 0.2)', 
-                                            color: '#f59e0b',
+                                            background: '#ef444420', 
+                                            color: '#ef4444',
                                             padding: '2px 6px',
                                             borderRadius: 4,
                                             fontWeight: 600
@@ -322,17 +348,12 @@ const RegisterPage = () => {
                                         </span>
                                     )}
                                 </div>
-                                <div style={{ fontSize: '0.75rem', color: formData.latitude ? 'var(--accent)' : 'var(--text-muted)' }}>
+                                <div style={{ fontSize: '0.75rem', color: formData.latitude ? '#10b981' : 'var(--text-muted)' }}>
                                     {formData.latitude ? 
                                         `📍 Lat: ${Number(formData.latitude).toFixed(6)}, Lng: ${Number(formData.longitude).toFixed(6)}` : 
-                                        '📍 Required for accurate delivery routing and distance calculation'
+                                        '📍 Required for accurate delivery routing'
                                     }
                                 </div>
-                                {formData.latitude && (
-                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                                        ✓ Location captured successfully
-                                    </div>
-                                )}
                             </div>
                             <button 
                                 type="button" 
@@ -349,7 +370,7 @@ const RegisterPage = () => {
                                     alignItems: 'center', 
                                     gap: 8,
                                     fontWeight: 600,
-                                    minWidth: '140px',
+                                    minWidth: '160px',
                                     justifyContent: 'center'
                                 }}
                             >
@@ -368,12 +389,11 @@ const RegisterPage = () => {
                         </div>
                     </div>
 
-                    {/* Password Section */}
                     <input 
                         className="input" 
                         type="password" 
                         name="password" 
-                        placeholder="Password (min 8 characters)" 
+                        placeholder="Password * (min 8 characters)" 
                         value={formData.password} 
                         onChange={handleChange} 
                         required 
@@ -385,7 +405,7 @@ const RegisterPage = () => {
                         className="input" 
                         type="password" 
                         name="password_confirm" 
-                        placeholder="Confirm Password" 
+                        placeholder="Confirm Password *" 
                         value={formData.password_confirm} 
                         onChange={handleChange} 
                         required 
@@ -398,15 +418,15 @@ const RegisterPage = () => {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                             <FileText size={18} color="var(--accent)" />
                             <strong style={{ fontSize: '0.9rem' }}>Verification Documents</strong>
-                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginLeft: 'auto' }}>
-                                Required for verification
+                            <span style={{ fontSize: '0.7rem', color: '#ef4444', marginLeft: 'auto' }}>
+                                All files required
                             </span>
                         </div>
-                        <FileField label="Business License *" name="business_license" />
-                        <FileField label="Food Safety Certificate *" name="food_safety_certificate" />
-                        <FileField label="Owner ID Proof (Aadhar/PAN/Passport) *" name="owner_id_proof" />
+                        <FileField label="Business License" name="business_license" required={true} />
+                        <FileField label="Food Safety Certificate" name="food_safety_certificate" required={true} />
+                        <FileField label="Owner ID Proof" name="owner_id_proof" required={true} />
                         <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 8, textAlign: 'center' }}>
-                            Supported formats: Images (JPG, PNG) and PDF files
+                            Supported formats: Images (JPG, PNG) and PDF files (Max 5MB each)
                         </p>
                     </div>
 
