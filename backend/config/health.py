@@ -1,3 +1,12 @@
+from django.core.cache import cache
+from django.db import connection
+from django.utils import timezone
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+
+
 class HealthCheckView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
@@ -15,23 +24,24 @@ class HealthCheckView(APIView):
             checks["database"] = "ok"
         except Exception as exc:
             db_ok = False
-            checks["database"] = f"error: {exc}"
+            checks["database"] = str(exc)
 
         try:
-            cache_key = "pecafoo_healthcheck"
-            cache.set(cache_key, "ok", timeout=30)
-            checks["cache"] = "ok" if cache.get(cache_key) == "ok" else "error"
+            cache.set("health", "ok", 30)
+            checks["cache"] = "ok" if cache.get("health") == "ok" else "error"
             if checks["cache"] != "ok":
                 cache_ok = False
         except Exception as exc:
             cache_ok = False
-            checks["cache"] = f"error: {exc}"
+            checks["cache"] = str(exc)
 
-        overall_ok = db_ok and cache_ok
+        overall = db_ok and cache_ok
 
         return Response(
             {
-                "status": "ok" if overall_ok else "degraded"
+                "status": "ok" if overall else "degraded",
+                "timestamp": timezone.now(),
+                "checks": checks,
             },
-            status=200 if overall_ok else 503
+            status=200 if overall else 503,
         )
