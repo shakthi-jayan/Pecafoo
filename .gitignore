@@ -1,0 +1,49 @@
+.cursor/
+node_modules/
+
+# Root environment files
+.env
+.env.*
+!.env.example
+!.env*.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Frontend
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env*.example
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
