@@ -246,6 +246,8 @@ CSRF_TRUSTED_ORIGINS = env.list(
         "http://localhost:5174",
         "http://localhost:5175",
         "http://localhost:5176",
+         "http://136.185.11.23",
+        "http://136.185.11.23:8000",
     ],
 )
 
