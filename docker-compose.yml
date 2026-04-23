@@ -1,47 +1,42 @@
-# ============================================
-# Pecafoo — Docker Compose (Full Stack)
-# ============================================
-# Services: Django API, PostgreSQL, Redis, Celery Worker, Celery Beat
-# ============================================
-
 version: "3.9"
 
 services:
-  # ── PostgreSQL Database ──
+  # ---------------- PostgreSQL ----------------
   db:
     image: postgres:16-alpine
     container_name: pecafoo_db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: food_delivery_db
-      POSTGRES_USER: food_user
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-1234}
+      POSTGRES_DB: ${DB_NAME:-food_delivery_db}
+      POSTGRES_USER: ${DB_USER:-food_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U food_user -d food_delivery_db" ]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-food_user} -d ${DB_NAME:-food_delivery_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # ── Redis (Cache + Celery Broker + Channel Layer) ──
+  # ---------------- Redis ----------------
   redis:
     image: redis:7-alpine
     container_name: pecafoo_redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+    command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
+    expose:
+      - "6379"
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # ── Django API (Daphne ASGI) ──
+  # ---------------- Django API ----------------
   api:
     build:
       context: ./backend
@@ -51,78 +46,78 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - DB_HOST=db
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
-      - CACHE_BACKEND=django_redis.cache.RedisCache
-      - CACHE_LOCATION=redis://redis:6379/3
-    ports:
-      - "8000:8000"
+      DB_HOST: db
+      DB_PORT: 5432
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      CACHE_LOCATION: redis://redis:6379/3
+      DEBUG: "False"
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
-      - ./backend/media:/app/media
-      - ./backend/logs:/app/logs
+      - media_data:/app/media
+      - logs_data:/app/logs
+      - static_data:/app/staticfiles
+    ports:
+      - "8000:8000"
     command: >
       sh -c "
-        python manage.py migrate --noinput &&
-        daphne -b 0.0.0.0 -p 8000 config.asgi:application
+      python manage.py migrate --noinput &&
+      python manage.py collectstatic --noinput &&
+      gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
       "
 
-  # ── Celery Worker ──
+  # ---------------- Celery Worker ----------------
   celery_worker:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: pecafoo_celery_worker
+    container_name: pecafoo_worker
     restart: unless-stopped
     env_file:
       - ./backend/.env
     environment:
-      - DB_HOST=db
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
-      - CACHE_BACKEND=django_redis.cache.RedisCache
-      - CACHE_LOCATION=redis://redis:6379/3
+      DB_HOST: db
+      DB_PORT: 5432
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - ./backend/logs:/app/logs
     command: celery -A config worker --loglevel=info --concurrency=2
 
-  # ── Celery Beat (Scheduler) ──
+  # ---------------- Celery Beat ----------------
   celery_beat:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: pecafoo_celery_beat
+    container_name: pecafoo_beat
     restart: unless-stopped
     env_file:
       - ./backend/.env
     environment:
-      - DB_HOST=db
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
-      - CACHE_BACKEND=django_redis.cache.RedisCache
-      - CACHE_LOCATION=redis://redis:6379/3
+      DB_HOST: db
+      DB_PORT: 5432
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - ./backend/logs:/app/logs
     command: celery -A config beat --loglevel=info
 
 volumes:
   postgres_data:
   redis_data:
+  media_data:
+  static_data:
+  logs_data:
