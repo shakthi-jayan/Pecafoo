@@ -24,32 +24,89 @@ const RegisterPage = () => {
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    const fetchLocation = () => {
-        setFetchingLocation(true);
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                setFormData(prev => ({ ...prev, latitude: pos.coords.latitude, longitude: pos.coords.longitude }));
-                setFetchingLocation(false);
-                toast.success('Location captured successfully!');
-            },
-            (err) => {
-                setFetchingLocation(false);
-                toast.error('Failed to get location. Please allow location permissions.');
-            },
-            { enableHighAccuracy: true, timeout: 10000 }
-        );
+    // Function to request location permission and get coordinates
+    const requestLocationPermission = async () => {
+        if (!navigator.geolocation) {
+            toast.error('Geolocation is not supported by your browser.', { duration: 5000 });
+            return false;
+        }
+
+        try {
+            // Check permission status if supported
+            if (navigator.permissions && navigator.permissions.query) {
+                const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+                
+                if (permissionStatus.state === 'denied') {
+                    toast.error(
+                        'Location permission is blocked. Please enable it in your browser settings to continue with restaurant registration.',
+                        { duration: 7000 }
+                    );
+                    return false;
+                }
+            }
+
+            // Request location with promise
+            const position = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 0
+                });
+            });
+            
+            setFormData(prev => ({ 
+                ...prev, 
+                latitude: position.coords.latitude, 
+                longitude: position.coords.longitude 
+            }));
+            toast.success('Location captured successfully!', { duration: 3000 });
+            return true;
+            
+        } catch (err) {
+            // Handle different error types
+            switch(err.code) {
+                case 1: // PERMISSION_DENIED
+                    toast.error(
+                        'Location access is required for delivery routing. Please allow location access when prompted by your browser.',
+                        { duration: 6000 }
+                    );
+                    break;
+                case 2: // POSITION_UNAVAILABLE
+                    toast.error('Location information is unavailable. Please check your GPS or network connection.', { duration: 5000 });
+                    break;
+                case 3: // TIMEOUT
+                    toast.error('Location request timed out. Please try again or check your connection.', { duration: 5000 });
+                    break;
+                default:
+                    toast.error('Failed to get location. Please try again.', { duration: 5000 });
+                    break;
+            }
+            return false;
+        }
     };
 
-        const handleRegister = async (e) => {
+    const fetchLocation = async () => {
+        setFetchingLocation(true);
+        await requestLocationPermission();
+        setFetchingLocation(false);
+    };
+
+    const handleRegister = async (e) => {
         e.preventDefault();
+        
         if (formData.password !== formData.password_confirm) {
             toast.error('Passwords do not match.');
             return;
         }
+        
         if (!formData.latitude || !formData.longitude) {
-            toast.error('Please fetch your restaurant GPS location.');
+            toast.error('Please allow location access and fetch your restaurant GPS coordinates.', {
+                duration: 5000,
+                icon: '📍'
+            });
             return;
         }
+        
         setLoading(true);
         try {
             await register({
@@ -71,6 +128,7 @@ const RegisterPage = () => {
             restaurantData.append('pincode', formData.pincode);
             restaurantData.append('phone', formData.restaurant_phone || formData.phone_number);
             restaurantData.append('slug', formData.restaurant_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''));
+            
             if (docs.business_license) restaurantData.append('business_license', docs.business_license);
             if (docs.food_safety_certificate) restaurantData.append('food_safety_certificate', docs.food_safety_certificate);
             if (docs.owner_id_proof) restaurantData.append('owner_id_proof', docs.owner_id_proof);
@@ -79,7 +137,7 @@ const RegisterPage = () => {
 
             await restaurantsAPI.createRestaurant(restaurantData);
 
-            toast.success('Account created!');
+            toast.success('Account created successfully!');
             navigate('/', { replace: true });
         } catch (err) {
             toast.error(err.response?.data?.email?.[0] || err.response?.data?.detail || 'Registration failed.');
@@ -98,7 +156,12 @@ const RegisterPage = () => {
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent)' }}>
                     <Upload size={16} /> Upload
                 </span>
-                <input type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={(e) => setDocs({ ...docs, [name]: e.target.files?.[0] || null })} />
+                <input 
+                    type="file" 
+                    accept="image/*,.pdf" 
+                    style={{ display: 'none' }} 
+                    onChange={(e) => setDocs({ ...docs, [name]: e.target.files?.[0] || null })} 
+                />
             </label>
         </div>
     );
@@ -111,56 +174,270 @@ const RegisterPage = () => {
                     <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 4 }}>Create Restaurant Account</h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Register your restaurant and upload your verification documents</p>
                 </div>
+                
                 <form onSubmit={handleRegister}>
                     <div className="auth-split-row">
-                        <input className="input" name="first_name" placeholder="First Name" value={formData.first_name} onChange={handleChange} required />
-                        <input className="input" name="last_name" placeholder="Last Name" value={formData.last_name} onChange={handleChange} required />
-                    </div>
-                    <input className="input" type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required style={{ marginBottom: 12 }} />
-                    <input className="input" type="tel" name="phone_number" placeholder="Owner Phone" value={formData.phone_number} onChange={handleChange} style={{ marginBottom: 12 }} />
-                    <input className="input" name="restaurant_name" placeholder="Restaurant Name" value={formData.restaurant_name} onChange={handleChange} required style={{ marginBottom: 12 }} />
-                    <input className="input" name="description" placeholder="Restaurant Description" value={formData.description} onChange={handleChange} style={{ marginBottom: 12 }} />
-                    <input className="input" name="cuisine_type" placeholder="Cuisine Type" value={formData.cuisine_type} onChange={handleChange} style={{ marginBottom: 12 }} />
-                    <input className="input" name="address" placeholder="Full Address" value={formData.address} onChange={handleChange} required style={{ marginBottom: 12 }} />
-                    <div className="auth-split-row">
-                        <input className="input" name="city" placeholder="City" value={formData.city} onChange={handleChange} required />
-                        <input className="input" name="state" placeholder="State" value={formData.state} onChange={handleChange} required />
-                    </div>
-                    <div className="auth-split-row" style={{ marginTop: 12 }}>
-                        <input className="input" name="pincode" placeholder="Pincode" value={formData.pincode} onChange={handleChange} required />
-                        <input className="input" name="restaurant_phone" placeholder="Restaurant Phone" value={formData.restaurant_phone} onChange={handleChange} />
+                        <input 
+                            className="input" 
+                            name="first_name" 
+                            placeholder="First Name" 
+                            value={formData.first_name} 
+                            onChange={handleChange} 
+                            required 
+                        />
+                        <input 
+                            className="input" 
+                            name="last_name" 
+                            placeholder="Last Name" 
+                            value={formData.last_name} 
+                            onChange={handleChange} 
+                            required 
+                        />
                     </div>
                     
-                    <div style={{ marginTop: 12, marginBottom: 12, padding: 12, background: 'var(--bg-alt)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>GPS Coordinates</div>
-                            <div style={{ fontSize: '0.75rem', color: formData.latitude ? 'var(--accent)' : 'var(--text-muted)' }}>
-                                {formData.latitude ? `Lat: ${Number(formData.latitude).toFixed(4)}, Lng: ${Number(formData.longitude).toFixed(4)}` : 'Required for delivery routing'}
+                    <input 
+                        className="input" 
+                        type="email" 
+                        name="email" 
+                        placeholder="Email" 
+                        value={formData.email} 
+                        onChange={handleChange} 
+                        required 
+                        style={{ marginBottom: 12 }} 
+                    />
+                    
+                    <input 
+                        className="input" 
+                        type="tel" 
+                        name="phone_number" 
+                        placeholder="Owner Phone" 
+                        value={formData.phone_number} 
+                        onChange={handleChange} 
+                        required 
+                        style={{ marginBottom: 12 }} 
+                    />
+                    
+                    <input 
+                        className="input" 
+                        name="restaurant_name" 
+                        placeholder="Restaurant Name" 
+                        value={formData.restaurant_name} 
+                        onChange={handleChange} 
+                        required 
+                        style={{ marginBottom: 12 }} 
+                    />
+                    
+                    <input 
+                        className="input" 
+                        name="description" 
+                        placeholder="Restaurant Description" 
+                        value={formData.description} 
+                        onChange={handleChange} 
+                        style={{ marginBottom: 12 }} 
+                    />
+                    
+                    <input 
+                        className="input" 
+                        name="cuisine_type" 
+                        placeholder="Cuisine Type (e.g., Italian, Chinese, Indian)" 
+                        value={formData.cuisine_type} 
+                        onChange={handleChange} 
+                        required 
+                        style={{ marginBottom: 12 }} 
+                    />
+                    
+                    <input 
+                        className="input" 
+                        name="address" 
+                        placeholder="Full Address" 
+                        value={formData.address} 
+                        onChange={handleChange} 
+                        required 
+                        style={{ marginBottom: 12 }} 
+                    />
+                    
+                    <div className="auth-split-row">
+                        <input 
+                            className="input" 
+                            name="city" 
+                            placeholder="City" 
+                            value={formData.city} 
+                            onChange={handleChange} 
+                            required 
+                        />
+                        <input 
+                            className="input" 
+                            name="state" 
+                            placeholder="State" 
+                            value={formData.state} 
+                            onChange={handleChange} 
+                            required 
+                        />
+                    </div>
+                    
+                    <div className="auth-split-row" style={{ marginTop: 12 }}>
+                        <input 
+                            className="input" 
+                            name="pincode" 
+                            placeholder="Pincode" 
+                            value={formData.pincode} 
+                            onChange={handleChange} 
+                            required 
+                        />
+                        <input 
+                            className="input" 
+                            name="restaurant_phone" 
+                            placeholder="Restaurant Phone (Optional)" 
+                            value={formData.restaurant_phone} 
+                            onChange={handleChange} 
+                        />
+                    </div>
+                    
+                    {/* Location Section */}
+                    <div style={{ 
+                        marginTop: 16, 
+                        marginBottom: 16, 
+                        padding: 16, 
+                        background: 'var(--bg-alt)', 
+                        borderRadius: 12, 
+                        border: formData.latitude ? '1px solid var(--accent)' : '1px solid var(--border-color)'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                                    <MapPin size={18} color="var(--accent)" />
+                                    <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                                        Restaurant Location
+                                    </div>
+                                    {!formData.latitude && (
+                                        <span style={{ 
+                                            fontSize: '0.7rem', 
+                                            background: 'rgba(245, 158, 11, 0.2)', 
+                                            color: '#f59e0b',
+                                            padding: '2px 6px',
+                                            borderRadius: 4,
+                                            fontWeight: 600
+                                        }}>
+                                            Required
+                                        </span>
+                                    )}
+                                </div>
+                                <div style={{ fontSize: '0.75rem', color: formData.latitude ? 'var(--accent)' : 'var(--text-muted)' }}>
+                                    {formData.latitude ? 
+                                        `📍 Lat: ${Number(formData.latitude).toFixed(6)}, Lng: ${Number(formData.longitude).toFixed(6)}` : 
+                                        '📍 Required for accurate delivery routing and distance calculation'
+                                    }
+                                </div>
+                                {formData.latitude && (
+                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 4 }}>
+                                        ✓ Location captured successfully
+                                    </div>
+                                )}
                             </div>
+                            <button 
+                                type="button" 
+                                onClick={fetchLocation} 
+                                disabled={fetchingLocation} 
+                                className="btn" 
+                                style={{ 
+                                    padding: '8px 16px', 
+                                    fontSize: '0.875rem', 
+                                    background: formData.latitude ? 'var(--bg-card)' : 'var(--accent)',
+                                    color: formData.latitude ? 'var(--text-primary)' : 'white',
+                                    border: formData.latitude ? '1px solid var(--border-color)' : 'none',
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: 8,
+                                    fontWeight: 600,
+                                    minWidth: '140px',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                {fetchingLocation ? (
+                                    <>
+                                        <Loader2 size={16} className="spin" />
+                                        Getting Location...
+                                    </>
+                                ) : (
+                                    <>
+                                        <MapPin size={16} />
+                                        {formData.latitude ? 'Update Location' : 'Allow Location Access'}
+                                    </>
+                                )}
+                            </button>
                         </div>
-                        <button type="button" onClick={fetchLocation} disabled={fetchingLocation} className="btn" style={{ padding: '8px 12px', fontSize: '0.875rem', background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            {fetchingLocation ? <Loader2 size={16} className="spin" /> : <MapPin size={16} color="var(--accent)" />}
-                            {formData.latitude ? 'Update' : 'Fetch'}
-                        </button>
                     </div>
 
-                    <input className="input" type="password" name="password" placeholder="Password (min 8 chars)" value={formData.password} onChange={handleChange} required minLength={8} style={{ marginTop: 12, marginBottom: 12 }} />
-                    <input className="input" type="password" name="password_confirm" placeholder="Confirm Password" value={formData.password_confirm} onChange={handleChange} required minLength={8} style={{ marginBottom: 16 }} />
+                    {/* Password Section */}
+                    <input 
+                        className="input" 
+                        type="password" 
+                        name="password" 
+                        placeholder="Password (min 8 characters)" 
+                        value={formData.password} 
+                        onChange={handleChange} 
+                        required 
+                        minLength={8} 
+                        style={{ marginBottom: 12 }} 
+                    />
+                    
+                    <input 
+                        className="input" 
+                        type="password" 
+                        name="password_confirm" 
+                        placeholder="Confirm Password" 
+                        value={formData.password_confirm} 
+                        onChange={handleChange} 
+                        required 
+                        minLength={8} 
+                        style={{ marginBottom: 20 }} 
+                    />
 
+                    {/* Documents Section */}
                     <div className="card" style={{ padding: 16, marginBottom: 20 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                             <FileText size={18} color="var(--accent)" />
-                            <strong>Verification Documents</strong>
+                            <strong style={{ fontSize: '0.9rem' }}>Verification Documents</strong>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginLeft: 'auto' }}>
+                                Required for verification
+                            </span>
                         </div>
-                        <FileField label="Business License" name="business_license" />
-                        <FileField label="Food Safety Certificate" name="food_safety_certificate" />
-                        <FileField label="Owner ID Proof" name="owner_id_proof" />
+                        <FileField label="Business License *" name="business_license" />
+                        <FileField label="Food Safety Certificate *" name="food_safety_certificate" />
+                        <FileField label="Owner ID Proof (Aadhar/PAN/Passport) *" name="owner_id_proof" />
+                        <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 8, textAlign: 'center' }}>
+                            Supported formats: Images (JPG, PNG) and PDF files
+                        </p>
                     </div>
 
-                    <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', padding: 14, fontSize: '1rem' }}>
-                        {loading ? 'Creating Account...' : 'Create Account'} {!loading && <ArrowRight size={18} />}
+                    <button 
+                        type="submit" 
+                        className="btn btn-primary" 
+                        disabled={loading} 
+                        style={{ 
+                            width: '100%', 
+                            padding: 14, 
+                            fontSize: '1rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 8
+                        }}
+                    >
+                        {loading ? (
+                            <>
+                                <Loader2 size={18} className="spin" />
+                                Creating Account...
+                            </>
+                        ) : (
+                            <>
+                                Create Account
+                                <ArrowRight size={18} />
+                            </>
+                        )}
                     </button>
                 </form>
+                
                 <p style={{ textAlign: 'center', marginTop: 20, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
                     Already have an account? <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 700 }}>Sign In</Link>
                 </p>
