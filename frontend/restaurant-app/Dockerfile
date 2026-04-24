@@ -4,15 +4,20 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies with legacy peer deps
-RUN npm ci --frozen-lockfile --legacy-peer-deps
+# Install dependencies
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
+<<<<<<< HEAD
+=======
+
+# Build arguments
+>>>>>>> 3932e77b8297c52f038e4586ea4d7e3d115f6760
 ARG VITE_API_BASE_URL
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
-ARG VITE_WS_URL
-ENV VITE_WS_URL=$VITE_WS_URL
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL:-/api}
+ARG VITE_WS_BASE_URL
+ENV VITE_WS_BASE_URL=${VITE_WS_BASE_URL:-/ws}
 ARG VITE_FIREBASE_API_KEY
 ENV VITE_FIREBASE_API_KEY=$VITE_FIREBASE_API_KEY
 ARG VITE_FIREBASE_AUTH_DOMAIN
@@ -25,32 +30,29 @@ ARG VITE_FIREBASE_MESSAGING_SENDER_ID
 ENV VITE_FIREBASE_MESSAGING_SENDER_ID=$VITE_FIREBASE_MESSAGING_SENDER_ID
 ARG VITE_FIREBASE_APP_ID
 ENV VITE_FIREBASE_APP_ID=$VITE_FIREBASE_APP_ID
+<<<<<<< HEAD
 ARG VITE_FIREBASE_MEASUREMENT_ID
 ENV VITE_FIREBASE_MEASUREMENT_ID=$VITE_FIREBASE_MEASUREMENT_ID
 ARG VITE_RAZORPAY_KEY_ID
 ENV VITE_RAZORPAY_KEY_ID=$VITE_RAZORPAY_KEY_ID
 ARG VITE_GOOGLE_MAPS_API_KEY
 ENV VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY
+=======
+
+# Build the app
+>>>>>>> 3932e77b8297c52f038e4586ea4d7e3d115f6760
 RUN npm run build
 
 # Production stage
 FROM nginx:1.27-alpine
 
-# Install wget for healthcheck
 RUN apk add --no-cache wget
 
-# Copy built files
 COPY --from=build /app/dist /usr/share/nginx/html
-
-# Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Remove default nginx config
-RUN rm -f /etc/nginx/conf.d/default.conf.bak
 
 EXPOSE 80
 
-# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://localhost/health || exit 1
 
