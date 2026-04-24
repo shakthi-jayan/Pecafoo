@@ -17,6 +17,10 @@ export default defineConfig({
     'import.meta.env.VITE_FIREBASE_STORAGE_BUCKET': JSON.stringify(process.env.VITE_FIREBASE_STORAGE_BUCKET),
     'import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID': JSON.stringify(process.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
     'import.meta.env.VITE_FIREBASE_APP_ID': JSON.stringify(process.env.VITE_FIREBASE_APP_ID),
+    'import.meta.env.VITE_RESTAURANT_APP_URL': JSON.stringify(process.env.VITE_RESTAURANT_APP_URL || ''),
+    'import.meta.env.VITE_CUSTOMER_APP_URL': JSON.stringify(process.env.VITE_CUSTOMER_APP_URL || ''),
+    'import.meta.env.VITE_DELIVERY_APP_URL': JSON.stringify(process.env.VITE_DELIVERY_APP_URL || ''),
+    'import.meta.env.VITE_ADMIN_APP_URL': JSON.stringify(process.env.VITE_ADMIN_APP_URL || ''),
   },
 
   build: {
@@ -34,19 +38,11 @@ export default defineConfig({
   },
 
   server: {
-    proxy: {
-      '/api': {
-        target: 'http://136.185.11.23:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api'),
-      },
-      '/ws': {
-        target: 'ws://136.185.11.23:8000',
-        ws: true,
-      }
-    }
-  }
-},
+    port: 5173,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      'Cross-Origin-Embedder-Policy': 'unsafe-none',
+    },
     proxy: {
       '/api': {
         target: 'http://136.185.11.23:8000',
@@ -66,6 +62,10 @@ export default defineConfig({
       '/api': {
         target: 'http://136.185.11.23:8000',
         changeOrigin: true,
+      },
+      '/ws': {
+        target: 'ws://136.185.11.23:8000',
+        ws: true,
       }
     }
   }
