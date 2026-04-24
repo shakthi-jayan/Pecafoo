@@ -9,10 +9,14 @@ export default defineConfig({
 
   // These are build-time environment variables
   define: {
-    // This makes env vars available at runtime
-    'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || '/api'),
-    'import.meta.env.VITE_WS_URL': JSON.stringify(process.env.VITE_WS_URL || '/ws'),
-    'import.meta.env.VITE_APP_NAME': JSON.stringify(process.env.VITE_APP_NAME || 'Pecafoo'),
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL || '/api'),
+    'import.meta.env.VITE_WS_BASE_URL': JSON.stringify(process.env.VITE_WS_BASE_URL || '/ws'),
+    'import.meta.env.VITE_FIREBASE_API_KEY': JSON.stringify(process.env.VITE_FIREBASE_API_KEY),
+    'import.meta.env.VITE_FIREBASE_AUTH_DOMAIN': JSON.stringify(process.env.VITE_FIREBASE_AUTH_DOMAIN),
+    'import.meta.env.VITE_FIREBASE_PROJECT_ID': JSON.stringify(process.env.VITE_FIREBASE_PROJECT_ID),
+    'import.meta.env.VITE_FIREBASE_STORAGE_BUCKET': JSON.stringify(process.env.VITE_FIREBASE_STORAGE_BUCKET),
+    'import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID': JSON.stringify(process.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
+    'import.meta.env.VITE_FIREBASE_APP_ID': JSON.stringify(process.env.VITE_FIREBASE_APP_ID),
   },
 
   build: {
@@ -30,11 +34,19 @@ export default defineConfig({
   },
 
   server: {
-    port: 5173,
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-      'Cross-Origin-Embedder-Policy': 'unsafe-none',
-    },
+    proxy: {
+      '/api': {
+        target: 'http://136.185.11.23:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+      },
+      '/ws': {
+        target: 'ws://136.185.11.23:8000',
+        ws: true,
+      }
+    }
+  }
+},
     proxy: {
       '/api': {
         target: 'http://136.185.11.23:8000',
