@@ -5,84 +5,68 @@ export default defineConfig({
   base: "/",
   appType: 'spa',
 
-  plugins: [
-    react(),
-    {
-      name: 'spa-fallback',
-      configurePreviewServer(server) {
-        return () => {
-          server.middlewares.use((req, res, next) => {
-            if (req.url && !req.url.startsWith('/@') && !req.url.includes('.')) {
-              req.url = '/index.html';
-            }
-            next();
-          });
-        };
-      },
-    },
-  ],
+  plugins: [react()],
 
-  optimizeDeps: {
-    noDiscovery: true,
-    include: [
-      'react',
-      'react-dom',
-      'react-dom/client',
-      'react/jsx-runtime',
-      'react-router-dom',
-      'axios',
-      'leaflet',
-      'react-leaflet',
-      'framer-motion',
-      'lucide-react',
-      'react-hot-toast',
-      'date-fns',
-    ],
-    exclude: ['firebase', 'recharts'],
-  },
-
-  server: {
-    host: '0.0.0.0',
-    port: 5173,
-
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-      'Cross-Origin-Embedder-Policy': 'unsafe-none',
-    },
-
-    watch: {
-      usePolling: true,
-    },
-
-    proxy: {
-      '/api': {
-        target: 'http://136.185.11.23:8000',
-        changeOrigin: true,
-        secure: false,
-      },
-
-      '/media': {
-        target: 'http://136.185.11.23:8000',
-        changeOrigin: true,
-        secure: false,
-      },
-
-      '/ws': {
-        target: 'ws://136.185.11.23:8000',
-        ws: true,
-        changeOrigin: true,
-      }
-    }
-  },
-
-  preview: {
-    host: '0.0.0.0',
-    port: 3002,
+  // These are build-time environment variables
+  define: {
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL || '/api'),
+    'import.meta.env.VITE_WS_BASE_URL': JSON.stringify(process.env.VITE_WS_BASE_URL || '/ws'),
+    'import.meta.env.VITE_FIREBASE_API_KEY': JSON.stringify(process.env.VITE_FIREBASE_API_KEY),
+    'import.meta.env.VITE_FIREBASE_AUTH_DOMAIN': JSON.stringify(process.env.VITE_FIREBASE_AUTH_DOMAIN),
+    'import.meta.env.VITE_FIREBASE_PROJECT_ID': JSON.stringify(process.env.VITE_FIREBASE_PROJECT_ID),
+    'import.meta.env.VITE_FIREBASE_STORAGE_BUCKET': JSON.stringify(process.env.VITE_FIREBASE_STORAGE_BUCKET),
+    'import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID': JSON.stringify(process.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
+    'import.meta.env.VITE_FIREBASE_APP_ID': JSON.stringify(process.env.VITE_FIREBASE_APP_ID),
+    'import.meta.env.VITE_RESTAURANT_APP_URL': JSON.stringify(process.env.VITE_RESTAURANT_APP_URL || ''),
+    'import.meta.env.VITE_CUSTOMER_APP_URL': JSON.stringify(process.env.VITE_CUSTOMER_APP_URL || ''),
+    'import.meta.env.VITE_DELIVERY_APP_URL': JSON.stringify(process.env.VITE_DELIVERY_APP_URL || ''),
+    'import.meta.env.VITE_ADMIN_APP_URL': JSON.stringify(process.env.VITE_ADMIN_APP_URL || ''),
   },
 
   build: {
     outDir: 'dist',
     sourcemap: false,
-    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['framer-motion', 'lucide-react'],
+          maps: ['leaflet', 'react-leaflet'],
+        }
+      }
+    }
+  },
+
+  server: {
+    port: 5173,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      'Cross-Origin-Embedder-Policy': 'unsafe-none',
+    },
+    proxy: {
+      '/api': {
+        target: 'http://136.185.11.23:8000',
+        changeOrigin: true,
+        rewrite: (path) => path,
+      },
+      '/ws': {
+        target: 'ws://136.185.11.23:8000',
+        ws: true,
+      }
+    }
+  },
+
+  preview: {
+    port: 4173,
+    proxy: {
+      '/api': {
+        target: 'http://136.185.11.23:8000',
+        changeOrigin: true,
+      },
+      '/ws': {
+        target: 'ws://136.185.11.23:8000',
+        ws: true,
+      }
+    }
   }
 })
