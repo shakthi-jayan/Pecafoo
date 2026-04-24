@@ -7,7 +7,6 @@ export default defineConfig({
 
   plugins: [react()],
 
-  // These are build-time environment variables
   define: {
     'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL || '/api'),
     'import.meta.env.VITE_WS_BASE_URL': JSON.stringify(process.env.VITE_WS_BASE_URL || '/ws'),
@@ -22,36 +21,14 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['framer-motion', 'lucide-react'],
-          maps: ['leaflet', 'react-leaflet'],
-        }
-      }
-    }
   },
 
   server: {
+    port: 5173,
     proxy: {
       '/api': {
         target: 'http://136.185.11.23:8000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api'),
-      },
-      '/ws': {
-        target: 'ws://136.185.11.23:8000',
-        ws: true,
-      }
-    }
-  }
-},
-    proxy: {
-      '/api': {
-        target: 'http://136.185.11.23:8000',
-        changeOrigin: true,
-        rewrite: (path) => path,
       },
       '/ws': {
         target: 'ws://136.185.11.23:8000',
@@ -66,6 +43,10 @@ export default defineConfig({
       '/api': {
         target: 'http://136.185.11.23:8000',
         changeOrigin: true,
+      },
+      '/ws': {
+        target: 'ws://136.185.11.23:8000',
+        ws: true,
       }
     }
   }
