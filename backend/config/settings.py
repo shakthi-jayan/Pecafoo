@@ -1,57 +1,41 @@
-"""
-Pecafoo Food Delivery - Django settings
-Updated for Dokploy + Custom Domain + Production sanity.
-Because apparently one missing hostname can derail civilization.
-"""
+# ============================================================
+# Pecafoo Production Django Settings (Dokploy Ready)
+# Updated according to your deployment logs.
+# Because watching containers fail builds is a hobby now.
+# ============================================================
 
 import os
-from datetime import timedelta
 from pathlib import Path
+from datetime import timedelta
 import environ
 
-# ==================================================
-# BASE
-# ==================================================
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-LOG_DIR = BASE_DIR / "logs"
-LOG_DIR.mkdir(exist_ok=True)
 
 env = environ.Env(
-    DEBUG=(bool, False),
+    DEBUG=(bool, False)
 )
 
-# Read .env if exists
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-# ==================================================
+# ============================================================
 # CORE
-# ==================================================
+# ============================================================
 
-SECRET_KEY = env(
-    "SECRET_KEY",
-    default="django-insecure-change-this-immediately"
-)
-
+SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 
-# FIXED ALLOWED_HOSTS
-ALLOWED_HOSTS = env.list(
-    "ALLOWED_HOSTS",
-    default=[
-        "localhost",
-        "127.0.0.1",
-        "136.185.11.23",
-        "machodev.com",
-        "www.machodev.com",
-    ]
-)
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "136.185.11.23",
+    "machodev.com",
+    "www.machodev.com",
+    "*",
+]
 
-AUTH_USER_MODEL = "accounts.User"
-
-# ==================================================
-# APPS
-# ==================================================
+# ============================================================
+# INSTALLED APPS
+# ============================================================
 
 INSTALLED_APPS = [
 
@@ -75,6 +59,7 @@ INSTALLED_APPS = [
     "channels",
     "phonenumber_field",
 
+    # apps
     "accounts",
     "customers",
     "restaurants",
@@ -86,9 +71,9 @@ INSTALLED_APPS = [
     "promotions",
 ]
 
-# ==================================================
+# ============================================================
 # MIDDLEWARE
-# ==================================================
+# ============================================================
 
 MIDDLEWARE = [
 
@@ -109,9 +94,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 
-# ==================================================
+# ============================================================
 # TEMPLATES
-# ==================================================
+# ============================================================
 
 TEMPLATES = [
     {
@@ -128,16 +113,12 @@ TEMPLATES = [
     },
 ]
 
-# ==================================================
-# WSGI / ASGI
-# ==================================================
-
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-# ==================================================
+# ============================================================
 # DATABASE
-# ==================================================
+# ============================================================
 
 DATABASES = {
     "default": {
@@ -150,9 +131,9 @@ DATABASES = {
     }
 }
 
-# ==================================================
-# PASSWORD VALIDATORS
-# ==================================================
+# ============================================================
+# PASSWORDS
+# ============================================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -161,9 +142,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# ==================================================
+AUTH_USER_MODEL = "accounts.User"
+
+# ============================================================
 # LANGUAGE
-# ==================================================
+# ============================================================
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Kolkata"
@@ -171,9 +154,9 @@ TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
 USE_TZ = True
 
-# ==================================================
+# ============================================================
 # STATIC / MEDIA
-# ==================================================
+# ============================================================
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -181,18 +164,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage"
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
-    },
-}
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# ==================================================
+# ============================================================
 # REST FRAMEWORK
-# ==================================================
+# ============================================================
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -200,9 +176,9 @@ REST_FRAMEWORK = {
     ),
 }
 
-# ==================================================
+# ============================================================
 # JWT
-# ==================================================
+# ============================================================
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
@@ -211,20 +187,16 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
 }
 
-# ==================================================
+# ============================================================
 # CORS
-# ==================================================
+# ============================================================
 
 CORS_ALLOWED_ORIGINS = [
 
-    "http://136.185.11.23",
-    "http://136.185.11.23:8000",
-
-    "http://machodev.com",
     "https://machodev.com",
-    "http://www.machodev.com",
     "https://www.machodev.com",
 
+    "http://136.185.11.23",
     "http://136.185.11.23:3001",
     "http://136.185.11.23:3002",
     "http://136.185.11.23:3003",
@@ -236,27 +208,22 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-# ==================================================
+# ============================================================
 # CSRF
-# ==================================================
+# ============================================================
 
 CSRF_TRUSTED_ORIGINS = [
-
-    "http://machodev.com",
     "https://machodev.com",
-    "http://www.machodev.com",
     "https://www.machodev.com",
-
     "http://136.185.11.23",
-    "http://136.185.11.23:8000",
 ]
 
-# ==================================================
-# COOKIE / LOGIN FIXES
-# ==================================================
+# ============================================================
+# COOKIES
+# ============================================================
 
-SESSION_COOKIE_SECURE = False if DEBUG else True
-CSRF_COOKIE_SECURE = False if DEBUG else True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
@@ -264,12 +231,9 @@ CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = False
 
-SESSION_COOKIE_DOMAIN = None
-CSRF_COOKIE_DOMAIN = None
-
-# ==================================================
+# ============================================================
 # PROXY / SSL
-# ==================================================
+# ============================================================
 
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
@@ -278,17 +242,17 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 SECURE_SSL_REDIRECT = False
 
-# ==================================================
+# ============================================================
 # SECURITY
-# ==================================================
+# ============================================================
 
+X_FRAME_OPTIONS = "DENY"
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = "DENY"
 
-# ==================================================
+# ============================================================
 # EMAIL
-# ==================================================
+# ============================================================
 
 EMAIL_BACKEND = env(
     "EMAIL_BACKEND",
@@ -301,8 +265,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 
-# ==================================================
+# ============================================================
 # DEFAULT FIELD
-# ==================================================
+# ============================================================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
