@@ -1,13 +1,17 @@
 """
 Pecafoo Food Delivery - Django settings
-Reads configuration from environment variables using django-environ.
+Updated for Dokploy + Custom Domain + Production sanity.
+Because apparently one missing hostname can derail civilization.
 """
 
 import os
 from datetime import timedelta
 from pathlib import Path
-
 import environ
+
+# ==================================================
+# BASE
+# ==================================================
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 LOG_DIR = BASE_DIR / "logs"
@@ -15,14 +19,33 @@ LOG_DIR.mkdir(exist_ok=True)
 
 env = environ.Env(
     DEBUG=(bool, False),
-    ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1"]),
 )
 
+# Read .env if exists
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-SECRET_KEY = env("SECRET_KEY")
+# ==================================================
+# CORE
+# ==================================================
+
+SECRET_KEY = env(
+    "SECRET_KEY",
+    default="django-insecure-change-this-immediately"
+)
+
 DEBUG = env.bool("DEBUG", default=False)
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+
+# FIXED ALLOWED_HOSTS
+ALLOWED_HOSTS = env.list(
+    "ALLOWED_HOSTS",
+    default=[
+        "localhost",
+        "127.0.0.1",
+        "136.185.11.23",
+        "machodev.com",
+        "www.machodev.com",
+    ]
+)
 
 AUTH_USER_MODEL = "accounts.User"
 
@@ -31,6 +54,7 @@ AUTH_USER_MODEL = "accounts.User"
 # ==================================================
 
 INSTALLED_APPS = [
+
     "daphne",
 
     "django.contrib.admin",
@@ -67,6 +91,7 @@ INSTALLED_APPS = [
 # ==================================================
 
 MIDDLEWARE = [
+
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
@@ -103,6 +128,10 @@ TEMPLATES = [
     },
 ]
 
+# ==================================================
+# WSGI / ASGI
+# ==================================================
+
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
@@ -122,7 +151,7 @@ DATABASES = {
 }
 
 # ==================================================
-# PASSWORD VALIDATION
+# PASSWORD VALIDATORS
 # ==================================================
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -133,11 +162,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ==================================================
-# LANGUAGE / TIME
+# LANGUAGE
 # ==================================================
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Kolkata"
+
 USE_I18N = True
 USE_TZ = True
 
@@ -182,55 +212,51 @@ SIMPLE_JWT = {
 }
 
 # ==================================================
-# CORS / CSRF
+# CORS
 # ==================================================
 
 CORS_ALLOWED_ORIGINS = [
+
     "http://136.185.11.23",
     "http://136.185.11.23:8000",
 
-    # Frontend apps
-    "http://136.185.11.23:3001",   # customer
-    "http://136.185.11.23:3002",   # restaurant
-    "http://136.185.11.23:3003",   # delivery
-    "http://136.185.11.23:3004",   # admin
+    "http://machodev.com",
+    "https://machodev.com",
+    "http://www.machodev.com",
+    "https://www.machodev.com",
 
-    # local dev
+    "http://136.185.11.23:3001",
+    "http://136.185.11.23:3002",
+    "http://136.185.11.23:3003",
+    "http://136.185.11.23:3004",
+
     "http://localhost:5173",
     "http://localhost:5174",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-]
+# ==================================================
+# CSRF
+# ==================================================
 
 CSRF_TRUSTED_ORIGINS = [
+
+    "http://machodev.com",
+    "https://machodev.com",
+    "http://www.machodev.com",
+    "https://www.machodev.com",
+
     "http://136.185.11.23",
     "http://136.185.11.23:8000",
-
-    "http://136.185.11.23:3001",
-    "http://136.185.11.23:3002",
-    "http://136.185.11.23:3003",
-    "http://136.185.11.23:3004",
 ]
 
 # ==================================================
-# IMPORTANT FIXES FOR YOUR LOGIN ISSUE
-# Human suffering edition
+# COOKIE / LOGIN FIXES
 # ==================================================
 
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False if DEBUG else True
+CSRF_COOKIE_SECURE = False if DEBUG else True
 
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
@@ -238,15 +264,19 @@ CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = False
 
-CSRF_COOKIE_DOMAIN = None
 SESSION_COOKIE_DOMAIN = None
+CSRF_COOKIE_DOMAIN = None
 
-SECURE_SSL_REDIRECT = False
+# ==================================================
+# PROXY / SSL
+# ==================================================
 
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+SECURE_SSL_REDIRECT = False
 
 # ==================================================
 # SECURITY
@@ -260,7 +290,11 @@ X_FRAME_OPTIONS = "DENY"
 # EMAIL
 # ==================================================
 
-EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
+EMAIL_BACKEND = env(
+    "EMAIL_BACKEND",
+    default="django.core.mail.backends.smtp.EmailBackend"
+)
+
 EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
 EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_USE_TLS = True
