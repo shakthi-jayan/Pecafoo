@@ -24,6 +24,11 @@ const RegisterPage = () => {
     const [permissionBlocked, setPermissionBlocked] = useState(false);
     const [showInstructions, setShowInstructions] = useState(false);
 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
     // Detect browser
     const getBrowser = () => {
         const userAgent = navigator.userAgent.toLowerCase();
@@ -185,18 +190,17 @@ const RegisterPage = () => {
         setFetchingLocation(false);
     };
 
-    const handleRegister = async (e) => {
+        const handleRegister = async (e) => {
         e.preventDefault();
         
         if (formData.password !== formData.password_confirm) {
             toast.error('Passwords do not match.');
             return;
         }
-        
         if (!formData.latitude || !formData.longitude) {
             toast.error(
                 (t) => (
-                    <div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div>📍 Location access is required for restaurant delivery</div>
                         <button
                             onClick={() => {
@@ -205,12 +209,13 @@ const RegisterPage = () => {
                             }}
                             style={{
                                 marginTop: '8px',
-                                padding: '4px 12px',
+                                padding: '6px 12px',
                                 background: '#f59e0b',
                                 color: 'white',
                                 border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem'
                             }}
                         >
                             Enable Location Now
@@ -226,7 +231,6 @@ const RegisterPage = () => {
             toast.error('Please upload all required verification documents.');
             return;
         }
-        
         setLoading(true);
         try {
             const userData = {
