@@ -1,19 +1,16 @@
 # ============================================
-# Pecafoo Backend — Dockerfile
-# ============================================
-# Multi-stage build for Django + Daphne (ASGI)
+# Pecafoo Backend — Production Dockerfile
 # ============================================
 
-FROM python:3.12-slim AS base
+# ------------- Builder Stage -------------
+FROM python:3.12-slim AS builder
 
-# Prevent Python from writing .pyc files
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies for psycopg2, Pillow, etc.
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
@@ -21,28 +18,39 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# ── Install Python dependencies ──
+# Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --user -r requirements.txt
 
-# ── Copy application code ──
+# ------------- Runtime Stage -------------
+FROM python:3.12-slim
+
+# Install runtime dependencies only
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    libjpeg62-turbo \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy Python dependencies from builder
+COPY --from=builder /root/.local /root/.local
+
+# Copy application code
 COPY . .
 
-# ── Collect static files ──
-RUN python manage.py collectstatic --noinput || true
+# Make sure scripts in .local are usable
+ENV PATH=/root/.local/bin:$PATH
 
-# ── Create non-root user ──
+# Create non-root user
 RUN adduser --disabled-password --gecos '' appuser && \
     chown -R appuser:appuser /app
 USER appuser
 
-# ── Expose port ──
 EXPOSE 8000
 
-# ── Health check ──
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health/')" || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl --fail http://localhost:8000/ || exit 1
 
-# ── Run with Daphne (ASGI) for WebSocket support ──
-CMD ["sh", "-c", "python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p 8000 config.asgi:application"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p 8000 config.asgi:application"]
