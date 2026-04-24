@@ -5,58 +5,41 @@ export default defineConfig({
   base: "/",
   appType: 'spa',
 
-  plugins: [
-    react(),
-    {
-      name: 'spa-fallback',
-      configurePreviewServer(server) {
-        return () => {
-          server.middlewares.use((req, res, next) => {
-            if (req.url && !req.url.startsWith('/@') && !req.url.includes('.')) {
-              req.url = '/index.html';
-            }
-            next();
-          });
-        };
-      },
-    },
-  ],
+  plugins: [react()],
 
-  optimizeDeps: {
-    noDiscovery: true,
-    include: [
-      'react',
-      'react-dom',
-      'react-dom/client',
-      'react/jsx-runtime',
-      'react-router-dom',
-      'axios',
-      'leaflet',
-      'react-leaflet',
-      'framer-motion',
-      'lucide-react',
-      'react-hot-toast',
-      'date-fns',
-    ],
-    exclude: ['firebase', 'recharts'],
+  // These are build-time environment variables
+  define: {
+    // This makes env vars available at runtime
+    'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || '/api'),
+    'import.meta.env.VITE_WS_URL': JSON.stringify(process.env.VITE_WS_URL || '/ws'),
+    'import.meta.env.VITE_APP_NAME': JSON.stringify(process.env.VITE_APP_NAME || 'Pecafoo'),
+  },
+
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['framer-motion', 'lucide-react'],
+          maps: ['leaflet', 'react-leaflet'],
+        }
+      }
+    }
   },
 
   server: {
+    port: 5173,
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
       'Cross-Origin-Embedder-Policy': 'unsafe-none',
-    },
-    watch: {
-      usePolling: true,
     },
     proxy: {
       '/api': {
         target: 'http://136.185.11.23:8000',
         changeOrigin: true,
-      },
-      '/media': {
-        target: 'http://136.185.11.23:8000',
-        changeOrigin: true,
+        rewrite: (path) => path,
       },
       '/ws': {
         target: 'ws://136.185.11.23:8000',
@@ -64,4 +47,14 @@ export default defineConfig({
       }
     }
   },
+
+  preview: {
+    port: 4173,
+    proxy: {
+      '/api': {
+        target: 'http://136.185.11.23:8000',
+        changeOrigin: true,
+      }
+    }
+  }
 })
