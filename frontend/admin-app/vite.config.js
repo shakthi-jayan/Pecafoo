@@ -3,8 +3,24 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   base: "/",
+  appType: 'spa',
 
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'spa-fallback',
+      configurePreviewServer(server) {
+        return () => {
+          server.middlewares.use((req, res, next) => {
+            if (req.url && !req.url.startsWith('/@') && !req.url.includes('.')) {
+              req.url = '/index.html';
+            }
+            next();
+          });
+        };
+      },
+    },
+  ],
 
   optimizeDeps: {
     noDiscovery: true,
