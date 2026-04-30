@@ -1,0 +1,70 @@
+import { motion } from 'framer-motion';
+import { Check, Clock, ChefHat, Bike, Home } from 'lucide-react';
+
+const stages = [
+    { id: 'placed', label: 'Placed', icon: Clock },
+    { id: 'confirmed', label: 'Confirmed', icon: Check },
+    { id: 'preparing', label: 'Preparing', icon: ChefHat },
+    { id: 'picked_up', label: 'On the Way', icon: Bike },
+    { id: 'delivered', label: 'Delivered', icon: Home }
+];
+
+const LiveOrderTracker = ({ currentStatus }) => {
+    const currentIndex = stages.findIndex(s => s.id === currentStatus);
+    const activeIndex = currentIndex === -1 ? 0 : currentIndex;
+
+    return (
+        <div style={{ width: '100%', padding: '16px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', marginBottom: 24 }}>
+                {}
+                <div style={{
+                    position: 'absolute', top: 16, left: 16, right: 16, height: 4,
+                    background: 'var(--border)', zIndex: 0, borderRadius: 2
+                }} />
+
+                {}
+                <motion.div
+                    initial={{ width: '0%' }}
+                    animate={{ width: `${(activeIndex / (stages.length - 1)) * 100}%` }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    style={{
+                        position: 'absolute', top: 16, left: 16, height: 4,
+                        background: 'var(--accent)', zIndex: 1, borderRadius: 2
+                    }}
+                />
+
+                {stages.map((stage, i) => {
+                    const Icon = stage.icon;
+                    const isActive = i <= activeIndex;
+                    const isCurrent = i === activeIndex;
+
+                    return (
+                        <div key={stage.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
+                            <motion.div
+                                initial={{ scale: 0.8 }}
+                                animate={{ scale: isCurrent ? 1.2 : 1, backgroundColor: isActive ? 'var(--accent)' : 'var(--bg-elevated)' }}
+                                style={{
+                                    width: 36, height: 36, borderRadius: '50%',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    border: `2px solid ${isActive ? 'var(--accent)' : 'var(--border)'}`,
+                                    color: isActive ? 'white' : 'var(--text-muted)'
+                                }}
+                            >
+                                <Icon size={16} />
+                            </motion.div>
+                            <p style={{
+                                fontSize: '0.7rem', marginTop: 8, fontWeight: isActive ? 600 : 400,
+                                color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
+                                textAlign: 'center'
+                            }}>
+                                {stage.label}
+                            </p>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+export default LiveOrderTracker;
