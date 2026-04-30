@@ -247,7 +247,7 @@ export default function SavedItemsPage() {
                                 <p
                                     style={{
                                         fontSize: '0.76rem',
-                                        color: 'var(--text-muted'),
+                                        color: 'var(--text-muted)',
                                     }}
                                 >
                                     {item.category_name || 'Menu item'}
