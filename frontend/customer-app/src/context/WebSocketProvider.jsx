@@ -3,18 +3,8 @@ import { useLocation } from 'react-router-dom';
 
 const WebSocketContext = createContext(null);
 
-/**
- * Auto-derives the WebSocket base URL from window.location.
- * - Local dev:   http://localhost:5173  → VITE_WS_BASE_URL (must be set) or ws://localhost:8000
- * - Dev tunnel:  https://xyz.devtunnels.ms → wss://xyz.devtunnels.ms
- * - Production:  https://app.pecafoo.com  → wss://app.pecafoo.com
- */
 function getSocketBaseUrl() {
-    if (import.meta.env.VITE_WS_BASE_URL) {
-        return import.meta.env.VITE_WS_BASE_URL;
-    }
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    return `${protocol}//${window.location.host}`;
+    return import.meta.env.VITE_WS_BASE_URL || 'wss://api.pecafoo.com/ws';
 }
 
 const MAX_RECONNECT_ATTEMPTS = 10;
@@ -48,7 +38,7 @@ export function WebSocketProvider({ children }) {
         }
 
         intentionalCloseRef.current = false;
-        const socketUrl = `${getSocketBaseUrl()}/ws/orders/${orderId}/?token=${tokens.access}`;
+        const socketUrl = `${getSocketBaseUrl()}/orders/${orderId}/?token=${tokens.access}`;
         const ws = new WebSocket(socketUrl);
         socketRef.current = ws;
         setSocketState('connecting');

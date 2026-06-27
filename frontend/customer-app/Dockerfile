@@ -11,10 +11,10 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 # Build arguments for API URLs
-ARG VITE_API_URL
-ENV VITE_API_URL=${VITE_API_URL:-/api}
-ARG VITE_WS_URL
-ENV VITE_WS_URL=${VITE_WS_URL:-/ws}
+ARG VITE_API_BASE_URL=https://api.pecafoo.com/api
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ARG VITE_WS_BASE_URL=wss://api.pecafoo.com/ws
+ENV VITE_WS_BASE_URL=$VITE_WS_BASE_URL
 ARG VITE_APP_NAME="Pecafoo"
 ENV VITE_APP_NAME=$VITE_APP_NAME
 
@@ -37,6 +37,14 @@ ARG VITE_RAZORPAY_KEY_ID
 ENV VITE_RAZORPAY_KEY_ID=$VITE_RAZORPAY_KEY_ID
 ARG VITE_GOOGLE_MAPS_API_KEY
 ENV VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY
+ARG VITE_CUSTOMER_APP_URL=https://pecafoo.com
+ENV VITE_CUSTOMER_APP_URL=$VITE_CUSTOMER_APP_URL
+ARG VITE_RESTAURANT_APP_URL=https://restaurant.pecafoo.com
+ENV VITE_RESTAURANT_APP_URL=$VITE_RESTAURANT_APP_URL
+ARG VITE_DELIVERY_APP_URL=https://delivery.pecafoo.com
+ENV VITE_DELIVERY_APP_URL=$VITE_DELIVERY_APP_URL
+ARG VITE_ADMIN_APP_URL=https://admin.pecafoo.com
+ENV VITE_ADMIN_APP_URL=$VITE_ADMIN_APP_URL
 
 # Build the app
 RUN npm run build
@@ -57,6 +65,6 @@ EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost/health || exit 1
+    CMD wget --quiet --tries=1 --spider http://0.0.0.0/health || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]

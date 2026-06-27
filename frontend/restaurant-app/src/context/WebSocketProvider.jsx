@@ -6,21 +6,8 @@ const WebSocketContext = createContext(null);
 const MAX_RECONNECT_ATTEMPTS = 10;
 const BASE_RECONNECT_DELAY = 1000;
 
-/**
- * Auto-derives the WebSocket base URL from window.location.
- * - Local dev:    http://localhost:5174  → uses VITE_WS_BASE_URL or falls back to ws://localhost:8000
- * - Dev tunnel:   https://xyz.devtunnels.ms → wss://xyz.devtunnels.ms
- * - Production:   https://app.pecafoo.com  → wss://app.pecafoo.com
- *
- * VITE_WS_BASE_URL env var always takes priority (for local dev pointing to a separate API server).
- */
 function getWsBaseUrl() {
-    if (import.meta.env.VITE_WS_BASE_URL) {
-        return import.meta.env.VITE_WS_BASE_URL;
-    }
-    // In dev tunnels or production the frontend and backend share the same host
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    return `${protocol}//${window.location.host}`;
+    return import.meta.env.VITE_WS_BASE_URL || 'wss://api.pecafoo.com/ws';
 }
 
 export const WebSocketProvider = ({ children }) => {
@@ -43,7 +30,7 @@ export const WebSocketProvider = ({ children }) => {
         }
 
         intentionalCloseRef.current = false;
-        const ws = new WebSocket(`${getWsBaseUrl()}/ws/restaurant/${user.id}/?token=${tokens.access}`);
+        const ws = new WebSocket(`${getWsBaseUrl()}/restaurant/${user.id}/?token=${tokens.access}`);
         socketRef.current = ws;
         setSocketState('connecting');
 

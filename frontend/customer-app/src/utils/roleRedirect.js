@@ -1,8 +1,8 @@
 const ROLE_URLS = {
-    customer: import.meta.env.VITE_CUSTOMER_APP_URL || 'http://localhost:5173',
-    restaurant: import.meta.env.VITE_RESTAURANT_APP_URL || 'http://localhost:5174',
-    delivery: import.meta.env.VITE_DELIVERY_APP_URL || 'http://localhost:5175',
-    admin: import.meta.env.VITE_ADMIN_APP_URL || 'http://localhost:5176',
+    customer: import.meta.env.VITE_CUSTOMER_APP_URL || 'https://pecafoo.com',
+    restaurant: import.meta.env.VITE_RESTAURANT_APP_URL || 'https://restaurant.pecafoo.com',
+    delivery: import.meta.env.VITE_DELIVERY_APP_URL || 'https://delivery.pecafoo.com',
+    admin: import.meta.env.VITE_ADMIN_APP_URL || 'https://admin.pecafoo.com',
 };
 
 export function getRoleAppUrl(role) {

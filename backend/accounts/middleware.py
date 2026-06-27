@@ -2,7 +2,7 @@
 Accounts — JWT Authentication Middleware for WebSockets
 =========================================================
 Custom middleware to authenticate WebSocket connections using JWT tokens.
-Tokens are passed as query parameters: ws://host/ws/path/?token=<jwt_token>
+Tokens are passed as query parameters on the configured WebSocket endpoint.
 """
 
 import logging
@@ -40,7 +40,7 @@ class JWTAuthMiddleware(BaseMiddleware):
     WebSocket connections using JWT tokens from query parameters.
 
     Usage in frontend:
-        new WebSocket("ws://host/ws/orders/1/?token=<jwt_access_token>")
+        new WebSocket("<VITE_WS_BASE_URL>/orders/1/?token=<jwt_access_token>")
     """
 
     async def __call__(self, scope, receive, send):

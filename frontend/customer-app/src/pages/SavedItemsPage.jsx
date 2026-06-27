@@ -8,7 +8,7 @@ import { customersAPI } from '../services/api';
 const buildMediaUrl = (value) => {
     if (!value || typeof value !== 'string') return '';
     if (/^(https?:|data:|blob:)/i.test(value)) return value;
-    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+    const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://api.pecafoo.com/api';
     const mediaBase = apiBase.replace(/\/api\/?$/, '');
     return `${mediaBase}${value.startsWith('/') ? value : `/${value}`}`;
 };

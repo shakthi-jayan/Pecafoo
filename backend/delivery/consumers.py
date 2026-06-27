@@ -5,7 +5,7 @@ Real-time delivery location tracking via WebSocket.
 Customers tracking their delivery can receive live location updates.
 
 Usage (Frontend):
-    const ws = new WebSocket("ws://host/ws/delivery/<order_id>/?token=<jwt_token>")
+    const ws = new WebSocket("<VITE_WS_BASE_URL>/delivery/<order_id>/?token=<jwt_token>")
 
 Usage (Delivery Partner sends location):
     ws.send(JSON.stringify({

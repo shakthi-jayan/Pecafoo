@@ -6,7 +6,7 @@ Customers, restaurant owners, and delivery partners can subscribe
 to order status updates.
 
 Usage (Frontend):
-    const ws = new WebSocket("ws://host/ws/orders/<order_id>/?token=<jwt_token>")
+    const ws = new WebSocket("<VITE_WS_BASE_URL>/orders/<order_id>/?token=<jwt_token>")
     ws.onmessage = (e) => { console.log(JSON.parse(e.data)); }
 """
 

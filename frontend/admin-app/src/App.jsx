@@ -236,7 +236,7 @@ function DashboardPage() {
       <div className="card">
         <h3 style={{ fontWeight: 700, marginBottom: 16 }}>Platform Overview</h3>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-          Connect to the Django admin panel at <a href="http://localhost:8000/admin/" target="_blank" rel="noopener">localhost:8000/admin/</a> for full management capabilities.
+          Connect to the Django admin panel at <a href="https://api.pecafoo.com/admin/" target="_blank" rel="noopener">api.pecafoo.com/admin/</a> for full management capabilities.
           This dashboard now reads live analytics from the backend and shows a quick snapshot of platform health.
         </p>
       </div>

@@ -9,8 +9,8 @@ export default defineConfig({
 
   // These are build-time environment variables
   define: {
-    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL || '/api'),
-    'import.meta.env.VITE_WS_BASE_URL': JSON.stringify(process.env.VITE_WS_BASE_URL || '/ws'),
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL || 'https://api.pecafoo.com/api'),
+    'import.meta.env.VITE_WS_BASE_URL': JSON.stringify(process.env.VITE_WS_BASE_URL || 'wss://api.pecafoo.com/ws'),
     'import.meta.env.VITE_FIREBASE_API_KEY': JSON.stringify(process.env.VITE_FIREBASE_API_KEY),
     'import.meta.env.VITE_FIREBASE_AUTH_DOMAIN': JSON.stringify(process.env.VITE_FIREBASE_AUTH_DOMAIN),
     'import.meta.env.VITE_FIREBASE_PROJECT_ID': JSON.stringify(process.env.VITE_FIREBASE_PROJECT_ID),
@@ -45,12 +45,12 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://136.185.11.23:8000',
+        target: 'https://api.pecafoo.com',
         changeOrigin: true,
         rewrite: (path) => path,
       },
       '/ws': {
-        target: 'ws://136.185.11.23:8000',
+        target: 'wss://api.pecafoo.com',
         ws: true,
       }
     }
@@ -60,11 +60,11 @@ export default defineConfig({
     port: 4173,
     proxy: {
       '/api': {
-        target: 'http://136.185.11.23:8000',
+        target: 'https://api.pecafoo.com',
         changeOrigin: true,
       },
       '/ws': {
-        target: 'ws://136.185.11.23:8000',
+        target: 'wss://api.pecafoo.com',
         ws: true,
       }
     }

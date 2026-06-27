@@ -22,6 +22,11 @@ export default defineConfig({
     },
   ],
 
+  define: {
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL || 'https://api.pecafoo.com/api'),
+    'import.meta.env.VITE_WS_BASE_URL': JSON.stringify(process.env.VITE_WS_BASE_URL || 'wss://api.pecafoo.com/ws'),
+  },
+
   optimizeDeps: {
     noDiscovery: true,
     include: [
@@ -56,19 +61,19 @@ export default defineConfig({
 
     proxy: {
       '/api': {
-        target: 'http://136.185.11.23:8000',
+        target: 'https://api.pecafoo.com',
         changeOrigin: true,
         secure: false,
       },
 
       '/media': {
-        target: 'http://136.185.11.23:8000',
+        target: 'https://api.pecafoo.com',
         changeOrigin: true,
         secure: false,
       },
 
       '/ws': {
-        target: 'ws://136.185.11.23:8000',
+        target: 'wss://api.pecafoo.com',
         ws: true,
         changeOrigin: true,
       }
@@ -77,7 +82,7 @@ export default defineConfig({
 
   preview: {
     host: '0.0.0.0',
-    port: 3003,
+    port: 4173,
   },
 
   build: {

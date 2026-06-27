@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
 const CART_KEY = 'pecafoo_cart';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.pecafoo.com/api';
 const MEDIA_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, '');
 
 /**

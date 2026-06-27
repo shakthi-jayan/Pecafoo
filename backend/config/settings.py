@@ -1,7 +1,5 @@
 # ============================================================
 # Pecafoo Production Django Settings (Dokploy Ready)
-# Updated according to your deployment logs.
-# Because watching containers fail builds is a hobby now.
 # ============================================================
 
 import os
@@ -24,14 +22,12 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "136.185.11.23",
-    "machodev.com",
-    "www.machodev.com",
-    "*",
-]
+ALLOWED_HOSTS = env.list(
+    "ALLOWED_HOSTS",
+    default=[
+        "api.pecafoo.com",
+    ],
+)
 
 # ============================================================
 # INSTALLED APPS
@@ -191,20 +187,16 @@ SIMPLE_JWT = {
 # CORS
 # ============================================================
 
-CORS_ALLOWED_ORIGINS = [
-
-    "https://machodev.com",
-    "https://www.machodev.com",
-
-    "http://136.185.11.23",
-    "http://136.185.11.23:3001",
-    "http://136.185.11.23:3002",
-    "http://136.185.11.23:3003",
-    "http://136.185.11.23:3004",
-
-    "http://localhost:5173",
-    "http://localhost:5174",
-]
+CORS_ALLOWED_ORIGINS = env.list(
+    "CORS_ALLOWED_ORIGINS",
+    default=[
+        "https://pecafoo.com",
+        "https://www.pecafoo.com",
+        "https://restaurant.pecafoo.com",
+        "https://delivery.pecafoo.com",
+        "https://admin.pecafoo.com",
+    ],
+)
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -212,11 +204,17 @@ CORS_ALLOW_CREDENTIALS = True
 # CSRF
 # ============================================================
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://machodev.com",
-    "https://www.machodev.com",
-    "http://136.185.11.23",
-]
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[
+        "https://api.pecafoo.com",
+        "https://pecafoo.com",
+        "https://www.pecafoo.com",
+        "https://restaurant.pecafoo.com",
+        "https://delivery.pecafoo.com",
+        "https://admin.pecafoo.com",
+    ],
+)
 
 # ============================================================
 # COOKIES
@@ -240,7 +238,8 @@ USE_X_FORWARDED_PORT = True
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-SECURE_SSL_REDIRECT = False
+SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=False)
+APPEND_SLASH = True
 
 # ============================================================
 # SECURITY

@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
-const WS_BASE_URL = import.meta.env.VITE_WS_URL || '/ws';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.pecafoo.com/api';
 
 // Get CSRF token from cookies
 export const getCSRFToken = () => {

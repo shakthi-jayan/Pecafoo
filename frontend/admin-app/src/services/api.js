@@ -1,5 +1,5 @@
 import axios from 'axios';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.pecafoo.com/api';
 const api = axios.create({ baseURL: API_BASE_URL, headers: { 'Content-Type': 'application/json' } });
 api.interceptors.request.use((c) => { const t = JSON.parse(localStorage.getItem('admin_tokens') || '{}'); if (t.access) c.headers.Authorization = `Bearer ${t.access}`; return c; });
 api.interceptors.response.use(r => r, async (e) => { const c = e.config; if (e.response?.status === 401 && !c._retry) { c._retry = true; try { const t = JSON.parse(localStorage.getItem('admin_tokens') || '{}'); if (t.refresh) { const { data } = await axios.post(`${API_BASE_URL}/auth/token/refresh/`, { refresh: t.refresh }); localStorage.setItem('admin_tokens', JSON.stringify({ ...t, access: data.access })); c.headers.Authorization = `Bearer ${data.access}`; return api(c); } } catch { localStorage.clear(); window.location.href = '/login'; } } return Promise.reject(e); });
