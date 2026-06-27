@@ -108,7 +108,7 @@ const RegisterPage = () => {
         try {
             if (navigator.permissions && navigator.permissions.query) {
                 const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
-                
+
                 if (permissionStatus.state === 'denied') {
                     setPermissionBlocked(true);
                     setShowInstructions(true);
@@ -155,17 +155,17 @@ const RegisterPage = () => {
                     maximumAge: 0
                 });
             });
-            
-            setFormData(prev => ({ 
-                ...prev, 
-                latitude: position.coords.latitude, 
-                longitude: position.coords.longitude 
+
+            setFormData(prev => ({
+                ...prev,
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
             }));
             setPermissionBlocked(false);
             setShowInstructions(false);
             toast.success('Location captured successfully!', { duration: 3000 });
             return true;
-            
+
         } catch (err) {
             if (err.code === 1) {
                 setPermissionBlocked(true);
@@ -190,9 +190,9 @@ const RegisterPage = () => {
         setFetchingLocation(false);
     };
 
-        const handleRegister = async (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
-        
+
         if (formData.password !== formData.password_confirm) {
             toast.error('Passwords do not match.');
             return;
@@ -241,7 +241,7 @@ const RegisterPage = () => {
                 password: formData.password,
                 password_confirm: formData.password_confirm,
             };
-            
+
             await register(userData);
 
             const restaurantData = new FormData();
@@ -254,7 +254,7 @@ const RegisterPage = () => {
             restaurantData.append('pincode', formData.pincode);
             restaurantData.append('phone', formData.restaurant_phone || formData.phone_number);
             restaurantData.append('slug', formData.restaurant_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''));
-            
+
             restaurantData.append('business_license', docs.business_license);
             restaurantData.append('food_safety_certificate', docs.food_safety_certificate);
             restaurantData.append('owner_id_proof', docs.owner_id_proof);
@@ -273,70 +273,90 @@ const RegisterPage = () => {
         }
     };
 
-const FileField = ({ label, name }) => (
-    <div style={{ marginBottom: 12 }}>
-        <label
-            style={{
-                display: 'block',
-                fontSize: '0.8rem',
-                color: 'var(--text-secondary)',
-                marginBottom: 6,
-                fontWeight: 700,
-            }}
-        >
-            {label}
-            <span style={{ color: '#ef4444' }}> *</span>
-        </label>
-
-        <label
-            className="input"
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 12,
-                cursor: 'pointer',
-            }}
-        >
-            <span
+    // FIX: no `required` attribute on the file <input>. A required input that is
+    // visually hidden with `display: none` is removed from the accessibility tree,
+    // so Chrome cannot focus it to show its native validation bubble and throws:
+    // "An invalid form control with name='...' is not focusable."
+    // Validation for these three fields is instead handled manually in handleRegister.
+    // The input itself is hidden using an off-screen technique (not display:none) so
+    // it stays in the accessibility tree and remains keyboard/label-clickable.
+    const FileField = ({ label, name }) => (
+        <div style={{ marginBottom: 12 }}>
+            <label
+                htmlFor={`file-${name}`}
                 style={{
-                    color: docs[name]
-                        ? 'var(--text-primary)'
-                        : 'var(--text-muted)',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
+                    display: 'block',
+                    fontSize: '0.8rem',
+                    color: 'var(--text-secondary)',
+                    marginBottom: 6,
+                    fontWeight: 700,
                 }}
             >
-                {docs[name]?.name || 'Choose file'}
-            </span>
+                {label}
+                <span style={{ color: '#ef4444' }}> *</span>
+            </label>
 
-            <span
+            <label
+                htmlFor={`file-${name}`}
+                className="input"
                 style={{
-                    display: 'inline-flex',
+                    display: 'flex',
                     alignItems: 'center',
-                    gap: 6,
-                    color: 'var(--accent)',
+                    justifyContent: 'space-between',
+                    gap: 12,
+                    cursor: 'pointer',
                 }}
             >
-                <Upload size={16} />
-                Upload
-            </span>
+                <span
+                    style={{
+                        color: docs[name]
+                            ? 'var(--text-primary)'
+                            : 'var(--text-muted)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                    }}
+                >
+                    {docs[name]?.name || 'Choose file'}
+                </span>
 
-            <input
-                type="file"
-                accept="image/*,.pdf"
-                style={{ display: 'none' }}
-                onChange={(e) =>
-                    setDocs((prev) => ({
-                        ...prev,
-                        [name]: e.target.files?.[0] || null,
-                    }))
-                }
-            />
-        </label>
-    </div>
-);
+                <span
+                    style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        color: 'var(--accent)',
+                    }}
+                >
+                    <Upload size={16} />
+                    Upload
+                </span>
+
+                <input
+                    id={`file-${name}`}
+                    type="file"
+                    accept="image/*,.pdf"
+                    style={{
+                        position: 'absolute',
+                        width: '1px',
+                        height: '1px',
+                        padding: 0,
+                        margin: '-1px',
+                        overflow: 'hidden',
+                        clip: 'rect(0, 0, 0, 0)',
+                        whiteSpace: 'nowrap',
+                        border: 0,
+                    }}
+                    onChange={(e) =>
+                        setDocs((prev) => ({
+                            ...prev,
+                            [name]: e.target.files?.[0] || null,
+                        }))
+                    }
+                />
+            </label>
+        </div>
+    );
 
     return (
         <div className="auth-shell">
@@ -346,16 +366,16 @@ const FileField = ({ label, name }) => (
                     <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 4 }}>Create Restaurant Account</h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Register your restaurant and upload verification documents</p>
                 </div>
-                
+
                 {/* Permission Instructions Modal/Panel */}
                 {showInstructions && permissionBlocked && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        style={{ 
-                            marginBottom: 20, 
-                            padding: 16, 
-                            background: '#fef3c7', 
+                        style={{
+                            marginBottom: 20,
+                            padding: 16,
+                            background: '#fef3c7',
                             border: '1px solid #f59e0b',
                             borderRadius: 12,
                             position: 'relative'
@@ -410,133 +430,133 @@ const FileField = ({ label, name }) => (
                         </button>
                     </motion.div>
                 )}
-                
+
                 <form onSubmit={handleRegister}>
                     <div className="auth-split-row">
-                        <input 
-                            className="input" 
-                            name="first_name" 
-                            placeholder="First Name *" 
-                            value={formData.first_name} 
-                            onChange={handleChange} 
-                            required 
+                        <input
+                            className="input"
+                            name="first_name"
+                            placeholder="First Name *"
+                            value={formData.first_name}
+                            onChange={handleChange}
+                            required
                         />
-                        <input 
-                            className="input" 
-                            name="last_name" 
-                            placeholder="Last Name *" 
-                            value={formData.last_name} 
-                            onChange={handleChange} 
-                            required 
+                        <input
+                            className="input"
+                            name="last_name"
+                            placeholder="Last Name *"
+                            value={formData.last_name}
+                            onChange={handleChange}
+                            required
                         />
                     </div>
-                    
-                    <input 
-                        className="input" 
-                        type="email" 
-                        name="email" 
-                        placeholder="Email *" 
-                        value={formData.email} 
-                        onChange={handleChange} 
-                        required 
-                        style={{ marginBottom: 12 }} 
+
+                    <input
+                        className="input"
+                        type="email"
+                        name="email"
+                        placeholder="Email *"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        style={{ marginBottom: 12 }}
                     />
-                    
-                    <input 
-                        className="input" 
-                        type="tel" 
-                        name="phone_number" 
-                        placeholder="Owner Phone *" 
-                        value={formData.phone_number} 
-                        onChange={handleChange} 
-                        required 
-                        style={{ marginBottom: 12 }} 
+
+                    <input
+                        className="input"
+                        type="tel"
+                        name="phone_number"
+                        placeholder="Owner Phone *"
+                        value={formData.phone_number}
+                        onChange={handleChange}
+                        required
+                        style={{ marginBottom: 12 }}
                     />
-                    
-                    <input 
-                        className="input" 
-                        name="restaurant_name" 
-                        placeholder="Restaurant Name *" 
-                        value={formData.restaurant_name} 
-                        onChange={handleChange} 
-                        required 
-                        style={{ marginBottom: 12 }} 
+
+                    <input
+                        className="input"
+                        name="restaurant_name"
+                        placeholder="Restaurant Name *"
+                        value={formData.restaurant_name}
+                        onChange={handleChange}
+                        required
+                        style={{ marginBottom: 12 }}
                     />
-                    
-                    <textarea 
-                        className="input" 
-                        name="description" 
-                        placeholder="Restaurant Description" 
-                        value={formData.description} 
-                        onChange={handleChange} 
+
+                    <textarea
+                        className="input"
+                        name="description"
+                        placeholder="Restaurant Description"
+                        value={formData.description}
+                        onChange={handleChange}
                         rows="3"
-                        style={{ marginBottom: 12, resize: 'vertical' }} 
+                        style={{ marginBottom: 12, resize: 'vertical' }}
                     />
-                    
-                    <input 
-                        className="input" 
-                        name="cuisine_type" 
-                        placeholder="Cuisine Type * (e.g., Italian, Chinese, Indian)" 
-                        value={formData.cuisine_type} 
-                        onChange={handleChange} 
-                        required 
-                        style={{ marginBottom: 12 }} 
+
+                    <input
+                        className="input"
+                        name="cuisine_type"
+                        placeholder="Cuisine Type * (e.g., Italian, Chinese, Indian)"
+                        value={formData.cuisine_type}
+                        onChange={handleChange}
+                        required
+                        style={{ marginBottom: 12 }}
                     />
-                    
-                    <input 
-                        className="input" 
-                        name="address" 
-                        placeholder="Full Address *" 
-                        value={formData.address} 
-                        onChange={handleChange} 
-                        required 
-                        style={{ marginBottom: 12 }} 
+
+                    <input
+                        className="input"
+                        name="address"
+                        placeholder="Full Address *"
+                        value={formData.address}
+                        onChange={handleChange}
+                        required
+                        style={{ marginBottom: 12 }}
                     />
-                    
+
                     <div className="auth-split-row">
-                        <input 
-                            className="input" 
-                            name="city" 
-                            placeholder="City *" 
-                            value={formData.city} 
-                            onChange={handleChange} 
-                            required 
+                        <input
+                            className="input"
+                            name="city"
+                            placeholder="City *"
+                            value={formData.city}
+                            onChange={handleChange}
+                            required
                         />
-                        <input 
-                            className="input" 
-                            name="state" 
-                            placeholder="State *" 
-                            value={formData.state} 
-                            onChange={handleChange} 
-                            required 
+                        <input
+                            className="input"
+                            name="state"
+                            placeholder="State *"
+                            value={formData.state}
+                            onChange={handleChange}
+                            required
                         />
                     </div>
-                    
+
                     <div className="auth-split-row" style={{ marginTop: 12 }}>
-                        <input 
-                            className="input" 
-                            name="pincode" 
-                            placeholder="Pincode *" 
-                            value={formData.pincode} 
-                            onChange={handleChange} 
-                            required 
+                        <input
+                            className="input"
+                            name="pincode"
+                            placeholder="Pincode *"
+                            value={formData.pincode}
+                            onChange={handleChange}
+                            required
                         />
-                        <input 
-                            className="input" 
-                            name="restaurant_phone" 
-                            placeholder="Restaurant Phone (Optional)" 
-                            value={formData.restaurant_phone} 
-                            onChange={handleChange} 
+                        <input
+                            className="input"
+                            name="restaurant_phone"
+                            placeholder="Restaurant Phone (Optional)"
+                            value={formData.restaurant_phone}
+                            onChange={handleChange}
                         />
                     </div>
-                    
+
                     {/* Location Section */}
-                    <div style={{ 
-                        marginTop: 16, 
-                        marginBottom: 16, 
-                        padding: 16, 
-                        background: 'var(--bg-alt)', 
-                        borderRadius: 12, 
+                    <div style={{
+                        marginTop: 16,
+                        marginBottom: 16,
+                        padding: 16,
+                        background: 'var(--bg-alt)',
+                        borderRadius: 12,
                         border: formData.latitude ? '1px solid #10b981' : (permissionBlocked ? '1px solid #f59e0b' : '1px solid var(--border-color)')
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
@@ -547,9 +567,9 @@ const FileField = ({ label, name }) => (
                                         Restaurant Location
                                     </div>
                                     {!formData.latitude && (
-                                        <span style={{ 
-                                            fontSize: '0.7rem', 
-                                            background: permissionBlocked ? '#fef3c7' : '#ef444420', 
+                                        <span style={{
+                                            fontSize: '0.7rem',
+                                            background: permissionBlocked ? '#fef3c7' : '#ef444420',
                                             color: permissionBlocked ? '#92400e' : '#ef4444',
                                             padding: '2px 6px',
                                             borderRadius: 4,
@@ -560,25 +580,25 @@ const FileField = ({ label, name }) => (
                                     )}
                                 </div>
                                 <div style={{ fontSize: '0.75rem', color: formData.latitude ? '#10b981' : (permissionBlocked ? '#92400e' : 'var(--text-muted)') }}>
-                                    {formData.latitude ? 
-                                        `📍 Lat: ${Number(formData.latitude).toFixed(6)}, Lng: ${Number(formData.longitude).toFixed(6)}` : 
+                                    {formData.latitude ?
+                                        `📍 Lat: ${Number(formData.latitude).toFixed(6)}, Lng: ${Number(formData.longitude).toFixed(6)}` :
                                         (permissionBlocked ? '⚠️ Location access is blocked. Click "Show Instructions" to enable.' : '📍 Required for accurate delivery routing')
                                     }
                                 </div>
                             </div>
-                            <button 
-                                type="button" 
-                                onClick={fetchLocation} 
-                                disabled={fetchingLocation} 
-                                className="btn" 
-                                style={{ 
-                                    padding: '8px 16px', 
-                                    fontSize: '0.875rem', 
+                            <button
+                                type="button"
+                                onClick={fetchLocation}
+                                disabled={fetchingLocation}
+                                className="btn"
+                                style={{
+                                    padding: '8px 16px',
+                                    fontSize: '0.875rem',
                                     background: formData.latitude ? 'var(--bg-card)' : (permissionBlocked ? '#fef3c7' : 'var(--accent)'),
                                     color: formData.latitude ? 'var(--text-primary)' : (permissionBlocked ? '#92400e' : 'white'),
                                     border: formData.latitude ? '1px solid var(--border-color)' : (permissionBlocked ? '1px solid #f59e0b' : 'none'),
-                                    display: 'flex', 
-                                    alignItems: 'center', 
+                                    display: 'flex',
+                                    alignItems: 'center',
                                     gap: 8,
                                     fontWeight: 600,
                                     minWidth: '160px',
@@ -617,28 +637,28 @@ const FileField = ({ label, name }) => (
                         )}
                     </div>
 
-                    <input 
-                        className="input" 
-                        type="password" 
-                        name="password" 
-                        placeholder="Password * (min 8 characters)" 
-                        value={formData.password} 
-                        onChange={handleChange} 
-                        required 
-                        minLength={8} 
-                        style={{ marginBottom: 12 }} 
+                    <input
+                        className="input"
+                        type="password"
+                        name="password"
+                        placeholder="Password * (min 8 characters)"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        minLength={8}
+                        style={{ marginBottom: 12 }}
                     />
-                    
-                    <input 
-                        className="input" 
-                        type="password" 
-                        name="password_confirm" 
-                        placeholder="Confirm Password *" 
-                        value={formData.password_confirm} 
-                        onChange={handleChange} 
-                        required 
-                        minLength={8} 
-                        style={{ marginBottom: 20 }} 
+
+                    <input
+                        className="input"
+                        type="password"
+                        name="password_confirm"
+                        placeholder="Confirm Password *"
+                        value={formData.password_confirm}
+                        onChange={handleChange}
+                        required
+                        minLength={8}
+                        style={{ marginBottom: 20 }}
                     />
 
                     {/* Documents Section */}
@@ -650,21 +670,21 @@ const FileField = ({ label, name }) => (
                                 All files required
                             </span>
                         </div>
-                        <FileField label="Business License" name="business_license" required={true} />
-                        <FileField label="Food Safety Certificate" name="food_safety_certificate" required={true} />
-                        <FileField label="Owner ID Proof" name="owner_id_proof" required={true} />
+                        <FileField label="Business License" name="business_license" />
+                        <FileField label="Food Safety Certificate" name="food_safety_certificate" />
+                        <FileField label="Owner ID Proof" name="owner_id_proof" />
                         <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 8, textAlign: 'center' }}>
                             Supported formats: Images (JPG, PNG) and PDF files (Max 5MB each)
                         </p>
                     </div>
 
-                    <button 
-                        type="submit" 
-                        className="btn btn-primary" 
-                        disabled={loading} 
-                        style={{ 
-                            width: '100%', 
-                            padding: 14, 
+                    <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={loading}
+                        style={{
+                            width: '100%',
+                            padding: 14,
                             fontSize: '1rem',
                             display: 'flex',
                             alignItems: 'center',
@@ -685,7 +705,7 @@ const FileField = ({ label, name }) => (
                         )}
                     </button>
                 </form>
-                
+
                 <p style={{ textAlign: 'center', marginTop: 20, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
                     Already have an account? <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 700 }}>Sign In</Link>
                 </p>
