@@ -1,11 +1,10 @@
 # ============================================
 # Pecafoo — Docker Compose (Full Stack)
 # ============================================
-# Services: Django API, PostgreSQL, Redis,
-#           Celery Worker, Celery Beat,
-#           Customer, Restaurant, Delivery, Admin frontends
-# Reverse Proxy: Traefik (managed by Dokploy)
+# Services: Django API, PostgreSQL, Redis, Celery Worker, Celery Beat
 # ============================================
+
+version: "3.9"
 
 services:
   # ── PostgreSQL Database ──
@@ -14,15 +13,15 @@ services:
     container_name: pecafoo_db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-food_delivery_db}
-      POSTGRES_USER: ${POSTGRES_USER:-food_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_DB: food_delivery_db
+      POSTGRES_USER: food_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-1234}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - pecafoo_internal
+    ports:
+      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-food_user} -d ${POSTGRES_DB:-food_delivery_db}"]
+      test: [ "CMD-SHELL", "pg_isready -U food_user -d food_delivery_db" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,13 +31,12 @@ services:
     image: redis:7-alpine
     container_name: pecafoo_redis
     restart: unless-stopped
-    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
     volumes:
       - redis_data:/data
-    networks:
-      - pecafoo_internal
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -59,31 +57,20 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/2
       - CACHE_BACKEND=django_redis.cache.RedisCache
       - CACHE_LOCATION=redis://redis:6379/3
+    ports:
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
+      - ./backend/media:/app/media
       - ./backend/logs:/app/logs
-    networks:
-      - pecafoo_internal
-      - dokploy-network
-    labels:
-      - "traefik.enable=true"
-      # HTTP Router
-      - "traefik.http.routers.pecafoo-api.rule=Host(`api.pecafoo.com`)"
-      - "traefik.http.routers.pecafoo-api.entrypoints=websecure"
-      - "traefik.http.routers.pecafoo-api.tls=true"
-      - "traefik.http.routers.pecafoo-api.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.pecafoo-api.service=pecafoo-api-svc"
-      - "traefik.http.services.pecafoo-api-svc.loadbalancer.server.port=8000"
-      # WebSocket headers
-      - "traefik.http.middlewares.pecafoo-ws-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
-      - "traefik.http.routers.pecafoo-api.middlewares=pecafoo-ws-headers"
     command: >
       sh -c "
         python manage.py migrate --noinput &&
+        python manage.py collectstatic --noinput &&
         daphne -b 0.0.0.0 -p 8000 config.asgi:application
       "
 
@@ -110,8 +97,6 @@ services:
         condition: service_healthy
     volumes:
       - ./backend/logs:/app/logs
-    networks:
-      - pecafoo_internal
     command: celery -A config worker --loglevel=info --concurrency=2
 
   # ── Celery Beat (Scheduler) ──
@@ -137,133 +122,8 @@ services:
         condition: service_healthy
     volumes:
       - ./backend/logs:/app/logs
-    networks:
-      - pecafoo_internal
     command: celery -A config beat --loglevel=info
-
-  # ── Customer Frontend (pecafoo.com) ──
-  customer:
-    build:
-      context: ./frontend/customer-app
-      dockerfile: Dockerfile
-      args:
-        VITE_API_BASE_URL: https://api.pecafoo.com/api
-        VITE_WS_BASE_URL: wss://api.pecafoo.com/ws
-        VITE_FIREBASE_API_KEY: ${VITE_FIREBASE_API_KEY:-}
-        VITE_FIREBASE_AUTH_DOMAIN: ${VITE_FIREBASE_AUTH_DOMAIN:-}
-        VITE_FIREBASE_PROJECT_ID: ${VITE_FIREBASE_PROJECT_ID:-}
-        VITE_FIREBASE_STORAGE_BUCKET: ${VITE_FIREBASE_STORAGE_BUCKET:-}
-        VITE_FIREBASE_MESSAGING_SENDER_ID: ${VITE_FIREBASE_MESSAGING_SENDER_ID:-}
-        VITE_FIREBASE_APP_ID: ${VITE_FIREBASE_APP_ID:-}
-        VITE_FIREBASE_MEASUREMENT_ID: ${VITE_FIREBASE_MEASUREMENT_ID:-}
-        VITE_RAZORPAY_KEY_ID: ${VITE_RAZORPAY_KEY_ID:-}
-        VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY:-}
-    container_name: pecafoo_customer
-    restart: unless-stopped
-    networks:
-      - dokploy-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pecafoo-customer.rule=Host(`pecafoo.com`) || Host(`www.pecafoo.com`)"
-      - "traefik.http.routers.pecafoo-customer.entrypoints=websecure"
-      - "traefik.http.routers.pecafoo-customer.tls=true"
-      - "traefik.http.routers.pecafoo-customer.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.pecafoo-customer.service=pecafoo-customer-svc"
-      - "traefik.http.services.pecafoo-customer-svc.loadbalancer.server.port=80"
-
-  # ── Restaurant Frontend (restaurant.pecafoo.com) ──
-  restaurant:
-    build:
-      context: ./frontend/restaurant-app
-      dockerfile: Dockerfile
-      args:
-        VITE_API_BASE_URL: https://api.pecafoo.com/api
-        VITE_WS_BASE_URL: wss://api.pecafoo.com/ws
-        VITE_FIREBASE_API_KEY: ${VITE_FIREBASE_API_KEY:-}
-        VITE_FIREBASE_AUTH_DOMAIN: ${VITE_FIREBASE_AUTH_DOMAIN:-}
-        VITE_FIREBASE_PROJECT_ID: ${VITE_FIREBASE_PROJECT_ID:-}
-        VITE_FIREBASE_STORAGE_BUCKET: ${VITE_FIREBASE_STORAGE_BUCKET:-}
-        VITE_FIREBASE_MESSAGING_SENDER_ID: ${VITE_FIREBASE_MESSAGING_SENDER_ID:-}
-        VITE_FIREBASE_APP_ID: ${VITE_FIREBASE_APP_ID:-}
-    container_name: pecafoo_restaurant
-    restart: unless-stopped
-    networks:
-      - dokploy-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pecafoo-restaurant.rule=Host(`restaurant.pecafoo.com`)"
-      - "traefik.http.routers.pecafoo-restaurant.entrypoints=websecure"
-      - "traefik.http.routers.pecafoo-restaurant.tls=true"
-      - "traefik.http.routers.pecafoo-restaurant.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.pecafoo-restaurant.service=pecafoo-restaurant-svc"
-      - "traefik.http.services.pecafoo-restaurant-svc.loadbalancer.server.port=80"
-
-  # ── Delivery Frontend (delivery.pecafoo.com) ──
-  delivery:
-    build:
-      context: ./frontend/delivery-app
-      dockerfile: Dockerfile
-      args:
-        VITE_API_BASE_URL: https://api.pecafoo.com/api
-        VITE_WS_BASE_URL: wss://api.pecafoo.com/ws
-        VITE_FIREBASE_API_KEY: ${VITE_FIREBASE_API_KEY:-}
-        VITE_FIREBASE_AUTH_DOMAIN: ${VITE_FIREBASE_AUTH_DOMAIN:-}
-        VITE_FIREBASE_PROJECT_ID: ${VITE_FIREBASE_PROJECT_ID:-}
-        VITE_FIREBASE_STORAGE_BUCKET: ${VITE_FIREBASE_STORAGE_BUCKET:-}
-        VITE_FIREBASE_MESSAGING_SENDER_ID: ${VITE_FIREBASE_MESSAGING_SENDER_ID:-}
-        VITE_FIREBASE_APP_ID: ${VITE_FIREBASE_APP_ID:-}
-        VITE_FIREBASE_MEASUREMENT_ID: ${VITE_FIREBASE_MEASUREMENT_ID:-}
-        VITE_RAZORPAY_KEY_ID: ${VITE_RAZORPAY_KEY_ID:-}
-        VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY:-}
-    container_name: pecafoo_delivery
-    restart: unless-stopped
-    networks:
-      - dokploy-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pecafoo-delivery.rule=Host(`delivery.pecafoo.com`)"
-      - "traefik.http.routers.pecafoo-delivery.entrypoints=websecure"
-      - "traefik.http.routers.pecafoo-delivery.tls=true"
-      - "traefik.http.routers.pecafoo-delivery.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.pecafoo-delivery.service=pecafoo-delivery-svc"
-      - "traefik.http.services.pecafoo-delivery-svc.loadbalancer.server.port=80"
-
-  # ── Admin Frontend (admin.pecafoo.com) ──
-  admin:
-    build:
-      context: ./frontend/admin-app
-      dockerfile: Dockerfile
-      args:
-        VITE_API_BASE_URL: https://api.pecafoo.com/api
-        VITE_WS_BASE_URL: wss://api.pecafoo.com/ws
-        VITE_FIREBASE_API_KEY: ${VITE_FIREBASE_API_KEY:-}
-        VITE_FIREBASE_AUTH_DOMAIN: ${VITE_FIREBASE_AUTH_DOMAIN:-}
-        VITE_FIREBASE_PROJECT_ID: ${VITE_FIREBASE_PROJECT_ID:-}
-        VITE_FIREBASE_STORAGE_BUCKET: ${VITE_FIREBASE_STORAGE_BUCKET:-}
-        VITE_FIREBASE_MESSAGING_SENDER_ID: ${VITE_FIREBASE_MESSAGING_SENDER_ID:-}
-        VITE_FIREBASE_APP_ID: ${VITE_FIREBASE_APP_ID:-}
-        VITE_FIREBASE_MEASUREMENT_ID: ${VITE_FIREBASE_MEASUREMENT_ID:-}
-        VITE_RAZORPAY_KEY_ID: ${VITE_RAZORPAY_KEY_ID:-}
-        VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY:-}
-    container_name: pecafoo_admin
-    restart: unless-stopped
-    networks:
-      - dokploy-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pecafoo-admin.rule=Host(`admin.pecafoo.com`)"
-      - "traefik.http.routers.pecafoo-admin.entrypoints=websecure"
-      - "traefik.http.routers.pecafoo-admin.tls=true"
-      - "traefik.http.routers.pecafoo-admin.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.pecafoo-admin.service=pecafoo-admin-svc"
-      - "traefik.http.services.pecafoo-admin-svc.loadbalancer.server.port=80"
 
 volumes:
   postgres_data:
   redis_data:
-
-networks:
-  pecafoo_internal:
-    driver: bridge
-  dokploy-network:
-    external: true
