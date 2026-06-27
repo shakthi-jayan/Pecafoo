@@ -23,7 +23,7 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = env.list(
-    "ALLOWED_HOSTS",
+    "DJANGO_ALLOWED_HOSTS",
     default=[
         "api.pecafoo.com",
     ],
@@ -286,7 +286,7 @@ SIMPLE_JWT = {
 # ============================================================
 
 CORS_ALLOWED_ORIGINS = env.list(
-    "CORS_ALLOWED_ORIGINS",
+    "DJANGO_CORS_ALLOWED_ORIGINS",
     default=[
         "https://pecafoo.com",
         "https://www.pecafoo.com",
@@ -303,7 +303,7 @@ CORS_ALLOW_CREDENTIALS = True
 # ============================================================
 
 CSRF_TRUSTED_ORIGINS = env.list(
-    "CSRF_TRUSTED_ORIGINS",
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
     default=[
         "https://api.pecafoo.com",
         "https://pecafoo.com",
@@ -358,7 +358,7 @@ EMAIL_BACKEND = env(
 
 EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
 EMAIL_PORT = env.int("EMAIL_PORT", default=587)
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 
