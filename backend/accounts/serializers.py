@@ -78,8 +78,20 @@ class RegisterSerializer(serializers.ModelSerializer):
             "role",
         ]
 
+    def validate_email(self, value):
+        """Ensure email is unique."""
+        if User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError("This email is already registered.")
+        return value.lower()
+
+    def validate_phone_number(self, value):
+        """Ensure phone number is unique if provided."""
+        if value and User.objects.filter(phone_number=value).exists():
+            raise serializers.ValidationError("This phone number is already registered.")
+        return value
+
     def validate(self, attrs):
-        """Ensure passwords match."""
+        """Ensure passwords match and validate role."""
         if attrs["password"] != attrs.pop("password_confirm"):
             raise serializers.ValidationError(
                 {"password_confirm": "Passwords do not match."}
@@ -129,11 +141,11 @@ class LoginSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
-        email = attrs.get("email")
+        email = attrs.get("email", "").lower()
         password = attrs.get("password")
 
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(email__iexact=email)
         except User.DoesNotExist:
             raise serializers.ValidationError(
                 {"email": "No account found with this email."}
@@ -275,6 +287,9 @@ class ChangePasswordSerializer(serializers.Serializer):
 class ForgotPasswordRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
+    def validate_email(self, value):
+        return value.lower()
+
 
 class ForgotPasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -288,6 +303,9 @@ class ForgotPasswordResetSerializer(serializers.Serializer):
         write_only=True, style={"input_type": "password"}
     )
 
+    def validate_email(self, value):
+        return value.lower()
+
     def validate(self, attrs):
         if attrs["new_password"] != attrs["confirm_new_password"]:
             raise serializers.ValidationError(
@@ -297,7 +315,6 @@ class ForgotPasswordResetSerializer(serializers.Serializer):
         email = attrs.get("email", "").strip().lower()
         otp = attrs.get("otp", "").strip()
         
-        from django.core.cache import cache
         cached_otp = cache.get(f"password_reset_otp:{email}")
         if not cached_otp:
             raise serializers.ValidationError({"otp": "OTP expired or not requested."})

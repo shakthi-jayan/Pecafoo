@@ -69,6 +69,8 @@ class RegisterView(generics.CreateAPIView):
         tokens = _get_tokens_for_user(user)
         user_data = UserSerializer(user).data
 
+        logger.info(f"New user registered: {user.email} (role: {user.role})")
+
         return Response(
             {
                 "message": "Registration successful.",
@@ -100,6 +102,8 @@ class LoginView(APIView):
         tokens = _get_tokens_for_user(user)
         user_data = UserSerializer(user).data
 
+        logger.info(f"User logged in: {user.email}")
+
         return Response(
             {
                 "message": "Login successful.",
@@ -130,9 +134,9 @@ class FirebaseAuthView(APIView):
         firebase_token = serializer.validated_data["firebase_token"]
         requested_role = serializer.validated_data.get("role", User.Role.CUSTOMER)
 
-        
         decoded = verify_firebase_token(firebase_token)
         if decoded is None:
+            logger.warning("Firebase token verification failed")
             return Response(
                 {"error": "Invalid or expired Firebase token."},
                 status=status.HTTP_401_UNAUTHORIZED,
@@ -144,37 +148,34 @@ class FirebaseAuthView(APIView):
         picture = decoded.get("picture", "")
 
         if not email:
+            logger.warning(f"Firebase token missing email for UID: {firebase_uid}")
             return Response(
                 {"error": "Email not found in Firebase token."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        
         name_parts = name.split(" ", 1) if name else ["", ""]
         first_name = name_parts[0]
         last_name = name_parts[1] if len(name_parts) > 1 else ""
 
-        
         user = None
         is_new_user = False
 
-        
         try:
             user = User.objects.get(firebase_uid=firebase_uid)
+            logger.info(f"Existing Firebase user found: {email}")
         except User.DoesNotExist:
             pass
 
-        
         if user is None:
             try:
                 user = User.objects.get(email=email)
-                
                 user.firebase_uid = firebase_uid
                 user.save(update_fields=["firebase_uid"])
+                logger.info(f"Linked existing user to Firebase: {email}")
             except User.DoesNotExist:
                 pass
 
-        
         if user is None:
             user = User.objects.create_user(
                 email=email,
@@ -182,10 +183,10 @@ class FirebaseAuthView(APIView):
                 last_name=last_name,
                 firebase_uid=firebase_uid,
                 role=requested_role,
-                is_verified=True,  
+                is_verified=True,
             )
             is_new_user = True
-            logger.info(f"New user created via Firebase: {email}")
+            logger.info(f"New user created via Firebase: {email} (role: {requested_role})")
         else:
             updated_fields = []
             if not user.firebase_uid:
@@ -206,9 +207,12 @@ class FirebaseAuthView(APIView):
                 updated_fields.append("is_verified")
             if updated_fields:
                 user.save(update_fields=updated_fields)
+                logger.info(f"Updated Firebase user profile: {email}")
 
         tokens = _get_tokens_for_user(user)
         user_data = UserSerializer(user).data
+
+        logger.info(f"Firebase authentication successful: {email}")
 
         return Response(
             {
@@ -236,6 +240,8 @@ class PhoneOTPRequestView(APIView):
         phone_number = serializer.validated_data["phone_number"].strip()
         otp = f"{random.randint(100000, 999999)}"
         cache.set(f"phone_otp:{phone_number}", otp, timeout=300)
+
+        logger.info(f"Phone OTP requested for: {phone_number}")
 
         response_data = {
             "message": "OTP generated successfully.",
@@ -266,6 +272,7 @@ class PhoneOTPVerifyView(APIView):
         try:
             user = User.objects.get(phone_number=phone_number)
             is_new_user = False
+            logger.info(f"Existing user found for phone: {phone_number}")
         except User.DoesNotExist:
             digits_only = "".join(ch for ch in phone_number if ch.isdigit()) or "customer"
             synthetic_email = f"{digits_only}@phone.pecafoo.local"
@@ -284,6 +291,7 @@ class PhoneOTPVerifyView(APIView):
                 password=User.objects.make_random_password(),
             )
             is_new_user = True
+            logger.info(f"New phone user created: {synthetic_email}")
 
         updated_fields = []
         if not user.is_verified:
@@ -300,6 +308,8 @@ class PhoneOTPVerifyView(APIView):
 
         cache.delete(f"phone_otp:{phone_number}")
         tokens = _get_tokens_for_user(user)
+
+        logger.info(f"Phone OTP verified: {phone_number}")
 
         return Response(
             {
@@ -353,6 +363,8 @@ class ChangePasswordView(APIView):
         user.set_password(serializer.validated_data["new_password"])
         user.save()
 
+        logger.info(f"Password changed for user: {user.email}")
+
         return Response(
             {"message": "Password changed successfully."},
             status=status.HTTP_200_OK,
@@ -381,11 +393,13 @@ class LogoutView(APIView):
         try:
             token = RefreshToken(refresh_token)
             token.blacklist()
+            logger.info(f"User logged out: {request.user.email}")
             return Response(
                 {"message": "Logout successful."},
                 status=status.HTTP_200_OK,
             )
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Invalid refresh token on logout: {e}")
             return Response(
                 {"error": "Invalid refresh token."},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -424,18 +438,16 @@ class ForgotPasswordRequestView(APIView):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            
+            logger.info(f"Password reset requested for non-existent email: {email}")
             return Response(
                 {"message": "If an account with that email exists, an OTP has been sent."},
                 status=status.HTTP_200_OK
             )
             
-        import secrets
         otp = str(secrets.randbelow(900000) + 100000)
-        cache.set(f"password_reset_otp:{email}", otp, timeout=600)  
+        cache.set(f"password_reset_otp:{email}", otp, timeout=600)
         
-        
-        
+        logger.info(f"Password reset OTP generated for: {email}")
         
         from notifications.tasks import send_email_notification
         send_email_notification.delay(
@@ -468,7 +480,9 @@ class ForgotPasswordResetView(APIView):
             user = User.objects.get(email=email)
             user.set_password(new_password)
             user.save()
+            logger.info(f"Password reset successful for: {email}")
         except User.DoesNotExist:
+            logger.warning(f"Password reset attempted for non-existent email: {email}")
             return Response(
                 {"error": "Invalid request."},
                 status=status.HTTP_400_BAD_REQUEST
@@ -502,11 +516,13 @@ class FCMTokenRegisterView(APIView):
 
         request.user.fcm_token = fcm_token
         request.user.save(update_fields=["fcm_token"])
+        logger.info(f"FCM token registered for user: {request.user.email}")
         return Response({"message": "FCM token registered."}, status=status.HTTP_200_OK)
 
     def delete(self, request):
         request.user.fcm_token = None
         request.user.save(update_fields=["fcm_token"])
+        logger.info(f"FCM token removed for user: {request.user.email}")
         return Response({"message": "FCM token removed."}, status=status.HTTP_200_OK)
 
 
@@ -530,6 +546,8 @@ class EmailVerificationRequestView(APIView):
 
         otp = str(secrets.randbelow(900000) + 100000)
         cache.set(f"email_verify_otp:{user.email}", otp, timeout=600)
+
+        logger.info(f"Email verification OTP sent to: {user.email}")
 
         from notifications.tasks import send_email_notification
         send_email_notification.delay(
@@ -563,12 +581,14 @@ class EmailVerificationConfirmView(APIView):
 
         cached_otp = cache.get(f"email_verify_otp:{user.email}")
         if not cached_otp:
+            logger.warning(f"Email verification OTP expired for: {user.email}")
             return Response(
                 {"error": "OTP expired or not requested."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         if str(cached_otp) != otp:
+            logger.warning(f"Invalid OTP attempted for: {user.email}")
             return Response(
                 {"error": "Invalid OTP."},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -577,6 +597,8 @@ class EmailVerificationConfirmView(APIView):
         user.is_verified = True
         user.save(update_fields=["is_verified"])
         cache.delete(f"email_verify_otp:{user.email}")
+
+        logger.info(f"Email verified for user: {user.email}")
 
         return Response(
             {"message": "Email verified successfully."},
@@ -603,6 +625,7 @@ class AccountDeletionView(APIView):
             )
 
         if not request.user.check_password(password):
+            logger.warning(f"Account deletion attempted with wrong password: {request.user.email}")
             return Response(
                 {"error": "Incorrect password."},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -612,13 +635,13 @@ class AccountDeletionView(APIView):
         email = user.email
         logger.info(f"Account deletion requested by {email}")
 
-        
         user.is_active = False
         user.fcm_token = None
         user.save(update_fields=["is_active", "fcm_token"])
 
-        
         user.delete()
+
+        logger.info(f"Account permanently deleted: {email}")
 
         return Response(
             {"message": "Account deleted successfully."},
@@ -630,13 +653,11 @@ class AccountDeletionView(APIView):
         user = request.user
         user_data = UserSerializer(user).data
 
-        
         from customers.models import Address
         addresses = Address.objects.filter(user=user).values(
             "address_type", "label", "full_address", "city", "state", "pincode"
         )
 
-        
         from orders.models import Order
         orders = Order.objects.filter(customer=user).values(
             "order_number", "status", "total", "placed_at"
