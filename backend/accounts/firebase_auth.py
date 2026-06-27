@@ -37,12 +37,16 @@ def _get_firebase_app():
         return None
 
     try:
+        # Ensure private_key has actual newlines, not escaped \\n
+        if "private_key" in firebase_config and firebase_config["private_key"]:
+            firebase_config["private_key"] = firebase_config["private_key"].replace("\\n", "\n")
+        
         cred = credentials.Certificate(firebase_config)
         _firebase_app = firebase_admin.initialize_app(cred)
         logger.info("Firebase Admin SDK initialized successfully.")
         return _firebase_app
     except Exception as e:
-        logger.error(f"Failed to initialize Firebase Admin SDK: {e}")
+        logger.error(f"Failed to initialize Firebase Admin SDK: {e}", exc_info=True)
         return None
 
 
@@ -64,6 +68,7 @@ def verify_firebase_token(id_token: str) -> dict | None:
 
     try:
         decoded_token = firebase_auth.verify_id_token(id_token, app=app)
+        logger.info(f"Firebase token verified successfully for UID: {decoded_token.get('uid')}")
         return decoded_token
     except firebase_auth.ExpiredIdTokenError:
         logger.warning("Firebase token has expired.")
@@ -72,8 +77,8 @@ def verify_firebase_token(id_token: str) -> dict | None:
         logger.warning("Firebase token has been revoked.")
         return None
     except firebase_auth.InvalidIdTokenError:
-        logger.warning("Invalid Firebase token.")
+        logger.warning("Invalid Firebase token received.")
         return None
     except Exception as e:
-        logger.error(f"Unexpected error verifying Firebase token: {e}")
+        logger.error(f"Unexpected error verifying Firebase token: {e}", exc_info=True)
         return None
