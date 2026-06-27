@@ -29,6 +29,21 @@ const RegisterPage = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const normalizePhoneNumber = (value) => {
+        let cleaned = value.replace(/[^\d+]/g, '');
+        if (cleaned.startsWith('+')) return cleaned;
+        if (cleaned.startsWith('0') && cleaned.length > 10) cleaned = cleaned.substring(1);
+        if (cleaned.length === 10) return '+91' + cleaned;
+        if (cleaned.length === 12 && cleaned.startsWith('91')) return '+' + cleaned;
+        return cleaned;
+    };
+
+    const handlePhoneChange = (e) => {
+        let value = e.target.value;
+        value = normalizePhoneNumber(value);
+        setFormData(prev => ({ ...prev, [e.target.name]: value }));
+    };
+
     // Detect browser
     const getBrowser = () => {
         const userAgent = navigator.userAgent.toLowerCase();
@@ -406,7 +421,7 @@ const RegisterPage = () => {
                         name="phone_number" 
                         placeholder="Owner Phone *" 
                         value={formData.phone_number} 
-                        onChange={handleChange} 
+                        onChange={handlePhoneChange} 
                         required 
                         style={{ marginBottom: 12 }} 
                     />
@@ -484,7 +499,7 @@ const RegisterPage = () => {
                             name="restaurant_phone" 
                             placeholder="Restaurant Phone (Optional)" 
                             value={formData.restaurant_phone} 
-                            onChange={handleChange} 
+                            onChange={handlePhoneChange} 
                         />
                     </div>
                     

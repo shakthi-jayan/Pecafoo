@@ -13,6 +13,19 @@ const ProfilePage = ({ user, onLogout }) => {
     const [form, setForm] = useState({ vehicle_type: '', vehicle_number: '', license_number: '' });
     const [files, setFiles] = useState({ id_proof: null, license_image: null });
 
+    // visually-hidden style for accessibility
+    const visuallyHidden = {
+        position: 'absolute',
+        width: 1,
+        height: 1,
+        padding: 0,
+        margin: -1,
+        overflow: 'hidden',
+        clip: 'rect(0 0 0 0)',
+        whiteSpace: 'nowrap',
+        border: 0,
+    };
+
     const loadProfile = async () => {
         setLoading(true);
         try {
@@ -60,7 +73,13 @@ const ProfilePage = ({ user, onLogout }) => {
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent)' }}>
                     <Upload size={16} /> Upload
                 </span>
-                <input type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={(e) => setFiles({ ...files, [name]: e.target.files?.[0] || null })} />
+                <input
+                    type="file"
+                    name={name}
+                    accept="image/*,.pdf"
+                    style={visuallyHidden}
+                    onChange={(e) => setFiles({ ...files, [name]: e.target.files?.[0] || null })}
+                />
             </label>
             {currentUrl && (
                 <a href={currentUrl} target="_blank" rel="noreferrer" style={{ marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--accent)', fontSize: '0.8rem', fontWeight: 700 }}>
@@ -86,6 +105,7 @@ const ProfilePage = ({ user, onLogout }) => {
                 </div>
                 <h2 style={{ fontWeight: 700, marginBottom: 2 }}>{user?.first_name} {user?.last_name}</h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: 4 }}>{user?.email}</p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: 4 }}>{user?.phone_number}</p>
                 <span className="badge badge-accent">Delivery Partner</span>
             </motion.div>
 

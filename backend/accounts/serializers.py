@@ -10,9 +10,9 @@ from django.core.cache import cache
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from config.media_utils import SmartImageField
+from accounts.phone_utils import normalize_phone_number
 
 User = get_user_model()
-
 
 
 
@@ -42,11 +42,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 
-
 class RegisterSerializer(serializers.ModelSerializer):
     """
     Handles email/password registration.
     Returns JWT tokens upon successful registration.
+    Normalizes phone number to E.164 format before validation.
     """
 
     password = serializers.CharField(
@@ -78,8 +78,31 @@ class RegisterSerializer(serializers.ModelSerializer):
             "role",
         ]
 
+    def validate_email(self, value):
+        """Ensure email is unique."""
+        if User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError(
+                "An account already exists with this email. Please sign in instead."
+            )
+        return value.lower()
+
+    def validate_phone_number(self, value):
+        """Normalize and ensure phone number is unique if provided."""
+        if not value:
+            return value
+        
+        # Normalize the phone number
+        normalized = normalize_phone_number(value)
+        
+        # Check for duplicates using the normalized number
+        if User.objects.filter(phone_number=normalized).exists():
+            raise serializers.ValidationError(
+                "This mobile number is already linked to an existing Pecafoo account. Please sign in instead."
+            )
+        return normalized
+
     def validate(self, attrs):
-        """Ensure passwords match."""
+        """Ensure passwords match and validate role."""
         if attrs["password"] != attrs.pop("password_confirm"):
             raise serializers.ValidationError(
                 {"password_confirm": "Passwords do not match."}
@@ -116,7 +139,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 
-
 class LoginSerializer(serializers.Serializer):
     """
     Email + password login.
@@ -129,11 +151,11 @@ class LoginSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
-        email = attrs.get("email")
+        email = attrs.get("email", "").lower()
         password = attrs.get("password")
 
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(email__iexact=email)
         except User.DoesNotExist:
             raise serializers.ValidationError(
                 {"email": "No account found with this email."}
@@ -155,15 +177,21 @@ class LoginSerializer(serializers.Serializer):
 
 
 
-
 class FirebaseAuthSerializer(serializers.Serializer):
     """
     Handles Firebase ID token verification for Google / social login.
     Creates a local user if one doesn't exist, then returns JWT tokens.
+    Normalizes phone number if provided.
     """
 
     firebase_token = serializers.CharField(
         help_text="Firebase ID token from the frontend client."
+    )
+    phone_number = serializers.CharField(
+        max_length=32,
+        required=False,
+        allow_blank=True,
+        help_text="Optional phone number in any Indian format."
     )
     role = serializers.ChoiceField(
         choices=User.Role.choices,
@@ -171,6 +199,12 @@ class FirebaseAuthSerializer(serializers.Serializer):
         required=False,
         help_text="Role to assign if creating a new user.",
     )
+
+    def validate_phone_number(self, value):
+        """Normalize phone number if provided."""
+        if not value:
+            return None
+        return normalize_phone_number(value)
 
     def validate_role(self, value):
         request = self.context.get("request")
@@ -188,14 +222,24 @@ class FirebaseAuthSerializer(serializers.Serializer):
 
 
 class PhoneOTPRequestSerializer(serializers.Serializer):
+    """Request OTP for phone-based authentication."""
     phone_number = serializers.CharField(max_length=32)
+
+    def validate_phone_number(self, value):
+        """Normalize phone number."""
+        return normalize_phone_number(value)
 
 
 class PhoneOTPVerifySerializer(serializers.Serializer):
+    """Verify OTP and optionally create/get user."""
     phone_number = serializers.CharField(max_length=32)
     otp = serializers.CharField(min_length=4, max_length=6)
     first_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
     last_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
+
+    def validate_phone_number(self, value):
+        """Normalize phone number."""
+        return normalize_phone_number(value)
 
     def validate(self, attrs):
         phone_number = attrs.get("phone_number", "").strip()
@@ -212,14 +256,12 @@ class PhoneOTPVerifySerializer(serializers.Serializer):
 
 
 
-
 class TokenResponseSerializer(serializers.Serializer):
     """Serializer for JWT token response."""
 
     access = serializers.CharField()
     refresh = serializers.CharField()
     user = UserSerializer()
-
 
 
 
@@ -236,6 +278,22 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             "avatar",
         ]
 
+    def validate_phone_number(self, value):
+        """Normalize phone number if provided."""
+        if not value:
+            return value
+        
+        normalized = normalize_phone_number(value)
+        
+        # Check for duplicates, excluding the current user
+        current_user = self.instance
+        if current_user and User.objects.filter(
+            phone_number=normalized
+        ).exclude(id=current_user.id).exists():
+            raise serializers.ValidationError(
+                "This mobile number is already linked to an existing Pecafoo account. Please sign in instead."
+            )
+        return normalized
 
 
 
@@ -271,9 +329,11 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 
-
 class ForgotPasswordRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
+
+    def validate_email(self, value):
+        return value.lower()
 
 
 class ForgotPasswordResetSerializer(serializers.Serializer):
@@ -288,6 +348,9 @@ class ForgotPasswordResetSerializer(serializers.Serializer):
         write_only=True, style={"input_type": "password"}
     )
 
+    def validate_email(self, value):
+        return value.lower()
+
     def validate(self, attrs):
         if attrs["new_password"] != attrs["confirm_new_password"]:
             raise serializers.ValidationError(
@@ -297,7 +360,6 @@ class ForgotPasswordResetSerializer(serializers.Serializer):
         email = attrs.get("email", "").strip().lower()
         otp = attrs.get("otp", "").strip()
         
-        from django.core.cache import cache
         cached_otp = cache.get(f"password_reset_otp:{email}")
         if not cached_otp:
             raise serializers.ValidationError({"otp": "OTP expired or not requested."})

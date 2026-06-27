@@ -26,6 +26,53 @@ export default function RegisterPage() {
     });
     const [loading, setLoading] = useState(false);
 
+    // visually-hidden style for accessibility
+    const visuallyHidden = {
+        position: 'absolute',
+        width: 1,
+        height: 1,
+        padding: 0,
+        margin: -1,
+        overflow: 'hidden',
+        clip: 'rect(0 0 0 0)',
+        whiteSpace: 'nowrap',
+        border: 0,
+    };
+
+    const normalizePhoneNumber = (value) => {
+        // Remove all non-digit characters except +
+        let cleaned = value.replace(/[^\d+]/g, '');
+        
+        // If it starts with +, keep it as is
+        if (cleaned.startsWith('+')) {
+            return cleaned;
+        }
+        
+        // Remove leading 0 if present
+        if (cleaned.startsWith('0') && cleaned.length > 10) {
+            cleaned = cleaned.substring(1);
+        }
+        
+        // If 10 digits, prepend +91
+        if (cleaned.length === 10) {
+            return '+91' + cleaned;
+        }
+        
+        // If 12 digits starting with 91, prepend +
+        if (cleaned.length === 12 && cleaned.startsWith('91')) {
+            return '+' + cleaned;
+        }
+        
+        return cleaned;
+    };
+
+    const handlePhoneChange = (e) => {
+        let value = e.target.value;
+        // Normalize as user types
+        value = normalizePhoneNumber(value);
+        setFd({ ...fd, phone_number: value });
+    };
+
     const handle = async (e) => {
         e.preventDefault();
         if (fd.password !== fd.password_confirm) {
@@ -55,7 +102,11 @@ export default function RegisterPage() {
             toast.success('Account created!');
             navigate('/', { replace: true });
         } catch (err) {
-            toast.error(err.response?.data?.email?.[0] || err.response?.data?.detail || 'Registration failed.');
+            const errorMsg = err.response?.data?.phone_number?.[0] || 
+                           err.response?.data?.email?.[0] || 
+                           err.response?.data?.detail || 
+                           'Registration failed.';
+            toast.error(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -73,7 +124,13 @@ export default function RegisterPage() {
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent)' }}>
                     <Upload size={16} /> Upload
                 </span>
-                <input type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={(e) => setDocs({ ...docs, [name]: e.target.files?.[0] || null })} />
+                <input
+                    type="file"
+                    name={name}
+                    accept="image/*,.pdf"
+                    style={visuallyHidden}
+                    onChange={(e) => setDocs({ ...docs, [name]: e.target.files?.[0] || null })}
+                />
             </label>
         </div>
     );
@@ -92,7 +149,7 @@ export default function RegisterPage() {
                         <input className="input" name="last_name" placeholder="Last Name" value={fd.last_name} onChange={ch} required />
                     </div>
                     <input className="input" type="email" name="email" placeholder="Email Address" value={fd.email} onChange={ch} required style={{ marginBottom: 12 }} />
-                    <input className="input" type="tel" name="phone_number" placeholder="Phone Number" value={fd.phone_number} onChange={ch} style={{ marginBottom: 12 }} />
+                    <input className="input" type="tel" name="phone_number" placeholder="Mobile Number (e.g., 9876543210)" value={fd.phone_number} onChange={handlePhoneChange} style={{ marginBottom: 12 }} />
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                         <select className="input" name="vehicle_type" value={fd.vehicle_type} onChange={ch}>
                             <option value="bicycle">Bicycle</option>
