@@ -1,56 +1,67 @@
 # ============================================
-# Pecafoo Backend — Production Dockerfile
+# Pecafoo Backend - Production Dockerfile
 # ============================================
 
-# ------------- Builder Stage -------------
-FROM python:3.12-slim AS builder
+FROM python:3.12-slim
 
+# --------------------------------------------
+# Environment
+# --------------------------------------------
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
 
-# Install build dependencies
+# --------------------------------------------
+# System Dependencies
+# --------------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    gcc \
     libpq-dev \
     libjpeg-dev \
     zlib1g-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
-
-# ------------- Runtime Stage -------------
-FROM python:3.12-slim
-
-# Install runtime dependencies only
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev \
-    libjpeg62-turbo \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# --------------------------------------------
+# Python Dependencies
+# --------------------------------------------
+COPY requirements.txt .
 
-# Copy Python dependencies from builder
-COPY --from=builder /root/.local /root/.local
+RUN python -m pip install --upgrade pip
 
-# Copy application code
+RUN pip install -r requirements.txt
+
+# --------------------------------------------
+# Copy Application
+# --------------------------------------------
 COPY . .
 
-# Make sure scripts in .local are usable
-ENV PATH=/root/.local/bin:$PATH
-
-# Create non-root user
-RUN adduser --disabled-password --gecos '' appuser && \
+# --------------------------------------------
+# Create Non-root User
+# --------------------------------------------
+RUN adduser --disabled-password --gecos "" appuser && \
     chown -R appuser:appuser /app
+
 USER appuser
 
+# --------------------------------------------
+# Port
+# --------------------------------------------
 EXPOSE 8000
 
+# --------------------------------------------
+# Health Check
+# --------------------------------------------
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl --fail http://0.0.0.0:8000/api/health/ || exit 1
+CMD curl --fail http://127.0.0.1:8000/api/health/ || exit 1
 
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p 8000 config.asgi:application"]
+# --------------------------------------------
+# Start Server
+# --------------------------------------------
+CMD sh -c "\
+python manage.py migrate --noinput && \
+python manage.py collectstatic --noinput && \
+daphne -b 0.0.0.0 -p 8000 config.asgi:application"
