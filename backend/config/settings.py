@@ -23,8 +23,10 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = env.list(
-    "ALLOWED_HOSTS",
+    "DJANGO_ALLOWED_HOSTS",
     default=[
+        "localhost",
+        "127.0.0.1",
         "api.pecafoo.com",
     ],
 )
