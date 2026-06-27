@@ -50,13 +50,6 @@ services:
     restart: unless-stopped
     env_file:
       - ./backend/.env
-    environment:
-      - DB_HOST=db
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
-      - CACHE_BACKEND=django_redis.cache.RedisCache
-      - CACHE_LOCATION=redis://redis:6379/3
     ports:
       - "8000:8000"
     depends_on:
@@ -83,13 +76,6 @@ services:
     restart: unless-stopped
     env_file:
       - ./backend/.env
-    environment:
-      - DB_HOST=db
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
-      - CACHE_BACKEND=django_redis.cache.RedisCache
-      - CACHE_LOCATION=redis://redis:6379/3
     depends_on:
       db:
         condition: service_healthy
@@ -108,13 +94,6 @@ services:
     restart: unless-stopped
     env_file:
       - ./backend/.env
-    environment:
-      - DB_HOST=db
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
-      - CACHE_BACKEND=django_redis.cache.RedisCache
-      - CACHE_LOCATION=redis://redis:6379/3
     depends_on:
       db:
         condition: service_healthy

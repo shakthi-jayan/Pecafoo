@@ -193,10 +193,21 @@ else:
     }
 
 # ============================================================
+# PAYMENTS
+# ============================================================
+
+RAZORPAY_KEY_ID = env("RAZORPAY_KEY_ID", default="")
+RAZORPAY_KEY_SECRET = env("RAZORPAY_KEY_SECRET", default="")
+
+STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY", default="")
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
+STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
+
+# ============================================================
 # REDIS CACHE
 # ============================================================
 
-USE_REDIS_CACHE = env.bool("USE_REDIS_CACHE", default=True)
+USE_REDIS_CACHE = True
 CACHE_BACKEND = env("CACHE_BACKEND", default="django_redis.cache.RedisCache")
 CACHE_LOCATION = env("CACHE_LOCATION", default="redis://redis:6379/3")
 
@@ -340,7 +351,7 @@ USE_X_FORWARDED_PORT = True
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=False)
+SECURE_SSL_REDIRECT = True
 APPEND_SLASH = True
 
 # ============================================================
@@ -405,7 +416,7 @@ LOGGING = {
     "loggers": {
         "django": {
             "handlers": ["console", "file"],
-            "level": env("DJANGO_LOG_LEVEL", default="INFO"),
+            "level": "INFO",
             "propagate": False,
         },
         "pecafoo": {
