@@ -273,28 +273,70 @@ const RegisterPage = () => {
         }
     };
 
-    const FileField = ({ label, name, required = true }) => (
-        <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6, fontWeight: 700 }}>
-                {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
-            </label>
-            <label className="input" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, cursor: 'pointer' }}>
-                <span style={{ color: docs[name] ? 'var(--text-primary)' : 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {docs[name]?.name || 'Choose file'}
-                </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent)' }}>
-                    <Upload size={16} /> Upload
-                </span>
-                <input 
-                    type="file" 
-                    accept="image/*,.pdf" 
-                    style={{ display: 'none' }} 
-                    required={required}
-                    onChange={(e) => setDocs({ ...docs, [name]: e.target.files?.[0] || null })} 
-                />
-            </label>
-        </div>
-    );
+const FileField = ({ label, name }) => (
+    <div style={{ marginBottom: 12 }}>
+        <label
+            style={{
+                display: 'block',
+                fontSize: '0.8rem',
+                color: 'var(--text-secondary)',
+                marginBottom: 6,
+                fontWeight: 700,
+            }}
+        >
+            {label}
+            <span style={{ color: '#ef4444' }}> *</span>
+        </label>
+
+        <label
+            className="input"
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+                cursor: 'pointer',
+            }}
+        >
+            <span
+                style={{
+                    color: docs[name]
+                        ? 'var(--text-primary)'
+                        : 'var(--text-muted)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                }}
+            >
+                {docs[name]?.name || 'Choose file'}
+            </span>
+
+            <span
+                style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    color: 'var(--accent)',
+                }}
+            >
+                <Upload size={16} />
+                Upload
+            </span>
+
+            <input
+                type="file"
+                accept="image/*,.pdf"
+                style={{ display: 'none' }}
+                onChange={(e) =>
+                    setDocs((prev) => ({
+                        ...prev,
+                        [name]: e.target.files?.[0] || null,
+                    }))
+                }
+            />
+        </label>
+    </div>
+);
 
     return (
         <div className="auth-shell">
