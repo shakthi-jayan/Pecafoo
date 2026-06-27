@@ -23,10 +23,9 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = env.list(
-    "DJANGO_ALLOWED_HOSTS",
+    "ALLOWED_HOSTS",
     default=[
-        "localhost",
-        "127.0.0.1",
+        "api.pecafoo.com",
     ],
 )
 
@@ -35,7 +34,6 @@ ALLOWED_HOSTS = env.list(
 # ============================================================
 
 INSTALLED_APPS = [
-
     "daphne",
 
     "django.contrib.admin",
@@ -73,7 +71,6 @@ INSTALLED_APPS = [
 # ============================================================
 
 MIDDLEWARE = [
-
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
@@ -189,14 +186,8 @@ SIMPLE_JWT = {
 # ============================================================
 
 CORS_ALLOWED_ORIGINS = env.list(
-    "CORS_ALLOWED_ORIGINS",
-    default=[
-        "https://pecafoo.com",
-        "https://www.pecafoo.com",
-        "https://restaurant.pecafoo.com",
-        "https://delivery.pecafoo.com",
-        "https://admin.pecafoo.com",
-    ],
+    "DJANGO_CORS_ALLOWED_ORIGINS",
+    default=[]
 )
 
 CORS_ALLOW_CREDENTIALS = True
@@ -206,15 +197,8 @@ CORS_ALLOW_CREDENTIALS = True
 # ============================================================
 
 CSRF_TRUSTED_ORIGINS = env.list(
-    "CSRF_TRUSTED_ORIGINS",
-    default=[
-        "https://api.pecafoo.com",
-        "https://pecafoo.com",
-        "https://www.pecafoo.com",
-        "https://restaurant.pecafoo.com",
-        "https://delivery.pecafoo.com",
-        "https://admin.pecafoo.com",
-    ],
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
+    default=[]
 )
 
 # ============================================================
