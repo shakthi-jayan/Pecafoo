@@ -99,8 +99,14 @@ class RegisterSerializer(serializers.ModelSerializer):
                 {"password_confirm": "Passwords do not match."}
             )
 
+        phone_number = attrs.get("phone_number")
+
         if phone_number and User.objects.filter(phone_number=phone_number).exists():
-            raise serializers.ValidationError({"phone_number": "This mobile number is already linked to another account."})
+            raise serializers.ValidationError(
+                {
+                    "phone_number": "This mobile number is already linked to another account."
+                }
+            )
 
         requested_role = attrs.get("role", User.Role.CUSTOMER)
         request = self.context.get("request")
