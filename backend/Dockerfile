@@ -18,9 +18,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Create virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Build-time verification
+RUN python -c "import django; print(django.get_version())" && \
+    python -c "import daphne; print('daphne ok')" && \
+    python -c "import psycopg2; print('psycopg2 ok')" && \
+    python -c "import channels; print('channels ok')"
 
 # ------------- Runtime Stage -------------
 FROM python:3.12-slim
@@ -34,18 +44,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Copy Python dependencies from builder
-COPY --from=builder /root/.local /root/.local
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy application code
 COPY . .
 
-# Make sure scripts in .local are usable
-ENV PATH=/root/.local/bin:$PATH
-
-# Create non-root user
+# Create non-root user and assign ownership
 RUN adduser --disabled-password --gecos '' appuser && \
-    chown -R appuser:appuser /app
+    chown -R appuser:appuser /app /opt/venv
 USER appuser
 
 EXPOSE 8000
