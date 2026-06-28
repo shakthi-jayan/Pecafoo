@@ -26,25 +26,25 @@ class HealthCheckView(APIView):
             with connection.cursor() as cursor:
                 cursor.execute("SELECT 1")
                 cursor.fetchone()
-            dependencies["database"] = "connected"
+            dependencies["database"] = {"status": "connected"}
         except Exception:
             db_ok = False
-            dependencies["database"] = "disconnected"
+            dependencies["database"] = {"status": "disconnected"}
 
         try:
             cache.set("health", "ok", 30)
             if cache.get("health") == "ok":
-                dependencies["redis"] = "connected"
+                dependencies["redis"] = {"status": "connected"}
             else:
-                dependencies["redis"] = "error"
+                dependencies["redis"] = {"status": "error"}
                 cache_ok = False
         except Exception:
             cache_ok = False
-            dependencies["redis"] = "disconnected"
+            dependencies["redis"] = {"status": "disconnected"}
             
-        dependencies["firebase"] = "initialized" if firebase_ok else "uninitialized"
+        dependencies["firebase"] = {"status": "initialized" if firebase_ok else "uninitialized"}
 
-        overall = db_ok and cache_ok and firebase_ok
+        overall = db_ok and cache_ok
 
         return Response(
             {
