@@ -210,17 +210,20 @@ STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 # ============================================================
 
 USE_REDIS_CACHE = True
-CACHE_BACKEND = env("CACHE_BACKEND", default="django_redis.cache.RedisCache")
-CACHE_LOCATION = env("CACHE_LOCATION", default="redis://redis:6379/3")
+CACHE_BACKEND = env(
+    "CACHE_BACKEND",
+    default="django.core.cache.backends.redis.RedisCache",
+)
+CACHE_LOCATION = env(
+    "CACHE_LOCATION",
+    default="redis://redis:6379/3",
+)
 
 if USE_REDIS_CACHE:
     CACHES = {
         "default": {
             "BACKEND": CACHE_BACKEND,
             "LOCATION": CACHE_LOCATION,
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            }
         }
     }
 else:
