@@ -49,6 +49,9 @@ class RegisterSerializer(serializers.ModelSerializer):
     Normalizes phone number to E.164 format before validation.
     """
 
+    email = serializers.EmailField(
+        help_text="Primary email address used for login."
+    )
     password = serializers.CharField(
         write_only=True,
         min_length=8,
@@ -79,34 +82,25 @@ class RegisterSerializer(serializers.ModelSerializer):
         ]
 
     def validate_email(self, value):
-        """Ensure email is unique."""
-        if User.objects.filter(email__iexact=value).exists():
-            raise serializers.ValidationError(
-                "An account already exists with this email. Please sign in instead."
-            )
+        """Return email in lowercase."""
         return value.lower()
 
     def validate_phone_number(self, value):
-        """Normalize and ensure phone number is unique if provided."""
+        """Normalize phone number."""
         if not value:
             return value
-        
-        # Normalize the phone number
-        normalized = normalize_phone_number(value)
-        
-        # Check for duplicates using the normalized number
-        if User.objects.filter(phone_number=normalized).exists():
-            raise serializers.ValidationError(
-                "This mobile number is already linked to an existing Pecafoo account. Please sign in instead."
-            )
-        return normalized
+        from accounts.phone_utils import normalize_phone_number
+        return normalize_phone_number(value)
 
     def validate(self, attrs):
-        """Ensure passwords match and validate role."""
+        """Ensure passwords match and validate role and identity reuse."""
         if attrs["password"] != attrs.pop("password_confirm"):
             raise serializers.ValidationError(
                 {"password_confirm": "Passwords do not match."}
             )
+
+        if phone_number and User.objects.filter(phone_number=phone_number).exists():
+            raise serializers.ValidationError({"phone_number": "This mobile number is already linked to another account."})
 
         requested_role = attrs.get("role", User.Role.CUSTOMER)
         request = self.context.get("request")
@@ -126,14 +120,20 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        """Create user with hashed password."""
+        """Create user and customer profile if applicable."""
         password = validated_data.pop("password")
         role = validated_data.get("role", User.Role.CUSTOMER)
+
         user = User.objects.create_user(password=password, **validated_data)
         if role == User.Role.ADMIN and not user.is_staff:
             user.is_staff = True
             user.is_verified = True
             user.save(update_fields=["is_staff", "is_verified"])
+
+        if role == User.Role.CUSTOMER:
+            from customers.models import CustomerProfile
+            CustomerProfile.objects.create(user=user)
+
         return user
 
 

@@ -13,35 +13,45 @@ class HealthCheckView(APIView):
     throttle_classes = []
 
     def get(self, request):
+        from django.conf import settings
+        from firebase_admin import _apps
+        
         db_ok = True
         cache_ok = True
-        checks = {}
+        firebase_ok = bool(_apps)
+        
+        dependencies = {}
 
         try:
             with connection.cursor() as cursor:
                 cursor.execute("SELECT 1")
                 cursor.fetchone()
-            checks["database"] = "ok"
-        except Exception as exc:
+            dependencies["database"] = "connected"
+        except Exception:
             db_ok = False
-            checks["database"] = str(exc)
+            dependencies["database"] = "disconnected"
 
         try:
             cache.set("health", "ok", 30)
-            checks["cache"] = "ok" if cache.get("health") == "ok" else "error"
-            if checks["cache"] != "ok":
+            if cache.get("health") == "ok":
+                dependencies["redis"] = "connected"
+            else:
+                dependencies["redis"] = "error"
                 cache_ok = False
-        except Exception as exc:
+        except Exception:
             cache_ok = False
-            checks["cache"] = str(exc)
+            dependencies["redis"] = "disconnected"
+            
+        dependencies["firebase"] = "initialized" if firebase_ok else "uninitialized"
 
-        overall = db_ok and cache_ok
+        overall = db_ok and cache_ok and firebase_ok
 
         return Response(
             {
-                "status": "ok" if overall else "degraded",
+                "status": "healthy" if overall else "degraded",
+                "version": getattr(settings, "VERSION", "unknown"),
                 "timestamp": timezone.now(),
-                "checks": checks,
+                "dependencies": dependencies,
             },
             status=200 if overall else 503,
         )

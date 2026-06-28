@@ -50,21 +50,17 @@ def _get_firebase_app():
         return None
 
 
-def verify_firebase_token(id_token: str) -> dict | None:
+def verify_firebase_token(id_token: str) -> dict:
     """
     Verify a Firebase ID token and return the decoded claims.
-
-    Args:
-        id_token: The Firebase ID token string from the frontend.
-
-    Returns:
-        Decoded token claims dict if valid, None otherwise.
-        Contains: uid, email, name, picture, sign_in_provider, etc.
+    Raises serializers.ValidationError if invalid.
     """
+    from rest_framework import serializers
+
     app = _get_firebase_app()
     if app is None:
         logger.error("Firebase app not initialized. Cannot verify token.")
-        return None
+        raise serializers.ValidationError({"code": "FIREBASE_ERROR", "message": "Firebase configuration error."})
 
     try:
         decoded_token = firebase_auth.verify_id_token(id_token, app=app)
@@ -72,13 +68,13 @@ def verify_firebase_token(id_token: str) -> dict | None:
         return decoded_token
     except firebase_auth.ExpiredIdTokenError:
         logger.warning("Firebase token has expired.")
-        return None
+        raise serializers.ValidationError({"code": "FIREBASE_TOKEN_EXPIRED", "message": "Firebase token has expired."})
     except firebase_auth.RevokedIdTokenError:
         logger.warning("Firebase token has been revoked.")
-        return None
+        raise serializers.ValidationError({"code": "FIREBASE_TOKEN_REVOKED", "message": "Firebase token has been revoked."})
     except firebase_auth.InvalidIdTokenError:
         logger.warning("Invalid Firebase token received.")
-        return None
+        raise serializers.ValidationError({"code": "FIREBASE_TOKEN_INVALID", "message": "Invalid Firebase token."})
     except Exception as e:
         logger.error(f"Unexpected error verifying Firebase token: {e}", exc_info=True)
-        return None
+        raise serializers.ValidationError({"code": "FIREBASE_ERROR", "message": "Could not verify Firebase token."})

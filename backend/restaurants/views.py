@@ -166,7 +166,7 @@ class MyRestaurantListCreateView(generics.ListCreateAPIView):
     List or create restaurants owned by the current user.
     """
 
-    permission_classes = [IsAuthenticated, IsRestaurantOwner]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -176,9 +176,20 @@ class MyRestaurantListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         return Restaurant.objects.filter(owner=self.request.user)
 
+    from django.db import transaction
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        if Restaurant.objects.filter(owner=request.user).exists():
+            return Response({"code": "PROFILE_ALREADY_EXISTS"}, status=status.HTTP_409_CONFLICT)
+        return super().create(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         name = serializer.validated_data.get("name", "")
-        slug = serializer.validated_data.get("slug", "") or slugify(name)
+        base_slug = slugify(name)
+        slug = base_slug
+        import uuid
+        while Restaurant.objects.filter(slug=slug).exists():
+            slug = f"{base_slug}-{uuid.uuid4().hex[:6]}"
         serializer.save(owner=self.request.user, slug=slug)
 
 

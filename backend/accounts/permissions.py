@@ -6,6 +6,7 @@ Each view can specify which roles are allowed to access it.
 """
 
 from rest_framework.permissions import BasePermission
+from accounts.utils import get_active_roles
 
 
 class IsCustomer(BasePermission):
@@ -17,7 +18,7 @@ class IsCustomer(BasePermission):
         return (
             request.user
             and request.user.is_authenticated
-            and request.user.role == "customer"
+            and "customer" in get_active_roles(request.user)
         )
 
 
@@ -30,7 +31,7 @@ class IsRestaurantOwner(BasePermission):
         return (
             request.user
             and request.user.is_authenticated
-            and request.user.role == "restaurant"
+            and "restaurant" in get_active_roles(request.user)
         )
 
 
@@ -43,7 +44,7 @@ class IsDeliveryPartner(BasePermission):
         return (
             request.user
             and request.user.is_authenticated
-            and request.user.role == "delivery"
+            and "delivery" in get_active_roles(request.user)
         )
 
 
@@ -56,7 +57,7 @@ class IsAdmin(BasePermission):
         return (
             request.user
             and request.user.is_authenticated
-            and request.user.role == "admin"
+            and "admin" in get_active_roles(request.user)
         )
 
 
@@ -72,7 +73,7 @@ class IsAdminOrReadOnly(BasePermission):
         return (
             request.user
             and request.user.is_authenticated
-            and request.user.role == "admin"
+            and "admin" in get_active_roles(request.user)
         )
 
 
@@ -83,8 +84,7 @@ class IsOwnerOrAdmin(BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        
-        if request.user.role == "admin":
+        if request.user.is_authenticated and "admin" in get_active_roles(request.user):
             return True
         
         owner = getattr(obj, "user", None) or getattr(obj, "owner", None)
@@ -97,8 +97,7 @@ class IsCustomerOrRestaurant(BasePermission):
     message = "Only customers and restaurant owners can perform this action."
 
     def has_permission(self, request, view):
-        return (
-            request.user
-            and request.user.is_authenticated
-            and request.user.role in ("customer", "restaurant")
-        )
+        if not (request.user and request.user.is_authenticated):
+            return False
+        roles = get_active_roles(request.user)
+        return "customer" in roles or "restaurant" in roles

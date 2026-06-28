@@ -112,18 +112,3 @@ class User(AbstractBaseUser, PermissionsMixin):
         """Return the user's full name."""
         return f"{self.first_name} {self.last_name}".strip() or self.email
 
-    @property
-    def is_customer(self):
-        return self.role == self.Role.CUSTOMER
-
-    @property
-    def is_restaurant_owner(self):
-        return self.role == self.Role.RESTAURANT
-
-    @property
-    def is_delivery_partner(self):
-        return self.role == self.Role.DELIVERY
-
-    @property
-    def is_admin_user(self):
-        return self.role == self.Role.ADMIN

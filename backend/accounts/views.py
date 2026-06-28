@@ -15,6 +15,7 @@ from django.conf import settings
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -39,9 +40,22 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
+class CustomRefreshToken(RefreshToken):
+    @classmethod
+    def for_user(cls, user):
+        token = super().for_user(user)
+
+        token["email"] = user.email
+        token["primary_role"] = user.role
+        
+        from accounts.utils import get_active_roles
+        token["active_roles"] = get_active_roles(user)
+        
+        return token
+
 def _get_tokens_for_user(user) -> dict:
     """Generate JWT access and refresh tokens for a user."""
-    refresh = RefreshToken.for_user(user)
+    refresh = CustomRefreshToken.for_user(user)
     return {
         "refresh": str(refresh),
         "access": str(refresh.access_token),
@@ -60,8 +74,20 @@ class RegisterView(generics.CreateAPIView):
 
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
 
+    from django.db import transaction
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
+        email = str(request.data.get("email", "")).lower().strip()
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        if email and User.objects.filter(email=email).exists():
+            return Response(
+                {"code": "ACCOUNT_EXISTS", "message": "This account already exists. Please login."},
+                status=status.HTTP_409_CONFLICT,
+            )
+
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
@@ -69,7 +95,8 @@ class RegisterView(generics.CreateAPIView):
         tokens = _get_tokens_for_user(user)
         user_data = UserSerializer(user).data
 
-        logger.info(f"New user registered: {user.email} (role: {user.role})")
+        from accounts.utils import safe_log_auth
+        safe_log_auth(request, action="REGISTER", user=user, status_code=201)
 
         return Response(
             {
@@ -93,8 +120,9 @@ class LoginView(APIView):
 
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -102,7 +130,8 @@ class LoginView(APIView):
         tokens = _get_tokens_for_user(user)
         user_data = UserSerializer(user).data
 
-        logger.info(f"User logged in: {user.email}")
+        from accounts.utils import safe_log_auth
+        safe_log_auth(request, action="LOGIN", user=user, status_code=200)
 
         return Response(
             {
@@ -126,7 +155,10 @@ class FirebaseAuthView(APIView):
 
     permission_classes = [AllowAny]
     serializer_class = FirebaseAuthSerializer
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
 
+    from django.db import transaction
+    @transaction.atomic
     def post(self, request):
         serializer = FirebaseAuthSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
@@ -135,12 +167,6 @@ class FirebaseAuthView(APIView):
         requested_role = serializer.validated_data.get("role", User.Role.CUSTOMER)
 
         decoded = verify_firebase_token(firebase_token)
-        if decoded is None:
-            logger.warning("Firebase token verification failed")
-            return Response(
-                {"error": "Invalid or expired Firebase token."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
 
         firebase_uid = decoded.get("uid")
         email = decoded.get("email", "")
@@ -187,6 +213,10 @@ class FirebaseAuthView(APIView):
             )
             is_new_user = True
             logger.info(f"New user created via Firebase: {email} (role: {requested_role})")
+            
+            if requested_role == User.Role.CUSTOMER and not hasattr(user, "customer_profile"):
+                from customers.models import CustomerProfile
+                CustomerProfile.objects.create(user=user)
         else:
             updated_fields = []
             if not user.firebase_uid:
@@ -212,7 +242,8 @@ class FirebaseAuthView(APIView):
         tokens = _get_tokens_for_user(user)
         user_data = UserSerializer(user).data
 
-        logger.info(f"Firebase authentication successful: {email}")
+        from accounts.utils import safe_log_auth
+        safe_log_auth(request, action="FIREBASE_AUTH", user=user, status_code=200)
 
         return Response(
             {
@@ -241,7 +272,8 @@ class PhoneOTPRequestView(APIView):
         otp = f"{random.randint(100000, 999999)}"
         cache.set(f"phone_otp:{phone_number}", otp, timeout=300)
 
-        logger.info(f"Phone OTP requested for: {phone_number}")
+        from accounts.utils import safe_log_auth
+        safe_log_auth(request, action="OTP_REQUEST", status_code=200)
 
         response_data = {
             "message": "OTP generated successfully.",
@@ -261,6 +293,8 @@ class PhoneOTPVerifyView(APIView):
 
     permission_classes = [AllowAny]
 
+    from django.db import transaction
+    @transaction.atomic
     def post(self, request):
         serializer = PhoneOTPVerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -292,6 +326,10 @@ class PhoneOTPVerifyView(APIView):
             )
             is_new_user = True
             logger.info(f"New phone user created: {synthetic_email}")
+            
+            if not hasattr(user, "customer_profile"):
+                from customers.models import CustomerProfile
+                CustomerProfile.objects.create(user=user)
 
         updated_fields = []
         if not user.is_verified:
@@ -598,7 +636,8 @@ class EmailVerificationConfirmView(APIView):
         user.save(update_fields=["is_verified"])
         cache.delete(f"email_verify_otp:{user.email}")
 
-        logger.info(f"Email verified for user: {user.email}")
+        from accounts.utils import safe_log_auth
+        safe_log_auth(request, action="EMAIL_VERIFY_SUCCESS", user=user, status_code=200)
 
         return Response(
             {"message": "Email verified successfully."},

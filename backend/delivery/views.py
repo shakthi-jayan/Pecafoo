@@ -43,11 +43,31 @@ from restaurants.models import Restaurant
 
 class DeliveryProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = DeliveryPartnerProfileSerializer
-    permission_classes = [IsAuthenticated, IsDeliveryPartner]
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        profile, _ = DeliveryPartnerProfile.objects.get_or_create(user=self.request.user)
-        return profile
+        try:
+            return DeliveryPartnerProfile.objects.get(user=self.request.user)
+        except DeliveryPartnerProfile.DoesNotExist:
+            from django.http import Http404
+            raise Http404
+
+    def get(self, request, *args, **kwargs):
+        from django.http import Http404
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            return Response({"profile_exists": False, "can_create": True})
+
+    from django.db import transaction
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        if DeliveryPartnerProfile.objects.filter(user=request.user).exists():
+            return Response({"code": "PROFILE_ALREADY_EXISTS"}, status=status.HTTP_409_CONFLICT)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ToggleAvailabilityView(APIView):

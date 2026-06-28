@@ -40,6 +40,9 @@ class Restaurant(models.Model):
         blank=True,
         help_text="Comma-separated cuisine types, e.g. 'Indian, Chinese, Italian'.",
     )
+    
+    gst_number = models.CharField(max_length=15, unique=True, blank=True, null=True, db_index=True)
+    fssai_license_number = models.CharField(max_length=14, unique=True, blank=True, null=True, db_index=True)
 
     
     logo = models.ImageField(upload_to="restaurants/logos/", blank=True, null=True)

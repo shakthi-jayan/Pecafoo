@@ -37,6 +37,8 @@ class DeliveryPartnerProfile(models.Model):
     )
     vehicle_number = models.CharField(max_length=20, blank=True)
     license_number = models.CharField(max_length=50, blank=True)
+    driving_license_number = models.CharField(max_length=50, unique=True, blank=True, null=True, db_index=True)
+    rc_number = models.CharField(max_length=50, unique=True, blank=True, null=True, db_index=True)
 
     
     is_verified = models.BooleanField(

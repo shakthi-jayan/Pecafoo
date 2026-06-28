@@ -91,6 +91,8 @@ class RestaurantListSerializer(serializers.ModelSerializer):
             "business_license",
             "food_safety_certificate",
             "owner_id_proof",
+            "gst_number",
+            "fssai_license_number",
             "city",
             "average_rating",
             "total_ratings",
@@ -129,6 +131,8 @@ class RestaurantDetailSerializer(serializers.ModelSerializer):
             "business_license",
             "food_safety_certificate",
             "owner_id_proof",
+            "gst_number",
+            "fssai_license_number",
             "phone",
             "email",
             "address",
@@ -171,7 +175,6 @@ class RestaurantCreateUpdateSerializer(serializers.ModelSerializer):
         model = Restaurant
         fields = [
             "name",
-            "slug",
             "description",
             "cuisine_type",
             "logo",
@@ -179,6 +182,8 @@ class RestaurantCreateUpdateSerializer(serializers.ModelSerializer):
             "business_license",
             "food_safety_certificate",
             "owner_id_proof",
+            "gst_number",
+            "fssai_license_number",
             "phone",
             "email",
             "address",
@@ -225,6 +230,8 @@ class RestaurantVerificationSerializer(serializers.ModelSerializer):
             "business_license",
             "food_safety_certificate",
             "owner_id_proof",
+            "gst_number",
+            "fssai_license_number",
             "created_at",
             "updated_at",
         ]
