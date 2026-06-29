@@ -46,10 +46,6 @@ ENV VITE_DELIVERY_APP_URL=$VITE_DELIVERY_APP_URL
 ARG VITE_ADMIN_APP_URL=https://admin.pecafoo.com
 ENV VITE_ADMIN_APP_URL=$VITE_ADMIN_APP_URL
 
-# Diagnostic to check if Dokploy passed the build args
-RUN echo "API_KEY=${VITE_FIREBASE_API_KEY}"
-RUN test -n "$VITE_FIREBASE_API_KEY" || (echo "FATAL: VITE_FIREBASE_API_KEY is empty. Dokploy is not passing build args!" && exit 1)
-
 # Build the app
 RUN npm run build
 
