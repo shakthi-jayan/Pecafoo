@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, FileText, Upload } from 'lucide-react';
+import { ArrowRight, FileText, Upload, User, Navigation, WalletCards, ShieldCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../App';
 import { deliveryAPI } from '../services/api';
+import { AuthProgress, PremiumAuthLayout } from '../../../shared-ui/PremiumUI';
 
 export default function RegisterPage() {
     const { register } = useAuth();
@@ -141,8 +142,19 @@ export default function RegisterPage() {
     );
 
     return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-default)', padding: 20 }}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="card" style={{ width: '100%', maxWidth: 520, padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-elevation)' }}>
+        <PremiumAuthLayout
+            tone="delivery"
+            eyebrow="Become a delivery partner"
+            title="Flexible work, with the whole day in view."
+            description="Set up your partner profile once, keep documents organized, and start delivering when it works for you."
+            features={[
+                { icon: Navigation, title: 'Choose your momentum', copy: 'Go online when you are ready.' },
+                { icon: WalletCards, title: 'Transparent earnings', copy: 'Clear daily and weekly totals.' },
+                { icon: ShieldCheck, title: 'Simple verification', copy: 'Documents stay grouped and visible.' },
+            ]}
+        >
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="auth-card">
+                <AuthProgress steps={['Account', 'Vehicle', 'Verify']} current={2} />
                 <div style={{ textAlign: 'center', marginBottom: 24 }}>
                     <div style={{ width: 64, height: 64, margin: '0 auto 16px', background: 'var(--gradient-primary)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 800, color: 'white', boxShadow: 'var(--shadow-accent)' }}>GO</div>
                     <h1 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: 8, color: 'var(--text)' }}>Join as Partner</h1>
@@ -204,6 +216,6 @@ export default function RegisterPage() {
                     Already have an account? <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 700, textDecoration: 'none' }}>Sign In</Link>
                 </p>
             </motion.div>
-        </div>
+        </PremiumAuthLayout>
     );
 }

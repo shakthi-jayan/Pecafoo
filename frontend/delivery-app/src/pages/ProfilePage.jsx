@@ -4,6 +4,7 @@ import { ArrowLeft, Truck, Shield, Save, Camera, FileText, Upload, ExternalLink 
 import { useNavigate } from 'react-router-dom';
 import { deliveryAPI } from '../services/api';
 import toast from 'react-hot-toast';
+import { ProfileHero } from '../../../shared-ui/PremiumUI';
 
 const ProfilePage = ({ user, onLogout }) => {
     const navigate = useNavigate();
@@ -91,25 +92,14 @@ const ProfilePage = ({ user, onLogout }) => {
 
     return (
         <div className="page" style={{ paddingBottom: 100 }}>
-            <div className="page-header">
-                <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer' }}><ArrowLeft size={22} /></button>
-                <h1 className="page-title">Profile</h1>
-            </div>
-
-            <motion.div className="card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: 'center', marginBottom: 16 }}>
-                <div style={{ width: 72, height: 72, borderRadius: 20, background: 'var(--gradient-primary)', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 800, color: 'white', position: 'relative' }}>
-                    {user?.first_name?.[0]?.toUpperCase() || '?'}
-                    <div style={{ position: 'absolute', bottom: -2, right: -2, width: 24, height: 24, borderRadius: 12, background: 'var(--bg-card)', border: '2px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Camera size={12} color="var(--text-muted)" />
-                    </div>
-                </div>
-                <h2 style={{ fontWeight: 700, marginBottom: 2 }}>{user?.first_name} {user?.last_name}</h2>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: 4 }}>{user?.email}</p>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: 4 }}>{user?.phone_number}</p>
-                <span className="badge badge-accent">Delivery Partner</span>
+            <button className="btn btn-secondary btn-sm profile-back-button" onClick={() => navigate(-1)}><ArrowLeft size={17} /> Back</button>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <ProfileHero initials={user?.first_name?.[0]?.toUpperCase() || '?'} name={`${user?.first_name || ''} ${user?.last_name || ''}`.trim()} subtitle={`${user?.email || ''}${user?.phone_number ? ` · ${user.phone_number}` : ''}`} badge="Delivery Partner">
+                    <span className={`profile-verification ${profile?.is_verified ? 'is-verified' : ''}`}><Shield size={16} />{profile?.is_verified ? 'Verified' : 'Review pending'}</span>
+                </ProfileHero>
             </motion.div>
 
-            <motion.div className="card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={{ marginBottom: 16 }}>
+            <motion.div className="card profile-form-section" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={{ marginBottom: 16 }}>
                 <h3 style={{ fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Truck size={18} /> Vehicle Information</h3>
                 {loading ? [1, 2, 3].map(i => <div key={i} className="skeleton" style={{ height: 44, marginBottom: 12 }} />) : (
                     <>
@@ -135,7 +125,7 @@ const ProfilePage = ({ user, onLogout }) => {
                 )}
             </motion.div>
 
-            <motion.div className="card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} style={{ marginBottom: 16 }}>
+            <motion.div className="card profile-form-section" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} style={{ marginBottom: 16 }}>
                 <h3 style={{ fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><FileText size={18} /> Uploaded Documents</h3>
                 <DocField label="ID Proof" name="id_proof" currentUrl={profile?.id_proof} />
                 <DocField label="Driving License / Vehicle Permit" name="license_image" currentUrl={profile?.license_image} />

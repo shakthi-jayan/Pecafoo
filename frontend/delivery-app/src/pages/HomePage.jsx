@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import MapView from '../components/shared/MapView';
 import SurgeBadge from '../components/shared/SurgeBadge';
 import { useAuth } from '../App';
+import { MetricCard, PageHero, SectionHeader } from '../../../shared-ui/PremiumUI';
 
 const INCOMING_POLL_INTERVAL = 8000; 
 const ACCEPT_TIMEOUT = 15; 
@@ -162,12 +163,11 @@ export default function HomePage() {
 
     return (
         <div className="page page-shell stack-safe" style={{ paddingBottom: 132 }}>
-            {}
-            <div style={{
-                position: 'relative', margin: '-20px -20px 20px -20px',
-                height: 300, background: 'var(--bg-elevated)',
-                borderBottomLeftRadius: 24, borderBottomRightRadius: 24, overflow: 'hidden'
-            }}>
+            <PageHero eyebrow="Partner dashboard" title={`Ready when you are${user?.first_name ? `, ${user.first_name}` : ''}.`} description={available ? 'You’re online and visible for nearby delivery requests.' : 'Review your day, then go online when you’re ready to move.'} compact>
+                <div className={`delivery-status-orbit ${available ? 'is-online' : ''}`}><span /><strong>{available ? 'Live' : 'Paused'}</strong><small>Partner status</small></div>
+            </PageHero>
+            <SectionHeader eyebrow="Your area" title="Live delivery map" description="Your position, nearby demand, and suggested zones in one view." />
+            <div className="delivery-map-card">
                 {currentLocation ? (
                     <MapView center={currentLocation} markers={markers} zone={hotspotZone} style={{ height: 300, width: '100%' }} />
                 ) : (
@@ -326,12 +326,7 @@ export default function HomePage() {
                 )}
 
                 {}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                    <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Quick Stats</h2>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'var(--bg-elevated)', borderRadius: 20, fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        <Clock size={14} /> Today
-                    </div>
-                </div>
+                <SectionHeader eyebrow="Performance" title="Today at a glance" description="Earnings and delivery momentum, without the spreadsheet." action={<span className="badge badge-accent"><Clock size={14} /> Today</span>} />
 
                 {}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
@@ -346,14 +341,8 @@ export default function HomePage() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 + i * 0.05 }}
-                            className="card"
-                            style={{ textAlign: 'center', padding: '20px 12px', borderRadius: 20 }}
                         >
-                            <div style={{ width: 36, height: 36, margin: '0 auto 10px', borderRadius: 10, background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <Icon size={18} color={color} />
-                            </div>
-                            <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: 6 }}>{label}</p>
-                            <p style={{ fontSize: '1.5rem', fontWeight: 800, color }}>{value}</p>
+                            <MetricCard icon={Icon} label={label} value={loading ? '—' : value} tone={color} detail="Live" />
                         </motion.div>
                     ))}
                 </div>

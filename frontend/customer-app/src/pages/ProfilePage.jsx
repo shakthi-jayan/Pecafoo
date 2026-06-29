@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, Mail, Phone, MapPin, LogOut, ChevronRight, Bell, Heart, HelpCircle, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { ProfileHero, SettingsGroup, SettingsRow } from '../../../shared-ui/PremiumUI';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
@@ -35,48 +36,19 @@ const ProfilePage = () => {
 
     return (
         <div className="page">
-            <div className="page-header"><h1 className="page-title">Profile</h1></div>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                {}
-                <div className="card" style={{ padding: 'var(--space-lg)', marginBottom: 'var(--space-lg)', textAlign: 'center' }}>
-                    <div style={{
-                        width: 80, height: 80, borderRadius: '50%', margin: '0 auto var(--space-md)',
-                        background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 'var(--font-size-3xl)', fontWeight: 800, color: 'white', boxShadow: 'var(--shadow-accent)',
-                    }}>
-                        {user.first_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
-                    </div>
-                    <h2 style={{ fontWeight: 700, marginBottom: 4 }}>{user.first_name} {user.last_name}</h2>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
-                        <Mail size={14} />{user.email}
-                    </div>
-                    {user.phone_number && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', marginTop: 4 }}>
-                            <Phone size={14} />{user.phone_number}
-                        </div>
-                    )}
-                    <span className="badge badge-accent" style={{ marginTop: 'var(--space-sm)' }}>
-                        {user.role?.replace(/\b\w/g, c => c.toUpperCase())}
-                    </span>
-                </div>
-
-                {}
-                <div className="card" style={{ overflow: 'hidden' }}>
-                    {menuItems.map(({ icon: Icon, label, action }, i) => (
-                        <button key={label} onClick={action} style={{
-                            display: 'flex', alignItems: 'center', gap: 'var(--space-md)', padding: 'var(--space-md)',
-                            width: '100%', background: 'transparent', color: 'var(--text-primary)', textAlign: 'left',
-                            borderBottom: i < menuItems.length - 1 ? '1px solid var(--border-light)' : 'none',
-                            transition: 'background 0.15s',
-                        }}>
-                            <div style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--bg-elevated)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <Icon size={18} style={{ color: 'var(--accent)' }} />
-                            </div>
-                            <span style={{ flex: 1, fontWeight: 500 }}>{label}</span>
-                            <ChevronRight size={18} color="var(--text-muted)" />
-                        </button>
-                    ))}
-                </div>
+                <ProfileHero
+                    initials={user.first_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
+                    name={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
+                    subtitle={user.email}
+                    badge={user.role?.replace(/\b\w/g, c => c.toUpperCase())}
+                />
+                <SettingsGroup title="Account" description={user.phone_number ? `Connected to ${user.phone_number}` : 'Your saved Pecafoo preferences'}>
+                    {menuItems.slice(0, 3).map(({ icon, label, action }) => <SettingsRow key={label} icon={icon} title={label} subtitle={label === 'My Addresses' ? 'Delivery locations and defaults' : label === 'Favorites' ? 'Restaurants and dishes you love' : 'Order and account updates'} onClick={action} trailing={<ChevronRight size={17} />} />)}
+                </SettingsGroup>
+                <SettingsGroup title="Support & privacy" description="Help, safety, and account controls">
+                    {menuItems.slice(3).map(({ icon, label, action }) => <SettingsRow key={label} icon={icon} title={label} onClick={action} trailing={<ChevronRight size={17} />} />)}
+                </SettingsGroup>
 
                 {}
                 <button onClick={handleLogout} className="btn btn-full" id="logout-btn"

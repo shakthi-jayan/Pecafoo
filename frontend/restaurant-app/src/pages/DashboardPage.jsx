@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { IndianRupee, ShoppingBag, TrendingUp, Clock } from 'lucide-react';
 import { ordersAPI, restaurantsAPI } from '../services/api';
+import { MetricCard, PageHero, SectionHeader } from '../../../shared-ui/PremiumUI';
 
 const DashboardPage = () => {
     const [stats, setStats] = useState({ orders: 0, revenue: 0, pending: 0 });
@@ -34,24 +35,19 @@ const DashboardPage = () => {
 
     return (
         <div className="page-shell">
-            <div className="page-header"><h1 className="page-title">Dashboard</h1></div>
+            <PageHero eyebrow="Restaurant overview" title="Service, at a glance." description="Stay on top of today's orders, kitchen flow, and restaurant performance.">
+                <div className="restaurant-service-status"><span /><div><small>Kitchen status</small><strong>{stats.pending > 0 ? `${stats.pending} orders moving` : 'Ready for orders'}</strong></div></div>
+            </PageHero>
+            <SectionHeader eyebrow="Performance" title="Today’s essentials" description="The numbers your team needs before the next order arrives." />
             <div className="stat-grid">
                 {statCards.map(({ icon: Icon, label, value, color }, i) => (
-                    <motion.div key={label} className="card stat-card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <div>
-                                <p className="stat-label">{label}</p>
-                                <p className="stat-value" style={{ color }}>{value}</p>
-                            </div>
-                            <div style={{ width: 44, height: 44, borderRadius: 12, background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <Icon size={22} color={color} />
-                            </div>
-                        </div>
+                    <motion.div key={label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+                        <MetricCard icon={Icon} label={label} value={value} tone={color} detail="Today" />
                     </motion.div>
                 ))}
             </div>
+            <SectionHeader eyebrow="Live queue" title="Recent orders" description="The latest tickets entering your restaurant workflow." />
             <div className="card stack-safe">
-                <h3 style={{ fontWeight: 700, marginBottom: 16 }}>Recent Orders</h3>
                 {recentOrders.length > 0 ? (
                     <div className="table-wrapper">
                         <table>

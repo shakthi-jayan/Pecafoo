@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, User, Phone, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, Phone, ArrowRight, Heart, MapPin, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { AuthProgress, PremiumAuthLayout } from '../../../shared-ui/PremiumUI';
 
 
 const RegisterPage = () => {
@@ -53,13 +54,24 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="auth-shell">
+        <PremiumAuthLayout
+            tone="customer"
+            eyebrow="A table with your name on it"
+            title="Your next favorite meal starts here."
+            description="Create one account for effortless ordering, saved favorites, flexible addresses, and real-time delivery updates."
+            features={[
+                { icon: Heart, title: 'Make it yours', copy: 'Save dishes and restaurants you love.' },
+                { icon: MapPin, title: 'Ready wherever you are', copy: 'Keep delivery addresses close at hand.' },
+                { icon: ShieldCheck, title: 'Private and secure', copy: 'Your account stays protected.' },
+            ]}
+        >
             <motion.div
                 className="auth-card"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.45 }}
             >
+                <AuthProgress steps={['Account', 'Details', 'Ready']} current={2} />
                 <div className="auth-brand">
                     <motion.div
                         className="auth-mark"
@@ -186,7 +198,7 @@ const RegisterPage = () => {
                     <Link to="/login" style={{ color: 'var(--accent-strong)', fontWeight: 800 }}>Sign In</Link>
                 </p>
             </motion.div>
-        </div>
+        </PremiumAuthLayout>
     );
 };
 

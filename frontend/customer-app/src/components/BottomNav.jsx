@@ -23,18 +23,19 @@ const BottomNav = () => {
     ];
 
     return (
-        <nav className="bottom-nav">
+        <nav className="bottom-nav" aria-label="Primary navigation">
+            <span className="bottom-nav-sheen" aria-hidden="true" />
             {navItems.map(({ to, icon: Icon, label, badge }) => (
                 <NavLink
                     key={to}
                     to={to}
                     className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                 >
-                    <span className="nav-icon-wrap">
-                        <Icon />
+                        <span className="nav-icon-wrap">
+                            <Icon />
                     </span>
                     {badge > 0 && <span className="nav-badge">{badge}</span>}
-                    <span>{label}</span>
+                        <span className="nav-label">{label}</span>
                 </NavLink>
             ))}
         </nav>

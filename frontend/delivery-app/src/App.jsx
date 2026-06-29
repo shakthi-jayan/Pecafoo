@@ -150,7 +150,8 @@ function BottomNav() {
   if (!isAuthenticated) return null;
 
   return (
-    <nav className="bottom-nav">
+    <nav className="bottom-nav" aria-label="Partner navigation">
+      <span className="bottom-nav-sheen" aria-hidden="true" />
       {[
         { to: '/', icon: MapPin, label: 'Home' },
         { to: '/deliveries', icon: ClipboardList, label: 'Deliveries' },
@@ -159,7 +160,7 @@ function BottomNav() {
       ].map(({ to, icon: Icon, label }) => (
         <NavLink key={to} to={to} end className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <span className="nav-icon-wrap"><Icon size={22} /></span>
-          <span>{label}</span>
+          <span className="nav-label">{label}</span>
         </NavLink>
       ))}
     </nav>

@@ -12,6 +12,7 @@ import { restaurantsAPI } from '../services/api';
 import RestaurantCard from '../components/RestaurantCard';
 import CustomerHomeHeader from '../components/home/CustomerHomeHeader';
 import RestaurantMap from '../components/maps/RestaurantMap';
+import { ContentShelf, PageHero, SectionHeader } from '../../../shared-ui/PremiumUI';
 
 const fallbackCategories = [
     { name: 'All', icon: Utensils, color: '#ffb546', softColor: '#fff1cf' },
@@ -110,50 +111,24 @@ const HomePage = () => {
                 onNotifications={() => navigate('/notifications')}
             />
 
-            <motion.section
-                className="home-hero"
+            <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 }}
             >
-                <p className="hero-topline">Pecafoo Picks Today</p>
-                <h2 className="hero-title">Cravings delivered fast, fresh, and nearby.</h2>
-                <p className="hero-copy">
-                    Explore trending meals, discover local favorites, and keep your next order just a tap away.
-                </p>
-
-                <div
-                    onClick={handleRetryLocation}
-                    className="location-chip"
-                    role="button"
-                    tabIndex={0}
+                <PageHero
+                    eyebrow="Pecafoo picks today"
+                    title="Cravings, beautifully close."
+                    description="Explore trending meals and local favorites, with every part of your next order just a tap away."
+                    actions={<><button className="btn btn-primary" onClick={() => navigate('/food-products')}>Order now <ChevronRight size={16} /></button><button className="btn btn-outline" onClick={() => navigate('/search')}>Explore nearby</button></>}
                 >
-                    {locationLoading || retrying ? (
-                        <Loader size={16} className="spin" />
-                    ) : (
-                        <MapPin size={16} />
-                    )}
-                    <span>
-                        {locationLoading || retrying
-                            ? 'Detecting location...'
-                            : address
-                                ? `Delivering to ${address}`
-                                : permissionDenied
-                                    ? 'Tap to enable location'
-                                    : 'Detecting your location...'}
-                    </span>
-                    <ChevronDown size={14} />
-                </div>
-
-                <div className="hero-actions">
-                    <button className="btn btn-primary" onClick={() => navigate('/food-products')}>
-                        Order now <ChevronRight size={16} />
+                    <button onClick={handleRetryLocation} className="premium-location-card" type="button">
+                        <span className="premium-location-icon">{locationLoading || retrying ? <Loader size={20} className="spin" /> : <MapPin size={20} />}</span>
+                        <span><small>Delivering to</small><strong>{locationLoading || retrying ? 'Finding your location…' : address || (permissionDenied ? 'Enable location' : 'Current location')}</strong></span>
+                        <ChevronDown size={16} />
                     </button>
-                    <button className="btn btn-outline" onClick={() => navigate('/search')}>
-                        Explore
-                    </button>
-                </div>
-            </motion.section>
+                </PageHero>
+            </motion.div>
 
             <motion.div
                 className="search-bar"
@@ -312,19 +287,14 @@ const HomePage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
                 >
-                    <div className="section-header">
-                        <h2 className="section-title" style={{ marginBottom: 0 }}>Featured</h2>
-                        <button className="see-all" onClick={() => navigate('/search?featured=true')}>
-                            See All <ChevronRight size={14} />
-                        </button>
-                    </div>
-                    <div className="featured-row">
+                    <SectionHeader eyebrow="Editor’s shelf" title="Featured near you" description="Standout kitchens and local favorites worth discovering." action={<button className="see-all" onClick={() => navigate('/search?featured=true')}>See All <ChevronRight size={14} /></button>} />
+                    <ContentShelf>
                         {featuredRestaurants.map((restaurant) => (
                             <div key={restaurant.id}>
                                 <RestaurantCard restaurant={restaurant} />
                             </div>
                         ))}
-                    </div>
+                    </ContentShelf>
                 </motion.section>
             )}
 
@@ -334,11 +304,7 @@ const HomePage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
             >
-                <div className="section-header">
-                    <h2 className="section-title" style={{ marginBottom: 0 }}>
-                        {coords ? 'Nearby Restaurants' : restaurants.length > 0 ? 'Restaurants' : 'No Restaurants Yet'}
-                    </h2>
-                    {coords && (
+                <SectionHeader eyebrow="Around you" title={coords ? 'Nearby restaurants' : restaurants.length > 0 ? 'Restaurants' : 'No restaurants yet'} description="Fresh options organized for quick, comfortable browsing." action={coords && (
                         <button
                             className="btn btn-outline btn-sm"
                             onClick={fetchRestaurants}
@@ -346,8 +312,7 @@ const HomePage = () => {
                         >
                             <RefreshCw size={12} /> Refresh
                         </button>
-                    )}
-                </div>
+                    )} />
 
                 {loading ? (
                     <div className="results-stack">

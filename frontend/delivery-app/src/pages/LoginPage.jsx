@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Navigation, ShieldCheck, TrendingUp } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../App';
+import { PremiumAuthLayout } from '../../../shared-ui/PremiumUI';
 
 export default function LoginPage() {
     const { login } = useAuth();
@@ -46,8 +47,18 @@ export default function LoginPage() {
     };
 
     return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-default)', padding: 20 }}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="card" style={{ width: '100%', maxWidth: 400, padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-elevation)' }}>
+        <PremiumAuthLayout
+            tone="delivery"
+            eyebrow="Pecafoo delivery"
+            title="Own your route. See every opportunity clearly."
+            description="A focused partner experience for deliveries, earnings, navigation, and performance—without the noise."
+            features={[
+                { icon: Navigation, title: 'Routes that make sense', copy: 'Pickup and drop-off details in one place.' },
+                { icon: TrendingUp, title: 'Earnings at a glance', copy: 'Understand today, this week, and beyond.' },
+                { icon: ShieldCheck, title: 'Partner support', copy: 'Verified details and dependable account access.' },
+            ]}
+        >
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="auth-card">
                 <div style={{ textAlign: 'center', marginBottom: 32 }}>
                     <div style={{ width: 64, height: 64, margin: '0 auto 16px', background: 'var(--gradient-primary)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 800, color: 'white', boxShadow: 'var(--shadow-accent)' }}>GO</div>
                     <h1 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: 8, color: 'var(--text)' }}>Partner Login</h1>
@@ -70,6 +81,6 @@ export default function LoginPage() {
                     Don&apos;t have an account? <Link to="/register" style={{ color: 'var(--accent)', fontWeight: 800 }}>Sign Up</Link>
                 </p>
             </motion.div>
-        </div>
+        </PremiumAuthLayout>
     );
 }

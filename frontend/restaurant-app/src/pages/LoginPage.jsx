@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChefHat, Clock3, BarChart3 } from 'lucide-react';
 import { useAuth } from '../App';
 import toast from 'react-hot-toast';
+import { PremiumAuthLayout } from '../../../shared-ui/PremiumUI';
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -45,7 +46,17 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="auth-shell">
+        <PremiumAuthLayout
+            tone="restaurant"
+            eyebrow="Pecafoo for restaurants"
+            title="Your dining room, kitchen, and growth—in one calm workspace."
+            description="Stay ahead of every order, keep your menu fresh, and understand the moments that grow your restaurant."
+            features={[
+                { icon: ChefHat, title: 'Kitchen clarity', copy: 'A focused view from accepted to ready.' },
+                { icon: Clock3, title: 'Orders in rhythm', copy: 'See what needs attention at a glance.' },
+                { icon: BarChart3, title: 'Useful insights', copy: 'Performance without dashboard clutter.' },
+            ]}
+        >
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="auth-card">
                 <div style={{ textAlign: 'center', marginBottom: 32 }}>
                     <div style={{ width: 64, height: 64, margin: '0 auto 16px', background: 'var(--gradient-primary)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 800, color: 'white', boxShadow: 'var(--shadow-accent)' }}>Chef</div>
@@ -69,7 +80,7 @@ const LoginPage = () => {
                     Don&apos;t have an account? <Link to="/register" style={{ color: 'var(--accent)', fontWeight: 700 }}>Sign Up</Link>
                 </p>
             </motion.div>
-        </div>
+        </PremiumAuthLayout>
     );
 };
 

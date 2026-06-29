@@ -20,32 +20,18 @@ const RestaurantCard = ({ restaurant, showDistance = false }) => {
             tabIndex={0}
             id={`restaurant-${restaurant.id}`}
         >
-            {restaurant.cover_image ? (
-                <img
-                    src={restaurant.cover_image}
-                    alt={restaurant.name}
-                    className="restaurant-card-image"
-                    loading="lazy"
-                />
-            ) : (
-                <div
-                    className="restaurant-card-image"
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '2.4rem',
-                    }}
-                />
-            )}
-
-            <button
-                onClick={handleWishlistClick}
-                className="wishlist-btn"
-                style={{ color: wishlisted ? '#f43f5e' : 'var(--text-secondary)' }}
-            >
-                <Heart size={20} fill={wishlisted ? '#f43f5e' : 'transparent'} strokeWidth={wishlisted ? 0 : 2} />
-            </button>
+            <div className="restaurant-card-media">
+                {restaurant.cover_image ? (
+                    <img src={restaurant.cover_image} alt={restaurant.name} className="restaurant-card-image" loading="lazy" />
+                ) : (
+                    <div className="restaurant-card-image restaurant-card-placeholder"><span>{restaurant.name?.charAt(0)}</span></div>
+                )}
+                <div className="restaurant-card-media-shade" />
+                <span className={`restaurant-open-pill ${restaurant.is_open ? 'is-open' : ''}`}>{restaurant.is_open ? 'Open' : 'Closed'}</span>
+                <button onClick={handleWishlistClick} className="wishlist-btn" aria-label={wishlisted ? `Remove ${restaurant.name} from favorites` : `Add ${restaurant.name} to favorites`} style={{ color: wishlisted ? '#f43f5e' : 'var(--text-secondary)' }}>
+                    <Heart size={20} fill={wishlisted ? '#f43f5e' : 'transparent'} strokeWidth={wishlisted ? 0 : 2} />
+                </button>
+            </div>
 
             <div className="restaurant-card-body">
                 <div className="restaurant-card-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -91,9 +77,7 @@ const RestaurantCard = ({ restaurant, showDistance = false }) => {
                 </div>
 
                 <div className="restaurant-card-footer">
-                    <span style={{ color: restaurant.is_open ? 'var(--success)' : 'var(--danger)', fontSize: '0.78rem', fontWeight: 800 }}>
-                        {restaurant.is_open ? 'Open now' : 'Closed'}
-                    </span>
+                    <span className="restaurant-delivery-note">Delivery details at checkout</span>
                     <span className="restaurant-cta">
                         View menu <ArrowRight size={14} />
                     </span>

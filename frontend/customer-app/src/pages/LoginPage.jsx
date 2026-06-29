@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Smartphone } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Smartphone, Sparkles, MapPin, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { PremiumAuthLayout } from '../../../shared-ui/PremiumUI';
 
 
 const LoginPage = () => {
@@ -80,7 +81,17 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="auth-shell">
+        <PremiumAuthLayout
+            tone="customer"
+            eyebrow="Food, beautifully simple"
+            title="Everything you crave, closer than ever."
+            description="Discover local favorites, follow every order live, and turn an everyday meal into something worth looking forward to."
+            features={[
+                { icon: Sparkles, title: 'Curated for you', copy: 'Restaurants and dishes matched to your taste.' },
+                { icon: MapPin, title: 'Live delivery', copy: 'Clear ETAs from the kitchen to your door.' },
+                { icon: ShieldCheck, title: 'Order confidently', copy: 'Secure sign-in and dependable support.' },
+            ]}
+        >
             <motion.div
                 className="auth-card"
                 initial={{ opacity: 0, y: 20 }}
@@ -254,7 +265,7 @@ const LoginPage = () => {
                     </Link>
                 </p>
             </motion.div>
-        </div>
+        </PremiumAuthLayout>
     );
 };
 

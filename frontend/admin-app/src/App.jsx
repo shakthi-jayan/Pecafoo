@@ -17,6 +17,9 @@ import {
   ExternalLink,
   Settings2,
   Clock3,
+  Activity,
+  BarChart3,
+  ServerCog,
 } from 'lucide-react';
 import { authAPI, restaurantsAPI, deliveryAPI, analyticsAPI } from './services/api';
 import { motion } from 'framer-motion';
@@ -25,6 +28,7 @@ import UsersPage from './pages/UsersPage';
 import OrdersPage from './pages/OrdersPage';
 import PricingPanel from './pages/PricingPanel';
 import NotFoundPage from './pages/NotFoundPage';
+import { AuthProgress, MetricCard, PageHero, PremiumAuthLayout, SectionHeader } from '../../shared-ui/PremiumUI';
 
 const AuthContext = createContext(null);
 const useAuth = () => useContext(AuthContext);
@@ -94,7 +98,17 @@ function LoginPage() {
   };
 
   return (
-    <div className="auth-shell">
+    <PremiumAuthLayout
+      tone="admin"
+      eyebrow="Pecafoo operations"
+      title="The whole platform, with the signal turned up."
+      description="Monitor growth, review operations, and keep every side of the marketplace healthy from one deliberate workspace."
+      features={[
+        { icon: Activity, title: 'Live operations', copy: 'Orders and activity without the clutter.' },
+        { icon: BarChart3, title: 'Decision-ready metrics', copy: 'The numbers that matter, in context.' },
+        { icon: ServerCog, title: 'Platform control', copy: 'Management tools with clear hierarchy.' },
+      ]}
+    >
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="auth-card">
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{ width: 64, height: 64, margin: '0 auto 16px', background: 'var(--gradient-primary)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem', boxShadow: 'var(--shadow-accent)' }}>Admin</div>
@@ -112,7 +126,7 @@ function LoginPage() {
           Need the first admin account? <Link to="/register" style={{ color: 'var(--accent)', fontWeight: 600 }}>Bootstrap Admin</Link>
         </p>
       </motion.div>
-    </div>
+    </PremiumAuthLayout>
   );
 }
 
@@ -149,8 +163,19 @@ function RegisterPage() {
   const handleChange = (event) => setFormData({ ...formData, [event.target.name]: event.target.value });
 
   return (
-    <div className="auth-shell">
+    <PremiumAuthLayout
+      tone="admin"
+      eyebrow="Secure administration"
+      title="Set up trusted access to Pecafoo operations."
+      description="Create an administrator identity for platform oversight, verification, pricing, and marketplace health."
+      features={[
+        { icon: ShieldCheck, title: 'Restricted access', copy: 'Bootstrap or authorized administrators only.' },
+        { icon: Activity, title: 'Operational awareness', copy: 'See marketplace health in one view.' },
+        { icon: ServerCog, title: 'Purpose-built tools', copy: 'Focused controls for platform teams.' },
+      ]}
+    >
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="auth-card">
+        <AuthProgress steps={['Identity', 'Security', 'Access']} current={2} />
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <div style={{ width: 64, height: 64, margin: '0 auto 16px', background: 'var(--gradient-primary)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem', boxShadow: 'var(--shadow-accent)' }}>Admin</div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 4 }}>Create Admin Account</h1>
@@ -173,7 +198,7 @@ function RegisterPage() {
           Already have an account? <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 600 }}>Sign In</Link>
         </p>
       </motion.div>
-    </div>
+    </PremiumAuthLayout>
   );
 }
 
@@ -200,20 +225,18 @@ function DashboardPage() {
 
   return (
     <div className="page-shell">
-      <div className="page-header"><h1 className="page-title">Dashboard</h1></div>
+      <PageHero eyebrow="Platform pulse" title="Good morning, Admin." description="A concise view of Pecafoo's marketplace health and today's operating rhythm.">
+        <div className="admin-health-orbit"><Activity size={34} /><span>Systems overview</span><strong>Live</strong></div>
+      </PageHero>
+      <SectionHeader eyebrow="Today" title="Marketplace at a glance" description="Live totals across customers, partners, orders, and revenue." />
       <div className="stat-grid">
         {statCards.map(({ icon: Icon, label, value, color }, index) => (
-          <motion.div key={label} className="card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.08 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <p className="stat-label">{label}</p>
-                {loading ? <div className="skeleton" style={{ width: 110, height: 30, marginTop: 8 }} /> : <p className="stat-value" style={{ color }}>{value}</p>}
-              </div>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon size={22} color={color} /></div>
-            </div>
+          <motion.div key={label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.08 }}>
+            <MetricCard icon={Icon} label={label} value={loading ? '—' : value} tone={color} detail="Live" />
           </motion.div>
         ))}
       </div>
+      <SectionHeader eyebrow="Operations" title="Today's flow" description="Delivery outcomes and revenue context for the current day." />
       <div className="card page-shell" style={{ marginBottom: 16 }}>
         <h3 style={{ fontWeight: 700, marginBottom: 16 }}>Today's Breakdown</h3>
         {loading ? (

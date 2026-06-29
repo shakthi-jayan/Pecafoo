@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, FileText, Upload, MapPin, Loader2, AlertCircle, ExternalLink } from 'lucide-react';
+import { ArrowRight, FileText, Upload, MapPin, Loader2, AlertCircle, ExternalLink, ChefHat, BarChart3, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../App';
 import { restaurantsAPI } from '../services/api';
 import toast from 'react-hot-toast';
+import { AuthProgress, PremiumAuthLayout } from '../../../shared-ui/PremiumUI';
 
 const RegisterPage = () => {
     const navigate = useNavigate();
@@ -379,8 +380,19 @@ const RegisterPage = () => {
     );
 
     return (
-        <div className="auth-shell">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="auth-card" style={{ maxWidth: 560 }}>
+        <PremiumAuthLayout
+            tone="restaurant"
+            eyebrow="Partner with Pecafoo"
+            title="Bring your restaurant into one beautifully organized workspace."
+            description="Create your storefront, verify the essentials, and prepare your team for a smoother service."
+            features={[
+                { icon: ChefHat, title: 'Built for service', copy: 'Menu, kitchen, and orders stay connected.' },
+                { icon: BarChart3, title: 'Grow with context', copy: 'See the signals behind every shift.' },
+                { icon: ShieldCheck, title: 'Guided verification', copy: 'Business documents in one clear flow.' },
+            ]}
+        >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="auth-card">
+                <AuthProgress steps={['Owner', 'Restaurant', 'Verify']} current={2} />
                 <div style={{ textAlign: 'center', marginBottom: 28 }}>
                     <div style={{ width: 64, height: 64, margin: '0 auto 16px', background: 'var(--gradient-primary)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 800, color: 'white', boxShadow: 'var(--shadow-accent)' }}>Chef</div>
                     <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 4 }}>Create Restaurant Account</h1>
@@ -747,7 +759,7 @@ const RegisterPage = () => {
                     Already have an account? <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 700 }}>Sign In</Link>
                 </p>
             </motion.div>
-        </div>
+        </PremiumAuthLayout>
     );
 };
 

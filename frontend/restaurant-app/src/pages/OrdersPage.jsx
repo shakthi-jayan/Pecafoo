@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ClipboardList, Check, X } from 'lucide-react';
 import { ordersAPI } from '../services/api';
 import toast from 'react-hot-toast';
+import { PageHero, SectionHeader } from '../../../shared-ui/PremiumUI';
 
 const statusFlow = { placed: 'confirmed', confirmed: 'preparing', preparing: 'ready', ready: 'picked_up' };
 
@@ -31,8 +32,10 @@ const OrdersPage = () => {
 
     return (
         <div>
-            <div className="page-header">
-                <h1 className="page-title">Orders</h1>
+            <PageHero eyebrow="Kitchen queue" title="Orders in motion." description="Move each ticket through a clear service timeline, from placement to pickup." compact>
+                <div className="order-queue-symbol"><ClipboardList size={34} /><span>{filtered.length}</span><small>in this view</small></div>
+            </PageHero>
+            <SectionHeader eyebrow="Filter" title="Service stages" action={
                 <div className="chip-row">
                     {['all', 'placed', 'confirmed', 'preparing', 'ready', 'delivered'].map(f => (
                         <button key={f} onClick={() => setFilter(f)} className={`btn btn-sm ${filter === f ? 'btn-primary' : 'btn-secondary'}`}>
@@ -40,13 +43,14 @@ const OrdersPage = () => {
                         </button>
                     ))}
                 </div>
-            </div>
+            } />
             {loading ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>{[1, 2, 3].map(i => <div key={i} className="skeleton" style={{ height: 100 }} />)}</div>
             ) : filtered.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {filtered.map((order, i) => (
-                        <motion.div key={order.id} className="card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                        <motion.article key={order.id} className="card kitchen-order-card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                            <div className="kitchen-order-rail"><span className={`is-${order.status}`} /></div>
                             <div className="order-card-header">
                                 <div>
                                     <h3 style={{ fontWeight: 700, marginBottom: 2 }}>#{order.order_number}</h3>
@@ -65,7 +69,7 @@ const OrdersPage = () => {
                                     )}
                                 </div>
                             </div>
-                        </motion.div>
+                        </motion.article>
                     ))}
                 </div>
             ) : (
