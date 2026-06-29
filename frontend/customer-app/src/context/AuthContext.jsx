@@ -84,8 +84,11 @@ export const AuthProvider = ({ children }) => {
 
     const login = useCallback(async (email, password) => {
         try {
-            const { data } = await authAPI.login({ email, password });
-            if (data.needs_role_selection) {
+            const { data } = await authAPI.login({ email, password, requested_role: 'customer' });
+            if (data.next_action === 'ROLE_SELECTION') {
+                savePendingLogin(data);
+                return data;
+            } else if (data.next_action === 'ONBOARD_ROLE') {
                 savePendingLogin(data);
                 return data;
             }

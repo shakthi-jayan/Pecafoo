@@ -17,18 +17,26 @@ const LoginPage = () => {
         setLoading(true);
         try {
             const result = await login(email, password);
-            if (result && result.needsOnboarding) {
-                navigate('/become-partner', { 
-                    state: { 
-                        email, 
-                        password, 
-                        login_ticket: result.login_ticket,
-                        direct_token: result.direct_token 
-                    } 
-                });
-                return;
+            switch (result?.next_action) {
+                case 'LOGIN_COMPLETE':
+                    toast.success('Welcome!');
+                    navigate('/', { replace: true });
+                    break;
+                case 'ONBOARD_ROLE':
+                    navigate('/become-partner', { 
+                        state: { 
+                            email, 
+                            password, 
+                            login_ticket: result.login_ticket,
+                        } 
+                    });
+                    break;
+                case 'ROLE_SELECTION':
+                    toast.error('Role selection required. Please use the main app.');
+                    break;
+                default:
+                    toast.error('Unexpected response.');
             }
-            navigate('/');
         } catch {
             toast.error('Login failed.');
         } finally {

@@ -17,20 +17,27 @@ export default function LoginPage() {
         setLoading(true);
         try {
             const result = await login(email, password);
-            if (result && result.needsOnboarding) {
-                // Navigate to onboarding, pass the password or ticket
-                navigate('/become-partner', { 
-                    state: { 
-                        email, 
-                        password, 
-                        login_ticket: result.login_ticket,
-                        direct_token: result.direct_token 
-                    } 
-                });
-                return;
+            switch (result?.next_action) {
+                case 'LOGIN_COMPLETE':
+                    toast.success('Welcome!');
+                    navigate('/', { replace: true });
+                    break;
+                case 'ONBOARD_ROLE':
+                    navigate('/become-partner', { 
+                        state: { 
+                            email, 
+                            password, 
+                            login_ticket: result.login_ticket,
+                        } 
+                    });
+                    break;
+                case 'ROLE_SELECTION':
+                    // Delivery app implies delivery role, so typically this wouldn't hit unless they didn't specify requested_role
+                    toast.error('Role selection required. Please use the main app.');
+                    break;
+                default:
+                    toast.error('Unexpected response.');
             }
-            toast.success('Welcome!');
-            navigate('/', { replace: true });
         } catch {
             toast.error('Login failed');
         } finally {

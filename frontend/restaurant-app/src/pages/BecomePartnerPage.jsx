@@ -3,11 +3,12 @@ import { motion } from 'framer-motion';
 import { ArrowRight, UserPlus } from 'lucide-react';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { authAPI } from '../services/api';
+import { useAuth } from '../App';
 
 export default function BecomePartnerPage() {
     const { state } = useLocation();
     const navigate = useNavigate();
+    const { partnerOnboard } = useAuth();
     const [loading, setLoading] = useState(false);
     
     if (!state?.email) {
@@ -17,22 +18,17 @@ export default function BecomePartnerPage() {
     const handleConfirm = async () => {
         setLoading(true);
         try {
-            const payload = { role: 'restaurant' };
-            if (state.login_ticket) {
-                payload.login_ticket = state.login_ticket;
-            }
-            if (state.password) {
-                payload.password = state.password;
-            }
+            const payload = {};
+            if (state.login_ticket) payload.login_ticket = state.login_ticket;
+            if (state.password) payload.password = state.password;
 
-            const { data } = await authAPI.partnerOnboard(payload);
-            
-            localStorage.setItem('user', JSON.stringify(data.user));
-            localStorage.setItem('tokens', JSON.stringify(data.tokens));
-            
-            toast.success('Welcome to Pecafoo for Restaurants!');
-            window.location.href = '/';
-            
+            const result = await partnerOnboard(payload);
+            if (result?.next_action === 'LOGIN_COMPLETE') {
+                toast.success('Welcome to Pecafoo for Restaurants!');
+                navigate('/', { replace: true });
+            } else {
+                toast.error('Unexpected response.');
+            }
         } catch (err) {
             toast.error(err.response?.data?.error || 'Failed to onboard.');
         } finally {

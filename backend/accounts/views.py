@@ -40,6 +40,12 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
+class AuthNextAction:
+    LOGIN_COMPLETE = "LOGIN_COMPLETE"
+    ROLE_SELECTION = "ROLE_SELECTION"
+    ONBOARD_ROLE = "ONBOARD_ROLE"
+    VERIFY_PHONE = "VERIFY_PHONE"
+
 class CustomRefreshToken(RefreshToken):
     @classmethod
     def for_user(cls, user):
@@ -135,38 +141,50 @@ class LoginView(APIView):
         serializer.is_valid(raise_exception=True)
 
         user = serializer.validated_data["user"]
-        requested_role = request.data.get("role")
+        requested_role = request.data.get("requested_role")
         
         from accounts.utils import get_owned_roles, safe_log_auth, generate_login_ticket
         owned_roles = get_owned_roles(user)
+        owned_role_ids = [r["id"] for r in owned_roles]
         
+        if requested_role:
+            if requested_role in owned_role_ids:
+                tokens = _get_tokens_for_user(user, active_role=requested_role)
+                safe_log_auth(request, action="LOGIN", user=user, status_code=200)
+                return Response({
+                    "next_action": AuthNextAction.LOGIN_COMPLETE,
+                    "message": "Login successful.",
+                    "tokens": tokens,
+                    "user": UserSerializer(user).data,
+                }, status=status.HTTP_200_OK)
+            else:
+                safe_log_auth(request, action="LOGIN_ONBOARDING_REQUIRED", user=user, status_code=200)
+                return Response({
+                    "next_action": AuthNextAction.ONBOARD_ROLE,
+                    "requested_role": requested_role,
+                    "login_ticket": generate_login_ticket(user),
+                    "user": UserSerializer(user).data,
+                }, status=status.HTTP_200_OK)
+                
         if len(owned_roles) > 1:
             safe_log_auth(request, action="LOGIN_ROLE_SELECTION_REQUIRED", user=user, status_code=200)
-            return Response(
-                {
-                    "needs_role_selection": True,
-                    "login_ticket": generate_login_ticket(user),
-                    "roles": owned_roles,
-                    "user": UserSerializer(user).data,
-                },
-                status=status.HTTP_200_OK,
-            )
+            return Response({
+                "next_action": AuthNextAction.ROLE_SELECTION,
+                "login_ticket": generate_login_ticket(user),
+                "roles": owned_roles,
+                "user": UserSerializer(user).data,
+            }, status=status.HTTP_200_OK)
             
-        active_role = owned_roles[0]["id"] if owned_roles else user.role
-        
+        active_role = owned_role_ids[0] if owned_role_ids else user.role
         tokens = _get_tokens_for_user(user, active_role=active_role)
-        user_data = UserSerializer(user).data
-        
         safe_log_auth(request, action="LOGIN", user=user, status_code=200)
 
-        return Response(
-            {
-                "message": "Login successful.",
-                "tokens": tokens,
-                "user": user_data,
-            },
-            status=status.HTTP_200_OK,
-        )
+        return Response({
+            "next_action": AuthNextAction.LOGIN_COMPLETE,
+            "message": "Login successful.",
+            "tokens": tokens,
+            "user": UserSerializer(user).data,
+        }, status=status.HTTP_200_OK)
 
 
 

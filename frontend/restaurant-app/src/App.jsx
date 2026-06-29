@@ -28,32 +28,24 @@ function AuthProvider({ children }) {
   const loading = false;
 
   const login = useCallback(async (email, password) => {
-    const { data } = await authAPI.login({ email, password });
+    const { data } = await authAPI.login({ email, password, requested_role: 'restaurant' });
     
-    if (data.needs_role_selection) {
-      const isRestaurant = data.roles.some(r => r.id === 'restaurant');
-      if (isRestaurant) {
-        // Silently complete login for restaurant role
-        const res = await authAPI.completeLogin({ login_ticket: data.login_ticket, role: 'restaurant' });
-        localStorage.setItem('restaurant_user', JSON.stringify(res.data.user));
-        localStorage.setItem('restaurant_tokens', JSON.stringify(res.data.tokens));
-        setUser(res.data.user);
-        return { success: true };
-      } else {
-        // Needs onboarding
-        return { needsOnboarding: true, login_ticket: data.login_ticket };
-      }
+    if (data.next_action === 'LOGIN_COMPLETE') {
+      localStorage.setItem('restaurant_user', JSON.stringify(data.user));
+      localStorage.setItem('restaurant_tokens', JSON.stringify(data.tokens));
+      setUser(data.user);
     }
-    
-    // Direct JWT case
-    if (data.user.role !== 'restaurant') {
-      return { needsOnboarding: true, direct_token: true };
+    return data;
+  }, []);
+
+  const partnerOnboard = useCallback(async (payload) => {
+    const { data } = await authAPI.partnerOnboard({ ...payload, role: 'restaurant' });
+    if (data.next_action === 'LOGIN_COMPLETE') {
+      localStorage.setItem('restaurant_user', JSON.stringify(data.user));
+      localStorage.setItem('restaurant_tokens', JSON.stringify(data.tokens));
+      setUser(data.user);
     }
-    
-    localStorage.setItem('restaurant_user', JSON.stringify(data.user));
-    localStorage.setItem('restaurant_tokens', JSON.stringify(data.tokens));
-    setUser(data.user);
-    return { success: true };
+    return data;
   }, []);
 
   const register = useCallback(async (formData) => {
@@ -76,7 +68,7 @@ function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
-  return <AuthContext.Provider value={{ user, loading, isAuthenticated: !!user, login, register, logout }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, loading, isAuthenticated: !!user, login, register, logout, partnerOnboard }}>{children}</AuthContext.Provider>;
 }
 
 function ProtectedRoute({ children }) {

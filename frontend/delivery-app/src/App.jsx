@@ -55,32 +55,24 @@ function AuthProvider({ children }) {
   }, []);
 
   const login = useCallback(async (email, password) => {
-    const { data } = await authAPI.login({ email, password });
+    const { data } = await authAPI.login({ email, password, requested_role: 'delivery' });
     
-    if (data.needs_role_selection) {
-      const isDelivery = data.roles.some(r => r.id === 'delivery');
-      if (isDelivery) {
-        // Silently complete login for delivery role
-        const res = await authAPI.completeLogin({ login_ticket: data.login_ticket, role: 'delivery' });
-        localStorage.setItem('delivery_user', JSON.stringify(res.data.user));
-        localStorage.setItem('delivery_tokens', JSON.stringify(res.data.tokens));
-        setUser(res.data.user);
-        return { success: true };
-      } else {
-        // Needs onboarding
-        return { needsOnboarding: true, login_ticket: data.login_ticket };
-      }
+    if (data.next_action === 'LOGIN_COMPLETE') {
+      localStorage.setItem('delivery_user', JSON.stringify(data.user));
+      localStorage.setItem('delivery_tokens', JSON.stringify(data.tokens));
+      setUser(data.user);
     }
-    
-    // Direct JWT case
-    if (data.user.role !== 'delivery') {
-      return { needsOnboarding: true, direct_token: true };
+    return data;
+  }, []);
+
+  const partnerOnboard = useCallback(async (payload) => {
+    const { data } = await authAPI.partnerOnboard({ ...payload, role: 'delivery' });
+    if (data.next_action === 'LOGIN_COMPLETE') {
+      localStorage.setItem('delivery_user', JSON.stringify(data.user));
+      localStorage.setItem('delivery_tokens', JSON.stringify(data.tokens));
+      setUser(data.user);
     }
-    
-    localStorage.setItem('delivery_user', JSON.stringify(data.user));
-    localStorage.setItem('delivery_tokens', JSON.stringify(data.tokens));
-    setUser(data.user);
-    return { success: true };
+    return data;
   }, []);
 
   const register = useCallback(async (formData) => {
@@ -104,7 +96,7 @@ function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAuthenticated: !!user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, isAuthenticated: !!user, login, register, logout, partnerOnboard }}>
       {children}
     </AuthContext.Provider>
   );
