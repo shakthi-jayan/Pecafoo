@@ -1,0 +1,11 @@
+{
+  "name": "@pecafoo/shared-ui",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "react": "^18.3.1",
+    "framer-motion": "^12.34.3",
+    "lucide-react": "^0.575.0"
+  }
+}
