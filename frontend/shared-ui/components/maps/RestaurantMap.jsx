@@ -10,7 +10,7 @@ import {
     DEFAULT_ZOOM,
     createMarkerIcon,
     MAP_CHROME_CSS,
-} from '../../config/mapConfig';
+} from '../../utils/mapConfig';
 
 if (typeof document !== 'undefined' && !document.getElementById('map-chrome-css')) {
     const style = document.createElement('style');
@@ -156,3 +156,4 @@ export default function RestaurantMap({
         </div>
     );
 }
+

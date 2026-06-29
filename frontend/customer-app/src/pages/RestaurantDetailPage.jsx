@@ -20,7 +20,7 @@ import {
     HorizontalScroller,
     EmptyState,
     GlassCard
-} from '../../../shared-ui/PremiumUI';
+} from '../../../shared-ui/index';
 
 const RestaurantDetailPage = () => {
     const navigate = useNavigate();
@@ -378,3 +378,4 @@ const RestaurantDetailPage = () => {
 };
 
 export default RestaurantDetailPage;
+

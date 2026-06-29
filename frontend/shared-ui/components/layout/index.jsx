@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import '../premium-ui.css';
+import '../../premium-ui.css';
 
 export function PageContainer({ children, className = '', maxWidth = '1200px', padding = 'var(--space-4)' }) {
   return (
@@ -162,4 +162,44 @@ export function GlassCard({ children, className = '', padding = 'var(--space-5)'
       {children}
     </div>
   );
+}
+
+
+export function ProfileHero({ initials, name, subtitle }) {
+  return <ProfileHeader name={name} subtitle={subtitle} avatarInitials={initials} />;
+}
+
+export function SettingsGroup({ title, description, children }) {
+  return (
+    <div style={{ marginBottom: 'var(--space-5)' }}>
+      <SectionHeader title={title} description={description} />
+      <div style={{ backgroundColor: 'var(--color-bg-card)', borderRadius: 'var(--radius-card)', overflow: 'hidden' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+export function SettingsRow({ icon: Icon, title, subtitle, onClick }) {
+  return (
+    <div onClick={onClick} style={{ padding: 'var(--space-4)', display: 'flex', gap: 'var(--space-3)', cursor: onClick ? 'pointer' : 'default', borderBottom: '1px solid var(--color-border)' }}>
+      {Icon && <Icon size={24} />}
+      <div>
+        <div style={{ fontWeight: 600 }}>{title}</div>
+        {subtitle && <div style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-caption)' }}>{subtitle}</div>}
+      </div>
+    </div>
+  );
+}
+
+export function PremiumAuthLayout({ children, ...props }) {
+  return <div className="legacy-premium-auth-layout">{children}</div>;
+}
+
+export function AuthProgress({ steps, current }) {
+  return <div className="legacy-auth-progress">Step {current} of {steps?.length}</div>;
+}
+
+export function PageHero(props) {
+  return <HeroBanner {...props} />;
 }

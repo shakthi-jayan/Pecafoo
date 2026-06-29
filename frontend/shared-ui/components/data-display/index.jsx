@@ -312,3 +312,5 @@ export function FoodCard({ name, description, image, price, discountPrice, isVeg
 export const OrderCard = RestaurantCard;
 export const MapCard = RestaurantCard;
 export const StatCard = MetricCard;
+
+export { default as LiveOrderTracker } from './LiveOrderTracker';

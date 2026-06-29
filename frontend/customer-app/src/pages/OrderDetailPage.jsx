@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { ordersAPI } from '../services/api';
 import { useWebSocket } from '../context/WebSocketProvider';
-import LiveOrderTracker from '../components/shared/LiveOrderTracker';
+import { LiveOrderTracker } from '../../../shared-ui';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -19,7 +19,7 @@ import {
     SectionHeader,
     GlassCard,
     EmptyState
-} from '../../../shared-ui/PremiumUI';
+} from '../../../shared-ui/index';
 
 const statusColors = {
     placed: '#6366f1',
@@ -511,3 +511,5 @@ const OrderDetailPage = () => {
 };
 
 export default OrderDetailPage;
+
+

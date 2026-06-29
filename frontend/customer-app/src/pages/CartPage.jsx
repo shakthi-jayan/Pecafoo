@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLocation } from '../context/LocationContext';
 import { ordersAPI, customersAPI, locationsAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import MapView from '../components/shared/MapView';
+import { MapView } from '../../../shared-ui';
 import DeliveryFeeEstimate from '../components/cart/DeliveryFeeEstimate';
 
 import {
@@ -19,7 +19,7 @@ import {
     FloatingInput,
     SegmentedControl,
     GlassCard
-} from '../../../shared-ui/PremiumUI';
+} from '../../../shared-ui/index';
 
 const CartPage = () => {
     const navigate = useNavigate();
@@ -408,3 +408,6 @@ const CartPage = () => {
 };
 
 export default CartPage;
+
+
+

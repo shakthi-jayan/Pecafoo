@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, Smartphone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AuthLayout from '../components/shared/AuthLayout';
-import { Button, SegmentedControl, FloatingInput, PasswordInput } from '../../../shared-ui/PremiumUI';
+import { Button, SegmentedControl, FloatingInput, PasswordInput } from '../../../shared-ui/index';
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -189,3 +189,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+

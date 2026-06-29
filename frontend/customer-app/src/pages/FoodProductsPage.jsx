@@ -17,7 +17,7 @@ import {
     FoodCard,
     EmptyState,
     GlassCard
-} from '../../../shared-ui/PremiumUI';
+} from '../../../shared-ui/index';
 
 const foodTypeFilters = [
     { value: '', label: 'All', icon: '🍽️' },
@@ -298,3 +298,4 @@ const FoodProductsPage = () => {
 };
 
 export default FoodProductsPage;
+

@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { Mail } from 'lucide-react';
 import { authAPI } from '../services/api';
 import AuthLayout from '../components/shared/AuthLayout';
-import { Button, FloatingInput } from '../../../shared-ui/PremiumUI';
+import { Button, FloatingInput } from '../../../shared-ui/index';
 
 export default function ForgotPasswordPage() {
     const navigate = useNavigate();
@@ -69,3 +69,4 @@ export default function ForgotPasswordPage() {
         </AuthLayout>
     );
 }
+

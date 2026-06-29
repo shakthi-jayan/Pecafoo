@@ -6,8 +6,8 @@ import 'leaflet/dist/leaflet.css';
 import {
     OSM_TILE_URL, OSM_ATTRIBUTION, DEFAULT_CENTER, DEFAULT_ZOOM,
     createMarkerIcon, MAP_CHROME_CSS,
-} from '../../config/mapConfig';
-import api from '../../services/api';
+} from '../../utils/mapConfig';
+import api from '@api';
 
 if (typeof document !== 'undefined' && !document.getElementById('map-chrome-css')) {
     const style = document.createElement('style');
@@ -171,3 +171,5 @@ export default function AddressPickerMap({
         </div>
     );
 }
+
+

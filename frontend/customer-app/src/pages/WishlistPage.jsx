@@ -14,7 +14,7 @@ import {
     Button,
     GlassCard,
     RestaurantCard
-} from '../../../shared-ui/PremiumUI';
+} from '../../../shared-ui/index';
 
 const WishlistPage = () => {
     const navigate = useNavigate();
@@ -184,3 +184,4 @@ const WishlistPage = () => {
 };
 
 export default WishlistPage;
+

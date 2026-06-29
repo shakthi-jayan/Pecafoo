@@ -13,7 +13,7 @@ import {
     EmptyState,
     Button,
     GlassCard
-} from '../../../shared-ui/PremiumUI';
+} from '../../../shared-ui/index';
 
 const statusColors = {
     placed: '#6366f1', confirmed: '#3b82f6', preparing: '#f59e0b',
@@ -226,3 +226,4 @@ const OrdersPage = () => {
 };
 
 export default OrdersPage;
+

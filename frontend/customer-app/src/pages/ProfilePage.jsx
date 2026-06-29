@@ -9,7 +9,7 @@ import {
     ProfileHero, 
     SettingsGroup, 
     SettingsRow 
-} from '../../../shared-ui/PremiumUI';
+} from '../../../shared-ui/index';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
@@ -108,3 +108,4 @@ const ProfilePage = () => {
     );
 };
 export default ProfilePage;
+

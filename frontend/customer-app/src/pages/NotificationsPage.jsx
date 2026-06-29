@@ -11,7 +11,7 @@ import {
     Button,
     GlassCard,
     EmptyState
-} from '../../../shared-ui/PremiumUI';
+} from '../../../shared-ui/index';
 
 const typeIcons = { order: Package, info: Info, promo: Gift, rating: Star, system: Bell };
 const typeColors = { order: '#3b82f6', info: '#8b5cf6', promo: '#f97316', rating: '#fbbf24', system: '#64748b' };
@@ -146,3 +146,4 @@ const NotificationsPage = () => {
 };
 
 export default NotificationsPage;
+

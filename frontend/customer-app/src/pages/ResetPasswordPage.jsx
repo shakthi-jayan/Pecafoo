@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { Mail, Lock } from 'lucide-react';
 import { authAPI } from '../services/api';
 import AuthLayout from '../components/shared/AuthLayout';
-import { Button, FloatingInput, PasswordInput, OTPInput } from '../../../shared-ui/PremiumUI';
+import { Button, FloatingInput, PasswordInput, OTPInput } from '../../../shared-ui/index';
 
 export default function ResetPasswordPage() {
     const navigate = useNavigate();
@@ -113,3 +113,4 @@ export default function ResetPasswordPage() {
         </AuthLayout>
     );
 }
+

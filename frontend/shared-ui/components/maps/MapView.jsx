@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { MapContainer, Marker, Polygon, Polyline, Popup, TileLayer, ZoomControl, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { createMarkerIcon, DEFAULT_CENTER, MAP_CHROME_CSS, OSM_ATTRIBUTION, OSM_TILE_URL } from '../../config/mapConfig';
+import { createMarkerIcon, DEFAULT_CENTER, MAP_CHROME_CSS, OSM_ATTRIBUTION, OSM_TILE_URL } from '../../utils/mapConfig';
 
 const MapUpdater = ({ center, zoom }) => {
     const map = useMap();
@@ -84,3 +84,4 @@ const MapView = ({
 };
 
 export default MapView;
+

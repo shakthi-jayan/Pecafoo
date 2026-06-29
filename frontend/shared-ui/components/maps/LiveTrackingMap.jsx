@@ -6,7 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import {
     OSM_TILE_URL, OSM_ATTRIBUTION, DEFAULT_CENTER, DEFAULT_ZOOM,
     createMarkerIcon, createPulsingIcon, MAP_CHROME_CSS,
-} from '../../config/mapConfig';
+} from '../../utils/mapConfig';
 
 
 if (typeof document !== 'undefined' && !document.getElementById('map-chrome-css')) {
@@ -167,3 +167,4 @@ export default function LiveTrackingMap({
         </div>
     );
 }
+

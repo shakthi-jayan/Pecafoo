@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLocation } from '../context/LocationContext';
 import { restaurantsAPI } from '../services/api';
 import CustomerHomeHeader from '../components/home/CustomerHomeHeader';
-import RestaurantMap from '../components/maps/RestaurantMap';
+import { RestaurantMap } from '../../../shared-ui';
 
 import {
     PageContainer,
@@ -23,7 +23,7 @@ import {
     Button,
     Chip,
     GlassCard
-} from '../../../shared-ui/PremiumUI';
+} from '../../../shared-ui/index';
 
 const fallbackCategories = [
     { name: 'All', icon: Utensils, color: '#ffb546', softColor: '#fff1cf' },
@@ -246,3 +246,5 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
+

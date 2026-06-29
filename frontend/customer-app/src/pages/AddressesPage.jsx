@@ -6,7 +6,7 @@ import { customersAPI } from '../services/api';
 import { useLocation } from '../context/LocationContext';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
-import AddressPickerMap from '../components/maps/AddressPickerMap';
+import { AddressPickerMap } from '../../../shared-ui';
 
 import {
     PageContainer,
@@ -15,7 +15,7 @@ import {
     GlassCard,
     EmptyState,
     FloatingInput
-} from '../../../shared-ui/PremiumUI';
+} from '../../../shared-ui/index';
 
 const typeIcons = { home: Home, work: Briefcase, other: Heart };
 const typeColors = { home: '#3b82f6', work: '#8b5cf6', other: '#ec4899' };
@@ -346,3 +346,5 @@ const AddressesPage = () => {
 };
 
 export default AddressesPage;
+
+

@@ -13,7 +13,7 @@ import {
     Button,
     HorizontalScroller,
     GlassCard
-} from '../../../shared-ui/PremiumUI';
+} from '../../../shared-ui/index';
 
 const SearchPage = () => {
     const navigate = useNavigate();
@@ -245,3 +245,4 @@ const SearchPage = () => {
 };
 
 export default SearchPage;
+

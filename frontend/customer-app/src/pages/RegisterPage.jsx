@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Phone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AuthLayout from '../components/shared/AuthLayout';
-import { Button, FloatingInput, PasswordInput } from '../../../shared-ui/PremiumUI';
+import { Button, FloatingInput, PasswordInput } from '../../../shared-ui/index';
 
 const RegisterPage = () => {
     const navigate = useNavigate();
@@ -148,3 +148,4 @@ const RegisterPage = () => {
 };
 
 export default RegisterPage;
+
