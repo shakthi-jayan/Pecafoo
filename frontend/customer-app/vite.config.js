@@ -1,6 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+console.log("=== VITE BUILD CONFIG ===");
+console.log("VITE_FIREBASE_API_KEY:", process.env.VITE_FIREBASE_API_KEY);
+console.log("VITE_FIREBASE_AUTH_DOMAIN:", process.env.VITE_FIREBASE_AUTH_DOMAIN);
+console.log("=========================");
+
 export default defineConfig({
   base: "/",
   appType: 'spa',

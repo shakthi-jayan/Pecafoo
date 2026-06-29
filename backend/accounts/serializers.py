@@ -86,9 +86,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value.lower()
 
     def validate_phone_number(self, value):
-        """Normalize phone number."""
-        if not value:
-            return value
+        """Normalize phone number. Return None for empty values to avoid unique constraint violations."""
+        if not value or not value.strip():
+            return None
         from accounts.phone_utils import normalize_phone_number
         return normalize_phone_number(value)
 
@@ -129,6 +129,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         """Create user and customer profile if applicable."""
         password = validated_data.pop("password")
         role = validated_data.get("role", User.Role.CUSTOMER)
+
+        # Safety net: ensure empty phone_number is stored as NULL, not empty string
+        if not validated_data.get("phone_number"):
+            validated_data["phone_number"] = None
 
         user = User.objects.create_user(password=password, **validated_data)
         if role == User.Role.ADMIN and not user.is_staff:

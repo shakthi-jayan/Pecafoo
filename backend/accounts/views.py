@@ -90,7 +90,15 @@ class RegisterView(generics.CreateAPIView):
 
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+
+        try:
+            user = serializer.save()
+        except Exception as e:
+            logger.error(f"Registration failed for {email}: {e}", exc_info=True)
+            return Response(
+                {"error": "Registration failed due to a server error. Please try again."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         tokens = _get_tokens_for_user(user)
         user_data = UserSerializer(user).data
@@ -166,6 +174,7 @@ class FirebaseAuthView(APIView):
         firebase_token = serializer.validated_data["firebase_token"]
         requested_role = serializer.validated_data.get("role", User.Role.CUSTOMER)
 
+        logger.info("FirebaseAuthView: Verifying Firebase token...")
         decoded = verify_firebase_token(firebase_token)
 
         firebase_uid = decoded.get("uid")
