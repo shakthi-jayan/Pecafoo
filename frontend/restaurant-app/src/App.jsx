@@ -11,6 +11,7 @@ import CategoriesPage from './pages/CategoriesPage';
 import SettingsPage from './pages/SettingsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import BecomePartnerPage from './pages/BecomePartnerPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { WebSocketProvider } from './context/WebSocketProvider';
 
@@ -28,14 +29,31 @@ function AuthProvider({ children }) {
 
   const login = useCallback(async (email, password) => {
     const { data } = await authAPI.login({ email, password });
-    if (data.user.role !== 'restaurant') {
-      toast.error('Not a restaurant account');
-      throw new Error('Invalid role');
+    
+    if (data.needs_role_selection) {
+      const isRestaurant = data.roles.some(r => r.id === 'restaurant');
+      if (isRestaurant) {
+        // Silently complete login for restaurant role
+        const res = await authAPI.completeLogin({ login_ticket: data.login_ticket, role: 'restaurant' });
+        localStorage.setItem('restaurant_user', JSON.stringify(res.data.user));
+        localStorage.setItem('restaurant_tokens', JSON.stringify(res.data.tokens));
+        setUser(res.data.user);
+        return { success: true };
+      } else {
+        // Needs onboarding
+        return { needsOnboarding: true, login_ticket: data.login_ticket };
+      }
     }
+    
+    // Direct JWT case
+    if (data.user.role !== 'restaurant') {
+      return { needsOnboarding: true, direct_token: true };
+    }
+    
     localStorage.setItem('restaurant_user', JSON.stringify(data.user));
     localStorage.setItem('restaurant_tokens', JSON.stringify(data.tokens));
     setUser(data.user);
-    return data;
+    return { success: true };
   }, []);
 
   const register = useCallback(async (formData) => {
@@ -113,6 +131,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/become-partner" element={<BecomePartnerPage />} />
             <Route path="/*" element={<ProtectedRoute><AppLayout /></ProtectedRoute>} />
           </Routes>
           <Toaster position="top-right" toastOptions={{ style: { background: '#ffffff', color: '#241b35', border: '1px solid #f0e4ff', borderRadius: '16px', boxShadow: '0 16px 32px rgba(175, 124, 219, 0.16)' }, duration: 3000 }} />

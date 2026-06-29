@@ -27,6 +27,7 @@ from accounts.views import (
     UserProfileView,
     UserRolesView,
     CompleteLoginView,
+    PartnerOnboardView,
 )
 
 app_name = "accounts"
@@ -41,6 +42,7 @@ urlpatterns = [
     path("phone/verify-otp/", PhoneOTPVerifyView.as_view(), name="phone-verify-otp"),
 
     path("add-role/", AddRoleView.as_view(), name="add-role"),
+    path("partner/onboard/", PartnerOnboardView.as_view(), name="partner-onboard"),
     path("switch-role/", SwitchRoleView.as_view(), name="switch-role"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("logout/", LogoutView.as_view(), name="logout"),

@@ -25,6 +25,7 @@ export default function RegisterPage() {
         license_image: null,
     });
     const [loading, setLoading] = useState(false);
+    const [accountExists, setAccountExists] = useState(false);
 
     // visually-hidden style for accessibility
     const visuallyHidden = {
@@ -102,6 +103,10 @@ export default function RegisterPage() {
             toast.success('Account created!');
             navigate('/', { replace: true });
         } catch (err) {
+            if (err.response?.data?.code === 'ACCOUNT_EXISTS') {
+                setAccountExists(true);
+                return;
+            }
             const errorMsg = err.response?.data?.phone_number?.[0] || 
                            err.response?.data?.email?.[0] || 
                            err.response?.data?.detail || 
@@ -143,7 +148,26 @@ export default function RegisterPage() {
                     <h1 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: 8, color: 'var(--text)' }}>Join as Partner</h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Create your account and upload your verification documents</p>
                 </div>
-                <form onSubmit={handle}>
+                
+                {accountExists ? (
+                    <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                        <div style={{ width: 48, height: 48, background: 'rgba(0,0,0,0.05)', color: 'var(--text)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                            <User size={24} />
+                        </div>
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: 8 }}>You already have an account</h2>
+                        <p style={{ color: 'var(--text-secondary)', marginBottom: 24, lineHeight: 1.5 }}>
+                            We found an existing Pecafoo account with this email.<br/>
+                            Log in to continue becoming a Delivery Partner.
+                        </p>
+                        <button className="btn" style={{ width: '100%', marginBottom: 16 }} onClick={() => navigate('/login', { state: { email: fd.email } })}>
+                            Log In
+                        </button>
+                        <button type="button" onClick={() => setAccountExists(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.875rem', cursor: 'pointer', fontWeight: 600 }}>
+                            Go back
+                        </button>
+                    </div>
+                ) : (
+                    <form onSubmit={handle}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                         <input className="input" name="first_name" placeholder="First Name" value={fd.first_name} onChange={ch} required />
                         <input className="input" name="last_name" placeholder="Last Name" value={fd.last_name} onChange={ch} required />
@@ -171,13 +195,13 @@ export default function RegisterPage() {
                         <FileField label="ID Proof" name="id_proof" />
                         <FileField label="Driving License / Vehicle Permit" name="license_image" />
                     </div>
-
-                    <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading} style={{ justifyContent: 'center', height: 50, borderRadius: 16 }}>
-                        {loading ? 'Creating...' : 'Create Account'} <ArrowRight size={18} />
+                    <button type="submit" className="btn" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, fontSize: '1rem', fontWeight: 700 }}>
+                        {loading ? 'Creating...' : 'Create Account'} <ArrowRight size={20} />
                     </button>
-                </form>
-                <p style={{ textAlign: 'center', marginTop: 24, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                    Already have an account? <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 800 }}>Sign In</Link>
+                    </form>
+                )}
+                <p style={{ textAlign: 'center', marginTop: 24, color: 'var(--text-secondary)' }}>
+                    Already have an account? <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 700, textDecoration: 'none' }}>Sign In</Link>
                 </p>
             </motion.div>
         </div>

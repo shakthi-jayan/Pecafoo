@@ -930,3 +930,70 @@ class CompleteLoginView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+class PartnerOnboardView(APIView):
+    """
+    POST /api/auth/partner/onboard/
+    Onboard a user to a partner role (e.g. delivery, restaurant).
+    Accepts either an authenticated session OR a login_ticket.
+    Requires password confirmation.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        role_id = request.data.get("role")
+        
+        if not role_id:
+            return Response(
+                {"error": "Role is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+            
+        user = request.user
+        
+        # If not authenticated, require a valid login_ticket
+        if not user.is_authenticated:
+            ticket = request.data.get("login_ticket")
+            if not ticket:
+                return Response(
+                    {"error": "Authentication required. Please log in or provide a login_ticket."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+            
+            from accounts.utils import verify_login_ticket
+            user = verify_login_ticket(ticket)
+            if not user:
+                return Response(
+                    {"error": "Invalid or expired login_ticket."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+                
+        # We always verify identity (e.g., password) for onboarding
+        from accounts.utils import verify_identity
+        if not verify_identity(user, request.data):
+            return Response(
+                {"error": "Identity verification failed. Please confirm your password."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+            
+        from accounts.utils import get_owned_roles, add_role_profile
+        owned_roles = [r["id"] for r in get_owned_roles(user)]
+        
+        if role_id not in owned_roles:
+            add_role_profile(user, role_id)
+            
+        tokens = _get_tokens_for_user(user, active_role=role_id)
+        from accounts.serializers import UserSerializer
+        user_data = UserSerializer(user).data
+        
+        from accounts.utils import safe_log_auth
+        safe_log_auth(request, action=f"PARTNER_ONBOARD_{role_id.upper()}", user=user, status_code=200)
+        
+        return Response(
+            {
+                "message": f"Successfully onboarded as {role_id}.",
+                "tokens": tokens,
+                "user": user_data,
+            },
+            status=status.HTTP_200_OK,
+        )

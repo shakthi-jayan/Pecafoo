@@ -43,7 +43,7 @@ api.interceptors.response.use(r => r, async (e) => {
 
     return Promise.reject(e);
 });
-export const authAPI = { login: (d) => api.post('/auth/login/', d), register: (d) => api.post('/auth/register/', d), logout: (d) => api.post('/auth/logout/', d) };
+export const authAPI = { login: (d) => api.post('/auth/login/', d), register: (d) => api.post('/auth/register/', d), logout: (d) => api.post('/auth/logout/', d), completeLogin: (d) => api.post('/auth/complete-login/', d), partnerOnboard: (d) => api.post('/auth/partner/onboard/', d) };
 export const deliveryAPI = {
     getProfile: () => api.get('/delivery/profile/'),
     updateProfile: (d) => sendFormData('patch', '/delivery/profile/', d),

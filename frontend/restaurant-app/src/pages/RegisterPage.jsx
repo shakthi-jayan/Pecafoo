@@ -23,6 +23,7 @@ const RegisterPage = () => {
     const [fetchingLocation, setFetchingLocation] = useState(false);
     const [permissionBlocked, setPermissionBlocked] = useState(false);
     const [showInstructions, setShowInstructions] = useState(false);
+    const [accountExists, setAccountExists] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -282,7 +283,11 @@ const RegisterPage = () => {
             navigate('/', { replace: true });
         } catch (err) {
             console.error('Registration error:', err);
-            toast.error(err.response?.data?.email?.[0] || err.response?.data?.detail || err.message || 'Registration failed.');
+            if (err.response?.data?.code === 'ACCOUNT_EXISTS') {
+                setAccountExists(true);
+            } else {
+                toast.error(err.response?.data?.email?.[0] || err.response?.data?.detail || err.message || 'Registration failed.');
+            }
         } finally {
             setLoading(false);
         }
@@ -446,6 +451,22 @@ const RegisterPage = () => {
                     </motion.div>
                 )}
 
+                {accountExists ? (
+                    <div className="card" style={{ padding: 32, textAlign: 'center', background: 'rgba(255,180,0,0.1)', border: '1px solid rgba(255,180,0,0.3)', borderRadius: 20 }}>
+                        <AlertCircle size={48} color="#f59e0b" style={{ margin: '0 auto 16px' }} />
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text)', marginBottom: 12 }}>You already have an account!</h2>
+                        <p style={{ color: 'var(--text-secondary)', marginBottom: 24, fontSize: '0.9rem', lineHeight: 1.5 }}>
+                            The email <strong>{formData.email}</strong> is already registered on Pecafoo. You can log in and add a Restaurant profile to your existing account.
+                        </p>
+                        <button 
+                            className="btn btn-primary btn-full btn-lg"
+                            onClick={() => navigate('/login')}
+                            style={{ height: 50, borderRadius: 16 }}
+                        >
+                            Log In to Continue <ArrowRight size={18} />
+                        </button>
+                    </div>
+                ) : (
                 <form onSubmit={handleRegister}>
                     <div className="auth-split-row">
                         <input
@@ -720,6 +741,7 @@ const RegisterPage = () => {
                         )}
                     </button>
                 </form>
+                )}
 
                 <p style={{ textAlign: 'center', marginTop: 20, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
                     Already have an account? <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 700 }}>Sign In</Link>

@@ -54,9 +54,25 @@ export const AuthProvider = ({ children }) => {
     const login = useCallback(async (email, password) => {
         try {
             const { data } = await authAPI.login({ email, password });
+            
+            if (data.needs_role_selection) {
+                const isRestaurant = data.roles.some(r => r.id === 'restaurant');
+                if (isRestaurant) {
+                    const res = await authAPI.completeLogin({ login_ticket: data.login_ticket, role: 'restaurant' });
+                    saveAuth(res.data.user, res.data.tokens);
+                    return { success: true };
+                } else {
+                    return { needsOnboarding: true, login_ticket: data.login_ticket };
+                }
+            }
+            
+            if (data.user.role !== 'restaurant') {
+                return { needsOnboarding: true, direct_token: true };
+            }
+            
             saveAuth(data.user, data.tokens);
             toast.success('Welcome back!');
-            return data;
+            return { success: true };
         } catch (error) {
             const msg = error.response?.data;
             if (msg?.email) toast.error(msg.email[0]);

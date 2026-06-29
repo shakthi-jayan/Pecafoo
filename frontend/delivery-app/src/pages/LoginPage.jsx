@@ -16,7 +16,19 @@ export default function LoginPage() {
         e.preventDefault();
         setLoading(true);
         try {
-            await login(email, password);
+            const result = await login(email, password);
+            if (result && result.needsOnboarding) {
+                // Navigate to onboarding, pass the password or ticket
+                navigate('/become-partner', { 
+                    state: { 
+                        email, 
+                        password, 
+                        login_ticket: result.login_ticket,
+                        direct_token: result.direct_token 
+                    } 
+                });
+                return;
+            }
             toast.success('Welcome!');
             navigate('/', { replace: true });
         } catch {

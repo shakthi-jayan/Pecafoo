@@ -92,13 +92,14 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 // ============================================
 // AUTH API
 // ============================================
 export const authAPI = {
   register: (data) => api.post('/auth/register/', data),
   login: (data) => api.post('/auth/login/', data),
+  completeLogin: (data) => api.post('/auth/complete-login/', data),
+  partnerOnboard: (data) => api.post('/auth/partner/onboard/', data),
   firebaseAuth: (data) => api.post('/auth/firebase/', data),
   requestPhoneOtp: (data) => api.post('/auth/phone/request-otp/', data),
   verifyPhoneOtp: (data) => api.post('/auth/phone/verify-otp/', data),

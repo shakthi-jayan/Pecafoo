@@ -6,8 +6,9 @@ import { authAPI } from './services/api';
 
 import HomePage from './pages/HomePage';
 import DeliveriesPage from './pages/DeliveriesPage';
-import EarningsPage from './pages/EarningsPage';
 import ProfilePage from './pages/ProfilePage';
+import EarningsPage from './pages/EarningsPage';
+import BecomePartnerPage from './pages/BecomePartnerPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -55,10 +56,31 @@ function AuthProvider({ children }) {
 
   const login = useCallback(async (email, password) => {
     const { data } = await authAPI.login({ email, password });
-    if (data.user.role !== 'delivery') throw new Error('Not a delivery account');
+    
+    if (data.needs_role_selection) {
+      const isDelivery = data.roles.some(r => r.id === 'delivery');
+      if (isDelivery) {
+        // Silently complete login for delivery role
+        const res = await authAPI.completeLogin({ login_ticket: data.login_ticket, role: 'delivery' });
+        localStorage.setItem('delivery_user', JSON.stringify(res.data.user));
+        localStorage.setItem('delivery_tokens', JSON.stringify(res.data.tokens));
+        setUser(res.data.user);
+        return { success: true };
+      } else {
+        // Needs onboarding
+        return { needsOnboarding: true, login_ticket: data.login_ticket };
+      }
+    }
+    
+    // Direct JWT case
+    if (data.user.role !== 'delivery') {
+      return { needsOnboarding: true, direct_token: true };
+    }
+    
     localStorage.setItem('delivery_user', JSON.stringify(data.user));
     localStorage.setItem('delivery_tokens', JSON.stringify(data.tokens));
     setUser(data.user);
+    return { success: true };
   }, []);
 
   const register = useCallback(async (formData) => {
@@ -96,6 +118,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/become-partner" element={<BecomePartnerPage />} />
             <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
             <Route path="/deliveries" element={<ProtectedRoute><DeliveriesPage /></ProtectedRoute>} />
             <Route path="/earnings" element={<ProtectedRoute><EarningsPage /></ProtectedRoute>} />

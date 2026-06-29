@@ -16,8 +16,18 @@ const LoginPage = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            await login(email, password);
-            toast.success('Welcome!');
+            const result = await login(email, password);
+            if (result && result.needsOnboarding) {
+                navigate('/become-partner', { 
+                    state: { 
+                        email, 
+                        password, 
+                        login_ticket: result.login_ticket,
+                        direct_token: result.direct_token 
+                    } 
+                });
+                return;
+            }
             navigate('/');
         } catch {
             toast.error('Login failed.');
