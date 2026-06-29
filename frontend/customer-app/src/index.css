@@ -1,12 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* ============================================================
    PECAFOO — DESIGN TOKENS
    ============================================================ */
 :root {
   /* Backgrounds */
-  --bg-primary:    #f6f3fb;
-  --bg-secondary:  #efe7fb;
+  --bg-primary:    #fafafa;
+  --bg-secondary:  #f5f5f7;
   --bg-card:       #ffffff;
   --bg-card-hover: #fbf7ff;
   --bg-elevated:   #fff7fd;
@@ -14,9 +14,9 @@
   --bg-chip:       #f7efff;
 
   /* Text */
-  --text-primary:   #241b35;
-  --text-secondary: #6f6488;
-  --text-muted:     #a59ab8;
+  --text-primary:   #111111;
+  --text-secondary: #6b7280;
+  --text-muted:     #9ca3af;
   --text-inverse:   #ffffff;
 
   /* Accent palette */
@@ -31,20 +31,19 @@
   --danger:        #ef476f;
 
   /* Borders */
-  --border:        #f0e4ff;
-  --border-strong: #e5d1fb;
+  --border:        #eaeaea;
+  --border-strong: #dedede;
 
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, #f268ff 0%, #c43bf6 56%, #8e2df1 100%);
   --gradient-warm:    linear-gradient(135deg, #ffcf63 0%, #ff9f45 100%);
-  --gradient-page:    radial-gradient(circle at top left, rgba(242,104,255,.18), transparent 34%),
-                      linear-gradient(180deg, #fff8fe 0%, #f7f3fb 44%, #f6f3fb 100%);
+  --gradient-page:    #fafafa;
 
   /* Shadows */
-  --shadow-sm:     0 8px 20px rgba(169,118,208,.08);
-  --shadow-md:     0 14px 36px rgba(178,122,220,.14);
-  --shadow-lg:     0 22px 48px rgba(173,109,216,.18);
-  --shadow-accent: 0 18px 38px rgba(207,74,238,.24);
+  --shadow-sm:     0 4px 12px rgba(0,0,0,.06);
+  --shadow-md:     0 10px 30px rgba(0,0,0,.08);
+  --shadow-lg:     0 20px 40px rgba(0,0,0,.10);
+  --shadow-accent: 0 10px 24px rgba(168,60,240,.20);
 
   /* Spacing */
   --space-xs: 4px;  --space-sm: 8px;   --space-md: 16px;
@@ -55,7 +54,7 @@
   --radius-xl: 30px;  --radius-full: 9999px;
 
   /* Typography */
-  --font-family:     'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family:     'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   --font-size-xs:    0.75rem;   --font-size-sm:  0.875rem;
   --font-size-base:  1rem;      --font-size-lg:  1.125rem;
   --font-size-xl:    1.35rem;   --font-size-2xl: 1.8rem;
@@ -102,11 +101,7 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background:
-    radial-gradient(circle at 12% 14%, rgba(242,104,255,.22), transparent 24%),
-    radial-gradient(circle at 86% 18%, rgba(255,182,83,.2),  transparent 22%),
-    radial-gradient(circle at 72% 78%, rgba(142,45,241,.14),  transparent 24%),
-    radial-gradient(circle at 30% 62%, rgba(255,155,63,.1),   transparent 18%);
+  background: none;
   z-index: -1;
 }
 
@@ -1975,4 +1970,55 @@ button { border: none; background: none; cursor: pointer; }
 /* Touch scroll */
 .category-row, .featured-row, .menu-chip-row, .tabs-container, .chip-row {
   -webkit-overflow-scrolling: touch;
+}
+
+/* Apple HIG refinement layer: shared visual behavior, customer accent */
+::selection { background: var(--accent-light); color: var(--text-primary); }
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid rgba(168, 60, 240, .28);
+  outline-offset: 3px;
+}
+
+button:disabled, .btn:disabled { cursor: not-allowed; opacity: .52; transform: none !important; }
+
+.page { padding-inline: 20px; }
+.page-title { font-size: clamp(1.85rem, 4vw, 2.25rem); line-height: 1.12; }
+.page-title::after, .section-title::before { display: none; }
+.section-title { padding-left: 0; font-size: clamp(1.3rem, 3vw, 1.75rem); }
+
+.card, .restaurant-card {
+  background: #fff;
+  border-color: rgba(17, 17, 17, .04);
+  border-radius: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.card::before { display: none; }
+.card:hover, .restaurant-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
+.btn { min-height: 50px; border-radius: 18px; font-weight: 650; }
+.btn:hover { transform: translateY(-1px) scale(1.02); }
+.btn-primary { box-shadow: 0 8px 20px rgba(168, 60, 240, .18); }
+.btn-secondary, .btn-outline, .btn-icon { border-color: var(--border); box-shadow: none; }
+
+.input, .search-bar, select, textarea {
+  border-color: var(--border);
+  border-radius: 18px;
+  box-shadow: none;
+}
+.input:focus, .search-bar:focus-within, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(217, 70, 239, .11);
+}
+
+.bottom-nav {
+  border-color: rgba(17, 17, 17, .06);
+  border-radius: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .10);
+}
+
+@media (min-width: 768px) { .page { padding-inline: 24px; } }
+@media (min-width: 1024px) { .page { padding-inline: 32px; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
