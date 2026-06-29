@@ -48,14 +48,14 @@ class CustomRefreshToken(RefreshToken):
         token["email"] = user.email
         token["primary_role"] = user.role
         
-        from accounts.utils import get_active_roles
-        token["active_roles"] = get_active_roles(user)
-        
         return token
 
-def _get_tokens_for_user(user) -> dict:
+def _get_tokens_for_user(user, active_role: str = None) -> dict:
     """Generate JWT access and refresh tokens for a user."""
     refresh = CustomRefreshToken.for_user(user)
+    if active_role:
+        refresh["primary_role"] = active_role
+        
     return {
         "refresh": str(refresh),
         "access": str(refresh.access_token),
@@ -84,7 +84,7 @@ class RegisterView(generics.CreateAPIView):
         User = get_user_model()
         if email and User.objects.filter(email=email).exists():
             return Response(
-                {"code": "ACCOUNT_EXISTS", "message": "This account already exists. Please login."},
+                {"code": "ACCOUNT_EXISTS", "message": "This email already belongs to an existing account."},
                 status=status.HTTP_409_CONFLICT,
             )
 
@@ -135,10 +135,28 @@ class LoginView(APIView):
         serializer.is_valid(raise_exception=True)
 
         user = serializer.validated_data["user"]
-        tokens = _get_tokens_for_user(user)
+        requested_role = request.data.get("role")
+        
+        from accounts.utils import get_owned_roles, safe_log_auth, generate_login_ticket
+        owned_roles = get_owned_roles(user)
+        
+        if len(owned_roles) > 1:
+            safe_log_auth(request, action="LOGIN_ROLE_SELECTION_REQUIRED", user=user, status_code=200)
+            return Response(
+                {
+                    "needs_role_selection": True,
+                    "login_ticket": generate_login_ticket(user),
+                    "roles": owned_roles,
+                    "user": UserSerializer(user).data,
+                },
+                status=status.HTTP_200_OK,
+            )
+            
+        active_role = owned_roles[0]["id"] if owned_roles else user.role
+        
+        tokens = _get_tokens_for_user(user, active_role=active_role)
         user_data = UserSerializer(user).data
-
-        from accounts.utils import safe_log_auth
+        
         safe_log_auth(request, action="LOGIN", user=user, status_code=200)
 
         return Response(
@@ -248,10 +266,26 @@ class FirebaseAuthView(APIView):
                 user.save(update_fields=updated_fields)
                 logger.info(f"Updated Firebase user profile: {email}")
 
-        tokens = _get_tokens_for_user(user)
+        from accounts.utils import get_owned_roles, safe_log_auth, generate_login_ticket
+        owned_roles = get_owned_roles(user)
+        
+        if not is_new_user and len(owned_roles) > 1:
+            safe_log_auth(request, action="FIREBASE_LOGIN_ROLE_SELECTION_REQUIRED", user=user, status_code=200)
+            return Response(
+                {
+                    "needs_role_selection": True,
+                    "login_ticket": generate_login_ticket(user),
+                    "roles": owned_roles,
+                    "user": UserSerializer(user).data,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        active_role = owned_roles[0]["id"] if owned_roles else user.role
+        
+        tokens = _get_tokens_for_user(user, active_role=active_role)
         user_data = UserSerializer(user).data
 
-        from accounts.utils import safe_log_auth
         safe_log_auth(request, action="FIREBASE_AUTH", user=user, status_code=200)
 
         return Response(
@@ -387,6 +421,30 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        
+        from accounts.utils import get_owned_roles
+        roles = get_owned_roles(instance)
+        
+        # Determine current_role from the JWT if possible
+        auth_header = request.headers.get('Authorization')
+        current_role = instance.role # Fallback
+        if auth_header and auth_header.startswith('Bearer '):
+            try:
+                from rest_framework_simplejwt.tokens import AccessToken
+                token = AccessToken(auth_header.split(' ')[1])
+                current_role = token.payload.get('primary_role', current_role)
+            except:
+                pass
+                
+        return Response({
+            "user": serializer.data,
+            "roles": roles,
+            "current_role": current_role,
+        })
 
 
 
@@ -716,3 +774,354 @@ class AccountDeletionView(APIView):
             "addresses": list(addresses),
             "orders": list(orders),
         })
+
+class AddRoleView(APIView):
+    """
+    POST /api/auth/add-role/
+    Add a new role profile to an existing authenticated user.
+    Requires password verification.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        role_id = request.data.get("role")
+        
+        if not role_id:
+            return Response(
+                {"error": "Role is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+            
+        from accounts.utils import verify_identity
+        if not verify_identity(request.user, request.data):
+            return Response(
+                {"error": "Identity verification failed. Please provide a valid password, OTP, or re-auth token."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+            
+        from accounts.utils import get_owned_roles, add_role_profile
+        owned_roles = [r["id"] for r in get_owned_roles(request.user)]
+        
+        if role_id in owned_roles:
+            return Response(
+                {"error": f"You already have the {role_id} role."},
+                status=status.HTTP_409_CONFLICT,
+            )
+            
+        add_role_profile(request.user, role_id)
+        
+        tokens = _get_tokens_for_user(request.user, active_role=role_id)
+        user_data = UserSerializer(request.user).data
+        
+        return Response(
+            {
+                "message": f"Successfully added {role_id} role.",
+                "tokens": tokens,
+                "user": user_data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class SwitchRoleView(APIView):
+    """
+    POST /api/auth/switch-role/
+    Issue a new JWT with the requested role as the primary active context.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        role_id = request.data.get("role")
+        
+        if not role_id:
+            return Response(
+                {"error": "Role is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+            
+        from accounts.utils import get_owned_roles
+        owned_roles = [r["id"] for r in get_owned_roles(request.user)]
+        
+        if role_id not in owned_roles:
+            return Response(
+                {"error": f"You do not have the {role_id} role."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+            
+        tokens = _get_tokens_for_user(request.user, active_role=role_id)
+        
+        return Response(
+            {
+                "message": "Role switched successfully.",
+                "tokens": tokens,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+class UserRolesView(APIView):
+    """
+    GET /api/auth/roles/
+    Retrieve the list of owned roles and the current active role.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from accounts.utils import get_owned_roles
+        roles = get_owned_roles(request.user)
+        
+        auth_header = request.headers.get('Authorization')
+        current_role = request.user.role # Fallback
+        if auth_header and auth_header.startswith('Bearer '):
+            try:
+                from rest_framework_simplejwt.tokens import AccessToken
+            return Response(
+                {"error": "OTP is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        cached_otp = cache.get(f"email_verify_otp:{user.email}")
+        if not cached_otp:
+            logger.warning(f"Email verification OTP expired for: {user.email}")
+            return Response(
+                {"error": "OTP expired or not requested."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if str(cached_otp) != otp:
+            logger.warning(f"Invalid OTP attempted for: {user.email}")
+            return Response(
+                {"error": "Invalid OTP."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user.is_verified = True
+        user.save(update_fields=["is_verified"])
+        cache.delete(f"email_verify_otp:{user.email}")
+
+        from accounts.utils import safe_log_auth
+        safe_log_auth(request, action="EMAIL_VERIFY_SUCCESS", user=user, status_code=200)
+
+        return Response(
+            {"message": "Email verified successfully."},
+            status=status.HTTP_200_OK,
+        )
+
+
+
+
+
+class AccountDeletionView(APIView):
+    """
+    DELETE /api/auth/account/
+    Permanently delete the user's account and associated data.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        password = request.data.get("password", "")
+        if not password:
+            return Response(
+                {"error": "Password confirmation is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not request.user.check_password(password):
+            logger.warning(f"Account deletion attempted with wrong password: {request.user.email}")
+            return Response(
+                {"error": "Incorrect password."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = request.user
+        email = user.email
+        logger.info(f"Account deletion requested by {email}")
+
+        user.is_active = False
+        user.fcm_token = None
+        user.save(update_fields=["is_active", "fcm_token"])
+
+        user.delete()
+
+        logger.info(f"Account permanently deleted: {email}")
+
+        return Response(
+            {"message": "Account deleted successfully."},
+            status=status.HTTP_200_OK,
+        )
+
+    def get(self, request):
+        """GET /api/auth/account/ — Export user data (GDPR compliance)."""
+        user = request.user
+        user_data = UserSerializer(user).data
+
+        from customers.models import Address
+        addresses = Address.objects.filter(user=user).values(
+            "address_type", "label", "full_address", "city", "state", "pincode"
+        )
+
+        from orders.models import Order
+        orders = Order.objects.filter(customer=user).values(
+            "order_number", "status", "total", "placed_at"
+        )
+
+        return Response({
+            "user": user_data,
+            "addresses": list(addresses),
+            "orders": list(orders),
+        })
+
+class AddRoleView(APIView):
+    """
+    POST /api/auth/add-role/
+    Add a new role profile to an existing authenticated user.
+    Requires password verification.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        role_id = request.data.get("role")
+        
+        if not role_id:
+            return Response(
+                {"error": "Role is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+            
+        from accounts.utils import verify_identity
+        if not verify_identity(request.user, request.data):
+            return Response(
+                {"error": "Identity verification failed. Please provide a valid password, OTP, or re-auth token."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+            
+        from accounts.utils import get_owned_roles, add_role_profile
+        owned_roles = [r["id"] for r in get_owned_roles(request.user)]
+        
+        if role_id in owned_roles:
+            return Response(
+                {"error": f"You already have the {role_id} role."},
+                status=status.HTTP_409_CONFLICT,
+            )
+            
+        add_role_profile(request.user, role_id)
+        
+        tokens = _get_tokens_for_user(request.user, active_role=role_id)
+        user_data = UserSerializer(request.user).data
+        
+        return Response(
+            {
+                "message": f"Successfully added {role_id} role.",
+                "tokens": tokens,
+                "user": user_data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class SwitchRoleView(APIView):
+    """
+    POST /api/auth/switch-role/
+    Issue a new JWT with the requested role as the primary active context.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        role_id = request.data.get("role")
+        
+        if not role_id:
+            return Response(
+                {"error": "Role is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+            
+        from accounts.utils import get_owned_roles
+        owned_roles = [r["id"] for r in get_owned_roles(request.user)]
+        
+        if role_id not in owned_roles:
+            return Response(
+                {"error": f"You do not have the {role_id} role."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+            
+        tokens = _get_tokens_for_user(request.user, active_role=role_id)
+        
+        return Response(
+            {
+                "message": "Role switched successfully.",
+                "tokens": tokens,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+class UserRolesView(APIView):
+    """
+    GET /api/auth/roles/
+    Retrieve the list of owned roles and the current active role.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from accounts.utils import get_owned_roles
+        roles = get_owned_roles(request.user)
+        
+        auth_header = request.headers.get('Authorization')
+        current_role = request.user.role # Fallback
+        if auth_header and auth_header.startswith('Bearer '):
+            try:
+                from rest_framework_simplejwt.tokens import AccessToken
+                token = AccessToken(auth_header.split(' ')[1])
+                current_role = token.payload.get('primary_role', current_role)
+            except:
+                pass
+                
+        return Response({
+            "current_role": current_role,
+            "roles": roles,
+        })
+
+class CompleteLoginView(APIView):
+    """
+    POST /api/auth/complete-login/
+    Complete a login session using a short-lived login_ticket.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        ticket = request.data.get("login_ticket")
+        role_id = request.data.get("role")
+        
+        if not ticket or not role_id:
+            return Response(
+                {"error": "Both login_ticket and role are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+            
+        from accounts.utils import verify_login_ticket, get_owned_roles, safe_log_auth
+        user = verify_login_ticket(ticket)
+        if not user:
+            return Response(
+                {"error": "Invalid or expired login_ticket."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+            
+        owned_roles = [r["id"] for r in get_owned_roles(user)]
+        
+        if role_id not in owned_roles:
+            return Response(
+                {"error": f"You do not have the {role_id} role."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+            
+        tokens = _get_tokens_for_user(user, active_role=role_id)
+        user_data = UserSerializer(user).data
+        
+        safe_log_auth(request, action="COMPLETE_LOGIN", user=user, status_code=200)
+        
+        return Response(
+            {
+                "message": "Login completed successfully.",
+                "tokens": tokens,
+                "user": user_data,
+            },
+            status=status.HTTP_200_OK,
+        )

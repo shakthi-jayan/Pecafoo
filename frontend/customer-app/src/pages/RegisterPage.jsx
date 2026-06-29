@@ -110,7 +110,7 @@ const RegisterPage = () => {
                         <label className="input-label">Email</label>
                         <div className="input-icon-wrapper">
                             <Mail />
-                            <input type="email" className="input" name="email" placeholder="your@email.com" value={formData.email} onChange={handleChange} required id="register-email" />
+                            <input type="email" className="input" name="email" placeholder="your@email.com" value={formData.email} onChange={handleChange} required id="register-email" autoComplete="username" />
                         </div>
                     </div>
 
@@ -136,6 +136,7 @@ const RegisterPage = () => {
                                 required
                                 minLength={8}
                                 id="register-password"
+                                autoComplete="new-password"
                                 style={{ paddingRight: '46px' }}
                             />
                             <button
@@ -158,7 +159,7 @@ const RegisterPage = () => {
                         <label className="input-label">Confirm Password</label>
                         <div className="input-icon-wrapper">
                             <Lock />
-                            <input type="password" className="input" name="password_confirm" placeholder="Re-enter password" value={formData.password_confirm} onChange={handleChange} required minLength={8} id="register-confirm-password" />
+                            <input type="password" className="input" name="password_confirm" placeholder="Re-enter password" value={formData.password_confirm} onChange={handleChange} required minLength={8} id="register-confirm-password" autoComplete="new-password" />
                         </div>
                     </div>
 

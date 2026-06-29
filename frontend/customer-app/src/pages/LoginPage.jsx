@@ -25,8 +25,11 @@ const LoginPage = () => {
         setLoading(true);
         try {
             const data = await login(email, password);
-
-            navigate(from, { replace: true });
+            if (data?.needs_role_selection) {
+                navigate('/select-role', { replace: true });
+            } else {
+                navigate(from, { replace: true });
+            }
         } catch {
             
         } finally {
@@ -38,8 +41,11 @@ const LoginPage = () => {
         setLoading(true);
         try {
             const data = await googleLogin();
-
-            navigate(from, { replace: true });
+            if (data?.needs_role_selection) {
+                navigate('/select-role', { replace: true });
+            } else {
+                navigate(from, { replace: true });
+            }
         } catch {
             
         } finally {
@@ -118,6 +124,7 @@ const LoginPage = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                                 id="login-email"
+                                autoComplete="username"
                             />
                         </div>
                     </div>
@@ -134,6 +141,7 @@ const LoginPage = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 id="login-password"
+                                autoComplete="current-password"
                                 style={{ paddingRight: '46px' }}
                             />
                             <button

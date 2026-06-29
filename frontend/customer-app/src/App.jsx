@@ -15,6 +15,7 @@ import CartConflictModal from './components/cart/CartConflictModal';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+const RoleSelectionPage = lazy(() => import('./pages/RoleSelectionPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const RestaurantDetailPage = lazy(() => import('./pages/RestaurantDetailPage'));
@@ -145,6 +146,7 @@ function AnimatedRoutes() {
                 <Routes location={location}>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/login" element={<LoginPage />} />
+                    <Route path="/select-role" element={<RoleSelectionPage />} />
                     <Route path="/register" element={<RegisterPage />} />
                     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                     <Route path="/reset-password" element={<ResetPasswordPage />} />

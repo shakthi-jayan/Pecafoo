@@ -24,6 +24,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [pendingLogin, setPendingLogin] = useState(() => parseStoredJson('pendingLogin'));
     const [loading, setLoading] = useState(true);
 
     
@@ -44,7 +45,14 @@ export const AuthProvider = ({ children }) => {
     const saveAuth = (userData, tokens) => {
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('tokens', JSON.stringify(tokens));
+        localStorage.removeItem('pendingLogin');
+        setPendingLogin(null);
         setUser(userData);
+    };
+
+    const savePendingLogin = (data) => {
+        localStorage.setItem('pendingLogin', JSON.stringify(data));
+        setPendingLogin(data);
     };
 
     const register = useCallback(async (formData) => {
@@ -77,6 +85,10 @@ export const AuthProvider = ({ children }) => {
     const login = useCallback(async (email, password) => {
         try {
             const { data } = await authAPI.login({ email, password });
+            if (data.needs_role_selection) {
+                savePendingLogin(data);
+                return data;
+            }
             saveAuth(data.user, data.tokens);
             toast.success('Welcome back!');
             return data;
@@ -95,14 +107,29 @@ export const AuthProvider = ({ children }) => {
             const firebaseToken = await signInWithGoogle();
             const { data } = await authAPI.firebaseAuth({
                 firebase_token: firebaseToken,
-                role: 'customer',
             });
+            if (data.needs_role_selection) {
+                savePendingLogin(data);
+                return data;
+            }
             saveAuth(data.user, data.tokens);
             toast.success(data.is_new_user ? 'Account created!' : 'Welcome back!');
             return data;
         } catch (error) {
             console.error(error);
             toast.error(error.message);
+            throw error;
+        }
+    }, []);
+
+    const completeLogin = useCallback(async (ticket, roleId) => {
+        try {
+            const { data } = await authAPI.completeLogin({ login_ticket: ticket, role: roleId });
+            saveAuth(data.user, data.tokens);
+            toast.success('Login complete!');
+            return data;
+        } catch (error) {
+            toast.error(error.response?.data?.error || 'Failed to complete login.');
             throw error;
         }
     }, []);
@@ -172,9 +199,11 @@ export const AuthProvider = ({ children }) => {
         user,
         loading,
         isAuthenticated: !!user && hasUsableTokens(parseStoredJson('tokens')),
+        pendingLogin,
         register,
         login,
         googleLogin,
+        completeLogin,
         requestPhoneOtp,
         verifyPhoneOtp,
         logout,

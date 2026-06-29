@@ -9,6 +9,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from accounts.views import (
     AccountDeletionView,
+    AddRoleView,
     ChangePasswordView,
     EmailVerificationConfirmView,
     EmailVerificationRequestView,
@@ -21,8 +22,11 @@ from accounts.views import (
     PhoneOTPRequestView,
     PhoneOTPVerifyView,
     RegisterView,
+    SwitchRoleView,
     UserListView,
     UserProfileView,
+    UserRolesView,
+    CompleteLoginView,
 )
 
 app_name = "accounts"
@@ -30,14 +34,18 @@ app_name = "accounts"
 urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
     path("login/", LoginView.as_view(), name="login"),
-
     path("firebase/", FirebaseAuthView.as_view(), name="firebase-auth"),
+    path("complete-login/", CompleteLoginView.as_view(), name="complete-login"),
+
     path("phone/request-otp/", PhoneOTPRequestView.as_view(), name="phone-request-otp"),
     path("phone/verify-otp/", PhoneOTPVerifyView.as_view(), name="phone-verify-otp"),
 
+    path("add-role/", AddRoleView.as_view(), name="add-role"),
+    path("switch-role/", SwitchRoleView.as_view(), name="switch-role"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("logout/", LogoutView.as_view(), name="logout"),
 
+    path("roles/", UserRolesView.as_view(), name="roles"),
     path("profile/", UserProfileView.as_view(), name="profile"),
     path("change-password/", ChangePasswordView.as_view(), name="change-password"),
     path("forgot-password/", ForgotPasswordRequestView.as_view(), name="forgot-password"),
