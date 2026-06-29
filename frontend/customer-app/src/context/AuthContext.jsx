@@ -101,7 +101,8 @@ export const AuthProvider = ({ children }) => {
             toast.success(data.is_new_user ? 'Account created!' : 'Welcome back!');
             return data;
         } catch (error) {
-            toast.error('Google sign-in failed. Please try again.');
+            console.error(error);
+            toast.error(error.message);
             throw error;
         }
     }, []);
