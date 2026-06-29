@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClipboardList, ChevronRight, Check, RotateCcw, Clock, Package } from 'lucide-react';
@@ -7,6 +6,14 @@ import { ordersAPI } from '../services/api';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
+
+import {
+    PageContainer,
+    SegmentedControl,
+    EmptyState,
+    Button,
+    GlassCard
+} from '../../../shared-ui/PremiumUI';
 
 const statusColors = {
     placed: '#6366f1', confirmed: '#3b82f6', preparing: '#f59e0b',
@@ -30,10 +37,9 @@ const OrdersPage = () => {
 
     useEffect(() => { fetchOrders(); }, []);
 
-    
     useEffect(() => {
-        const activeOrders = orders.filter(o => !['delivered', 'cancelled'].includes(o.status));
-        if (activeOrders.length > 0) {
+        const activeOrdersList = orders.filter(o => !['delivered', 'cancelled'].includes(o.status));
+        if (activeOrdersList.length > 0) {
             const interval = setInterval(fetchOrders, 20000);
             return () => clearInterval(interval);
         }
@@ -59,7 +65,6 @@ const OrdersPage = () => {
 
         setReorderingId(order.id);
         try {
-            
             clearCart();
 
             const restaurantInfo = {
@@ -69,7 +74,6 @@ const OrdersPage = () => {
                 delivery_fee: order.delivery_fee || 0,
             };
 
-            
             for (const item of order.items) {
                 const cartItem = {
                     id: item.menu_item,
@@ -81,15 +85,13 @@ const OrdersPage = () => {
                     quantity: 1,
                 };
 
-                
                 for (let i = 0; i < item.quantity; i++) {
                     addToCart(cartItem, restaurantInfo);
                 }
             }
 
-            toast.success('Items added to cart! 🛒');
+            toast.success('Items added to cart!');
 
-            
             if (order.restaurant_slug) {
                 navigate(`/restaurant/${order.restaurant_slug}`);
             } else {
@@ -103,175 +105,123 @@ const OrdersPage = () => {
     };
 
     return (
-        <div className="page" style={{ paddingBottom: 100 }}>
-            <div className="page-header">
-                <h1 className="page-title">My Orders</h1>
+        <PageContainer padding="0">
+            <div style={{ position: 'sticky', top: 0, zIndex: 10, backgroundColor: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', padding: 'var(--space-4)', borderBottom: '1px solid var(--color-border)' }}>
+                <h1 style={{ margin: 0, fontSize: 'var(--text-h2)' }}>My Orders</h1>
             </div>
 
-            {}
-            <div style={{
-                display: 'flex', gap: 0, marginBottom: 20,
-                background: 'var(--bg-elevated)', borderRadius: 14, padding: 4,
-                border: '1px solid var(--border)'
-            }}>
-                {[
-                    { key: 'active', label: 'Active', count: activeOrders.length },
-                    { key: 'past', label: 'Past Orders', count: pastOrders.length },
-                ].map(tab => (
-                    <button
-                        key={tab.key}
-                        onClick={() => setActiveTab(tab.key)}
-                        style={{
-                            flex: 1, padding: '12px 0', borderRadius: 10, border: 'none',
-                            background: activeTab === tab.key
-                                ? 'var(--gradient-primary)' : 'transparent',
-                            color: activeTab === tab.key ? 'white' : 'var(--text-muted)',
-                            fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
-                            transition: 'all 0.2s ease',
-                        }}
-                    >
-                        {tab.label} ({tab.count})
-                    </button>
-                ))}
-            </div>
-
-            {loading ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {[1, 2, 3].map(i => <div key={i} className="skeleton" style={{ height: 140, borderRadius: 16 }} />)}
+            <div style={{ padding: 'var(--space-4)' }}>
+                <div style={{ marginBottom: 'var(--space-5)' }}>
+                    <SegmentedControl 
+                        options={[
+                            { label: `Active (${activeOrders.length})`, value: 'active' },
+                            { label: `Past Orders (${pastOrders.length})`, value: 'past' }
+                        ]}
+                        value={activeTab}
+                        onChange={setActiveTab}
+                        brandColor="var(--brand-customer)"
+                    />
                 </div>
-            ) : currentOrders.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <AnimatePresence>
-                        {currentOrders.map((order, i) => {
-                            const color = statusColors[order.status] || 'var(--text-muted)';
-                            const isActive = !['delivered', 'cancelled'].includes(order.status);
-                            const timeAgo = order.placed_at
-                                ? formatDistanceToNow(new Date(order.placed_at), { addSuffix: true })
-                                : '';
 
-                            return (
-                                <motion.div
-                                    key={order.id}
-                                    className="card"
-                                    style={{
-                                        padding: 0, overflow: 'hidden',
-                                        borderLeft: `4px solid ${color}`,
-                                    }}
-                                    initial={{ opacity: 0, y: 15 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: i * 0.05 }}
-                                >
-                                    {}
-                                    <div
-                                        onClick={() => navigate(`/orders/${order.id}`)}
-                                        style={{ padding: 16, cursor: 'pointer' }}
+                {loading ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                        {[1, 2, 3].map(i => <div key={i} style={{ height: 160, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />)}
+                    </div>
+                ) : currentOrders.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                        <AnimatePresence>
+                            {currentOrders.map((order, i) => {
+                                const color = statusColors[order.status] || 'var(--color-text-secondary)';
+                                const isActive = !['delivered', 'cancelled'].includes(order.status);
+                                const timeAgo = order.placed_at
+                                    ? formatDistanceToNow(new Date(order.placed_at), { addSuffix: true })
+                                    : '';
+
+                                return (
+                                    <motion.div
+                                        key={order.id}
+                                        initial={{ opacity: 0, y: 15 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: i * 0.05 }}
                                     >
-                                        {}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                                            <div>
-                                                <h3 style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 2 }}>
-                                                    {order.restaurant_name}
-                                                </h3>
-                                                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                                    #{order.order_number}
-                                                </p>
-                                            </div>
-                                            <span style={{
-                                                padding: '4px 12px', borderRadius: 20, fontSize: '0.7rem', fontWeight: 700,
-                                                background: `${color}15`, color,
-                                                display: 'flex', alignItems: 'center', gap: 4,
-                                            }}>
-                                                {isActive && <div style={{
-                                                    width: 6, height: 6, borderRadius: '50%',
-                                                    background: color, animation: 'pulse 1.5s infinite',
-                                                }} />}
-                                                {order.status === 'delivered' && <Check size={12} />}
-                                                {statusLabels[order.status] || order.status}
-                                            </span>
-                                        </div>
-
-                                        {}
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                                                <Package size={13} />
-                                                {order.items?.length || 0} items
-                                            </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                                                <Clock size={13} />
-                                                {timeAgo}
-                                            </div>
-                                        </div>
-
-                                        {}
-                                        {order.items && order.items.length > 0 && (
-                                            <p style={{
-                                                fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: 10,
-                                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                                            }}>
-                                                {order.items.map(item => `${item.quantity}× ${item.item_name}`).join(', ')}
-                                            </p>
-                                        )}
-
-                                        {}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid var(--border)' }}>
-                                            <span style={{ fontWeight: 800, fontSize: '1.05rem' }}>₹{order.total}</span>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--accent)', fontSize: '0.8rem', fontWeight: 600 }}>
-                                                View Details <ChevronRight size={16} />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {}
-                                    {order.status === 'delivered' && (
-                                        <div style={{ padding: '0 16px 16px', }}>
-                                            <motion.button
-                                                whileTap={{ scale: 0.97 }}
-                                                onClick={(e) => { e.stopPropagation(); handleReorder(order); }}
-                                                disabled={reorderingId === order.id}
-                                                style={{
-                                                    width: '100%', padding: '12px 0', borderRadius: 12,
-                                                    border: '2px solid var(--accent)',
-                                                    background: 'transparent',
-                                                    color: 'var(--accent)',
-                                                    fontWeight: 700, fontSize: '0.9rem',
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                                                    cursor: reorderingId === order.id ? 'wait' : 'pointer',
-                                                    opacity: reorderingId === order.id ? 0.6 : 1,
-                                                }}
+                                        <GlassCard 
+                                            padding="0"
+                                            style={{ 
+                                                borderLeft: `4px solid ${color}`,
+                                                overflow: 'hidden'
+                                            }}
+                                        >
+                                            <div 
+                                                onClick={() => navigate(`/orders/${order.id}`)}
+                                                style={{ padding: 'var(--space-4)', cursor: 'pointer' }}
                                             >
-                                                <RotateCcw size={16} className={reorderingId === order.id ? 'spin' : ''} />
-                                                {reorderingId === order.id ? 'Adding to Cart...' : 'Reorder'}
-                                            </motion.button>
-                                        </div>
-                                    )}
-                                </motion.div>
-                            );
-                        })}
-                    </AnimatePresence>
-                </div>
-            ) : (
-                <div className="empty-state" style={{ marginTop: 'var(--space-2xl)', padding: 48 }}>
-                    <ClipboardList size={48} style={{ color: 'var(--text-muted)', opacity: 0.3, marginBottom: 16 }} />
-                    <h3 style={{ fontWeight: 700, marginBottom: 4 }}>
-                        {activeTab === 'active' ? 'No active orders' : 'No past orders'}
-                    </h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                        {activeTab === 'active'
-                            ? 'Your active orders will appear here'
-                            : 'Your order history will appear here'}
-                    </p>
-                    {activeTab === 'active' && (
-                        <button
-                            className="btn btn-primary"
-                            style={{ marginTop: 16 }}
-                            onClick={() => navigate('/')}
-                        >
-                            Browse Restaurants
-                        </button>
-                    )}
-                </div>
-            )}
-        </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-3)' }}>
+                                                    <div>
+                                                        <h3 style={{ margin: '0 0 2px 0', fontSize: 'var(--text-body)', fontWeight: 700 }}>{order.restaurant_name}</h3>
+                                                        <p style={{ margin: 0, fontSize: 'var(--text-caption)', color: 'var(--color-text-tertiary)' }}>#{order.order_number}</p>
+                                                    </div>
+                                                    <div style={{
+                                                        padding: '4px 10px', borderRadius: '100px', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase',
+                                                        backgroundColor: `${color}15`, color, display: 'flex', alignItems: 'center', gap: '4px'
+                                                    }}>
+                                                        {isActive && <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: color }} />}
+                                                        {order.status === 'delivered' && <Check size={12} />}
+                                                        {statusLabels[order.status] || order.status}
+                                                    </div>
+                                                </div>
+
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)' }}>
+                                                        <Package size={14} /> {order.items?.length || 0} items
+                                                    </div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)' }}>
+                                                        <Clock size={14} /> {timeAgo}
+                                                    </div>
+                                                </div>
+
+                                                {order.items && order.items.length > 0 && (
+                                                    <p style={{ margin: '0 0 var(--space-3) 0', fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                        {order.items.map(item => `${item.quantity}× ${item.item_name}`).join(', ')}
+                                                    </p>
+                                                )}
+
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 'var(--space-3)', borderTop: '1px solid var(--color-border)' }}>
+                                                    <span style={{ fontSize: 'var(--text-body)', fontWeight: 800 }}>₹{order.total}</span>
+                                                    <span style={{ fontSize: 'var(--text-caption)', color: 'var(--brand-customer)', fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+                                                        View Details <ChevronRight size={14} style={{ marginLeft: 2 }}/>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {order.status === 'delivered' && (
+                                                <div style={{ padding: '0 var(--space-4) var(--space-4) var(--space-4)' }}>
+                                                    <Button 
+                                                        variant="secondary" 
+                                                        fullWidth 
+                                                        onClick={(e) => { e.stopPropagation(); handleReorder(order); }}
+                                                        disabled={reorderingId === order.id}
+                                                        icon={RotateCcw}
+                                                    >
+                                                        {reorderingId === order.id ? 'Adding to Cart...' : 'Reorder'}
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </GlassCard>
+                                    </motion.div>
+                                );
+                            })}
+                        </AnimatePresence>
+                    </div>
+                ) : (
+                    <EmptyState
+                        icon={ClipboardList}
+                        title={activeTab === 'active' ? 'No active orders' : 'No past orders'}
+                        description={activeTab === 'active' ? 'Your active orders will appear here' : 'Your order history will appear here'}
+                        action={activeTab === 'active' && <Button onClick={() => navigate('/')}>Browse Restaurants</Button>}
+                    />
+                )}
+            </div>
+        </PageContainer>
     );
 };
 

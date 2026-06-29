@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { ArrowRight } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
 import { authAPI } from '../services/api';
+import AuthLayout from '../components/shared/AuthLayout';
+import { Button, FloatingInput, PasswordInput, OTPInput } from '../../../shared-ui/PremiumUI';
 
 export default function ResetPasswordPage() {
     const navigate = useNavigate();
@@ -54,78 +55,61 @@ export default function ResetPasswordPage() {
     };
 
     return (
-        <div className="auth-shell">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="auth-card"
-            >
-                <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                    <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 8 }}>Reset Password</h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                        Enter the OTP sent to your email and your new password.
-                    </p>
-                </div>
+        <AuthLayout
+            title="Create a new password"
+            subtitle="Secure your account with a strong new password."
+        >
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-5)' }}>
+                <h2 style={{ fontSize: 'var(--text-h2)', marginBottom: 'var(--space-2)' }}>Reset Password</h2>
+                <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-body)' }}>Enter the OTP sent to your email and your new password.</p>
+            </div>
 
-                <form onSubmit={handleSubmit}>
-                    <input
-                        className="input"
-                        type="email"
-                        name="email"
-                        placeholder="Email address"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        style={{ marginBottom: 12 }}
-                    />
-                    <input
-                        className="input"
-                        type="text"
-                        name="otp"
-                        placeholder="6-digit OTP"
-                        value={formData.otp}
-                        onChange={handleChange}
-                        required
-                        maxLength={6}
-                        style={{ marginBottom: 12, letterSpacing: '0.1em' }}
-                    />
-                    <input
-                        className="input"
-                        type="password"
-                        name="new_password"
-                        placeholder="New Password (min 8 chars)"
-                        value={formData.new_password}
-                        onChange={handleChange}
-                        required
-                        minLength={8}
-                        style={{ marginBottom: 12 }}
-                    />
-                    <input
-                        className="input"
-                        type="password"
-                        name="confirm_new_password"
-                        placeholder="Confirm New Password"
-                        value={formData.confirm_new_password}
-                        onChange={handleChange}
-                        required
-                        minLength={8}
-                        style={{ marginBottom: 20 }}
-                    />
-                    
-                    <button
-                        type="submit"
-                        className="btn btn-primary"
-                        disabled={loading}
-                        style={{ width: '100%', padding: 14, fontSize: '1rem' }}
-                    >
-                        {loading ? 'Resetting...' : 'Reset Password'} <ArrowRight size={18} />
-                    </button>
-                    
-                    <p style={{ textAlign: 'center', marginTop: 20, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                        Remembered it? <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 600 }}>Back to Login</Link>
-                    </p>
-                </form>
-            </motion.div>
-        </div>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                <FloatingInput
+                    label="Email Address"
+                    icon={Mail}
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                />
+                
+                <FloatingInput
+                    label="6-digit OTP"
+                    type="text"
+                    name="otp"
+                    value={formData.otp}
+                    onChange={handleChange}
+                    required
+                    maxLength={6}
+                    style={{ letterSpacing: '0.1em' }}
+                />
+                
+                <PasswordInput
+                    label="New Password"
+                    icon={Lock}
+                    name="new_password"
+                    value={formData.new_password}
+                    onChange={handleChange}
+                    required
+                    minLength={8}
+                />
+                
+                <PasswordInput
+                    label="Confirm New Password"
+                    icon={Lock}
+                    name="confirm_new_password"
+                    value={formData.confirm_new_password}
+                    onChange={handleChange}
+                    required
+                    minLength={8}
+                />
+                
+                <Button type="submit" variant="primary" fullWidth size="medium" disabled={loading} style={{ marginTop: 'var(--space-2)' }}>
+                    {loading ? 'Resetting...' : 'Reset Password'}
+                </Button>
+            </form>
+        </AuthLayout>
     );
 }

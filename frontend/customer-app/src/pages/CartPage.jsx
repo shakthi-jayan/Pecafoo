@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Minus, Plus, Trash2, ShoppingBag, MapPin, ArrowRight, Navigation, Loader } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingBag, MapPin, Navigation, Loader, CreditCard, Banknote } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from '../context/LocationContext';
@@ -10,11 +10,23 @@ import toast from 'react-hot-toast';
 import MapView from '../components/shared/MapView';
 import DeliveryFeeEstimate from '../components/cart/DeliveryFeeEstimate';
 
+import {
+    PageContainer,
+    Button,
+    IconButton,
+    SectionHeader,
+    EmptyState,
+    FloatingInput,
+    SegmentedControl,
+    GlassCard
+} from '../../../shared-ui/PremiumUI';
+
 const CartPage = () => {
     const navigate = useNavigate();
-    const { cartItems, restaurant, subtotal, updateQuantity, removeFromCart, clearCart } = useCart();
+    const { cartItems, restaurant, subtotal, updateQuantity, clearCart } = useCart();
     const { isAuthenticated } = useAuth();
     const { coords: locationCoords, address: locationAddress } = useLocation();
+    
     const [placing, setPlacing] = useState(false);
     const [fetchingLocation, setFetchingLocation] = useState(false);
     const [deliveryAddress, setDeliveryAddress] = useState('');
@@ -23,24 +35,22 @@ const CartPage = () => {
     const [specialInstructions, setSpecialInstructions] = useState('');
     const [deliveryEstimate, setDeliveryEstimate] = useState(null);
     const [resolvingMapAddress, setResolvingMapAddress] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState('cod');
 
     useEffect(() => {
         if (isAuthenticated) {
             customersAPI.getAddresses().then(({ data }) => {
                 const addrs = data.results || data || [];
                 setSavedAddresses(addrs);
-                // Auto-select default address
                 const defaultAddr = addrs.find(a => a.is_default);
                 if (defaultAddr && !deliveryAddress) {
                     handleSelectAddress(defaultAddr);
                 } else if (!deliveryAddress && locationAddress && locationCoords) {
-                    // Fall back to GPS-detected location
                     setDeliveryAddress(locationAddress);
                     setDeliveryCoords(locationCoords);
                 }
             }).catch(() => { });
         } else if (!deliveryAddress && locationAddress && locationCoords) {
-            // Unauthenticated — use GPS location
             setDeliveryAddress(locationAddress);
             setDeliveryCoords(locationCoords);
         }
@@ -57,7 +67,6 @@ const CartPage = () => {
         }
     };
 
-    // ── GPS + Reverse Geocoding Auto-fill ──
     const fetchCurrentLocation = async () => {
         if (!('geolocation' in navigator)) {
             toast.error('Geolocation not supported');
@@ -73,63 +82,28 @@ const CartPage = () => {
                 setDeliveryCoords([lat, lng]);
 
                 try {
-                    
-                    const { data } = await locationsAPI.reverseGeocode({
-                        latitude: lat,
-                        longitude: lng,
-                    });
-
+                    const { data } = await locationsAPI.reverseGeocode({ latitude: lat, longitude: lng });
                     if (data && data.display_name) {
-                        
-                        const parts = [
-                            data.road,
-                            data.suburb,
-                            data.city,
-                            data.state,
-                            data.postcode,
-                        ].filter(Boolean);
-
+                        const parts = [data.road, data.suburb, data.city, data.state, data.postcode].filter(Boolean);
                         const addressStr = parts.length > 0 ? parts.join(', ') : data.display_name;
                         setDeliveryAddress(addressStr);
-                        toast.success('📍 Address auto-filled from your location!');
+                        toast.success('Address auto-filled from your location!');
                     } else {
-                        toast.success('📍 Location set! Please type your address.');
+                        toast.success('Location set! Please type your address.');
                     }
                 } catch (err) {
-                    
-                    toast.success('📍 Location set! Please type your street address.');
+                    toast.success('Location set! Please type your street address.');
                 }
-
                 setFetchingLocation(false);
             },
             (err) => {
                 setFetchingLocation(false);
-                if (err.code === 1) toast.error('Location permission denied. Enable it in browser settings.');
-                else if (err.code === 2) toast.error('Location unavailable. Try again.');
+                if (err.code === 1) toast.error('Location permission denied.');
+                else if (err.code === 2) toast.error('Location unavailable.');
                 else toast.error('Location request timed out.');
             },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
         );
-    };
-
-    
-    const handleMapClick = async (coords) => {
-        const fallbackAddress = `${coords[0].toFixed(5)}, ${coords[1].toFixed(5)}`;
-        setDeliveryCoords(coords);
-        setDeliveryAddress(fallbackAddress);
-        setResolvingMapAddress(true);
-        try {
-            const { data } = await locationsAPI.reverseGeocode({
-                latitude: coords[0],
-                longitude: coords[1],
-            });
-            if (data && data.display_name) {
-                const parts = [data.road, data.suburb, data.city, data.state, data.postcode].filter(Boolean);
-                setDeliveryAddress(parts.length > 0 ? parts.join(', ') : data.display_name);
-            }
-        } catch {
-            
-        }
     };
 
     const handleMapLocationChange = async (coords) => {
@@ -139,11 +113,7 @@ const CartPage = () => {
         setResolvingMapAddress(true);
 
         try {
-            const { data } = await locationsAPI.reverseGeocode({
-                latitude: coords[0],
-                longitude: coords[1],
-            });
-
+            const { data } = await locationsAPI.reverseGeocode({ latitude: coords[0], longitude: coords[1] });
             if (data && data.display_name) {
                 const parts = [data.road, data.suburb, data.city, data.state, data.postcode].filter(Boolean);
                 setDeliveryAddress(parts.length > 0 ? parts.join(', ') : data.display_name);
@@ -159,8 +129,6 @@ const CartPage = () => {
     const deliveryFee = parseFloat(deliveryEstimate?.total_delivery_fee ?? restaurant?.delivery_fee ?? 0);
     const total = subtotal + tax + deliveryFee;
 
-    const [paymentMethod, setPaymentMethod] = useState('cod');
-
     const loadRazorpay = () => {
         return new Promise((resolve) => {
             const script = document.createElement('script');
@@ -172,8 +140,9 @@ const CartPage = () => {
     };
 
     const handlePlaceOrder = async () => {
-        if (!isAuthenticated) { navigate('/login'); return; }
-        if (!deliveryAddress.trim()) { toast.error('Please enter or select a delivery address.'); return; }
+        if (!isAuthenticated) { navigate('/login', { state: { from: { pathname: '/cart' } } }); return; }
+        if (!deliveryAddress.trim()) { toast.error('Please enter a delivery address.'); return; }
+        
         setPlacing(true);
         try {
             const { data: order } = await ordersAPI.create({
@@ -189,7 +158,7 @@ const CartPage = () => {
             if (paymentMethod === 'razorpay') {
                 const res = await loadRazorpay();
                 if (!res) {
-                    toast.error('Failed to load Razorpay SDK');
+                    toast.error('Failed to load payment gateway');
                     setPlacing(false);
                     return;
                 }
@@ -224,9 +193,7 @@ const CartPage = () => {
                         email: 'customer@pecafoo.com',
                         contact: '9999999999'
                     },
-                    theme: {
-                        color: '#ff5a1f'
-                    }
+                    theme: { color: '#FF3366' }
                 };
                 
                 const paymentObject = new window.Razorpay(options);
@@ -242,8 +209,7 @@ const CartPage = () => {
             }
         } catch (e) {
             const errData = e.response?.data;
-            const msg = errData?.error || errData?.detail ||
-                (typeof errData === 'object' ? JSON.stringify(errData) : 'Failed to place order.');
+            const msg = errData?.error || errData?.detail || 'Failed to place order.';
             toast.error(msg);
             setPlacing(false);
         }
@@ -251,166 +217,115 @@ const CartPage = () => {
 
     if (cartItems.length === 0) {
         return (
-            <div className="page">
-                <div className="page-header"><h1 className="page-title">Cart</h1></div>
-                <div className="empty-state" style={{ marginTop: 'var(--space-2xl)' }}>
-                    <ShoppingBag />
-                    <h3>Your cart is empty</h3>
-                    <p>Add items from a restaurant to get started</p>
-                    <button className="btn btn-primary" onClick={() => navigate('/')} style={{ marginTop: 16 }}>Browse Restaurants</button>
+            <PageContainer>
+                <div style={{ marginTop: 'var(--space-8)' }}>
+                    <EmptyState
+                        icon={ShoppingBag}
+                        title="Your cart is empty"
+                        description="Add items from a restaurant to get started"
+                        action={<Button onClick={() => navigate('/')}>Browse Restaurants</Button>}
+                    />
                 </div>
-            </div>
+            </PageContainer>
         );
     }
 
     return (
-        <div className="page" style={{ paddingBottom: 120 }}>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <div className="page-header">
-                    <h1 className="page-title">Cart</h1>
-                    <button className="btn btn-ghost" onClick={clearCart} style={{ color: 'var(--danger)' }}>
-                        <Trash2 size={18} /> Clear
-                    </button>
-                </div>
+        <PageContainer padding="0">
+            <div style={{ position: 'sticky', top: 0, zIndex: 10, backgroundColor: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', padding: 'var(--space-4)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border)' }}>
+                <h1 style={{ margin: 0, fontSize: 'var(--text-h2)' }}>Checkout</h1>
+                <Button variant="ghost" onClick={clearCart} style={{ color: 'var(--color-danger)' }}>
+                    <Trash2 size={18} style={{ marginRight: 8 }}/> Clear Cart
+                </Button>
+            </div>
 
-                {}
-                <div className="card" style={{ padding: 'var(--space-md)', marginBottom: 'var(--space-lg)' }}>
-                    <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-muted)' }}>Ordering from</p>
-                    <h3 style={{ fontWeight: 700 }}>{restaurant?.name}</h3>
-                </div>
+            <div style={{ padding: 'var(--space-4)' }}>
+                <GlassCard padding="var(--space-4)" style={{ marginBottom: 'var(--space-5)' }}>
+                    <p style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', margin: '0 0 4px 0', fontWeight: 600, textTransform: 'uppercase' }}>Ordering from</p>
+                    <h2 style={{ margin: 0, fontSize: 'var(--text-h2)' }}>{restaurant?.name}</h2>
+                </GlassCard>
 
-                {}
-                {cartItems.map((item) => (
-                    <div key={item.id} style={{
-                        display: 'flex', alignItems: 'center', gap: 12,
-                        padding: '12px 0', borderBottom: '1px solid var(--border-light)',
-                    }}>
-                        {item.image ? (
-                            <img src={item.image} alt={item.name} style={{
-                                width: 52, height: 52, borderRadius: 10, objectFit: 'cover',
-                            }} onError={(event) => {
-                                event.currentTarget.onerror = null;
-                                event.currentTarget.src = `data:image/svg+xml;utf8,${encodeURIComponent(
-                                    '<svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 52 52"><rect width="52" height="52" rx="10" fill="#F4E7E1"/><text x="26" y="31" text-anchor="middle" font-size="20">🍽️</text></svg>'
-                                )}`;
-                            }} />
-                        ) : (
-                            <div style={{
-                                width: 52, height: 52, borderRadius: 10, background: 'var(--bg-elevated)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem',
-                            }}>🍽️</div>
-                        )}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <h4 style={{ fontWeight: 600, marginBottom: 2, fontSize: '0.9rem' }}>{item.name}</h4>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
-                                ₹{item.discount_price || item.price}
-                            </p>
-                        </div>
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: 8,
-                            background: 'var(--bg-card)', border: '1px solid var(--border)',
-                            borderRadius: 8, padding: '4px 8px',
-                        }}>
-                            <button onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer' }}>
-                                <Minus size={16} />
-                            </button>
-                            <span style={{ fontWeight: 700, minWidth: 20, textAlign: 'center' }}>{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer' }}>
-                                <Plus size={16} />
-                            </button>
-                        </div>
-                        <span style={{ fontWeight: 700, minWidth: 55, textAlign: 'right' }}>
-                            ₹{((item.discount_price || item.price) * item.quantity).toFixed(0)}
-                        </span>
-                    </div>
-                ))}
-
-                {}
-                <div style={{ marginTop: 'var(--space-lg)' }}>
-                    <label className="input-label">Special Instructions (optional)</label>
-                    <input
-                        className="input"
-                        placeholder="Extra spicy, no onions, etc."
-                        value={specialInstructions}
-                        onChange={e => setSpecialInstructions(e.target.value)}
-                    />
-                </div>
-
-                {}
-                <div className="input-group" style={{ marginTop: 'var(--space-lg)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <label className="input-label" style={{ margin: 0 }}>
-                            <MapPin size={14} style={{ color: 'var(--accent)' }} /> Delivery Address
-                        </label>
-                        {savedAddresses.length > 0 && (
-                            <select
-                                onChange={(e) => {
-                                    const ad = savedAddresses.find(a => a.id === e.target.value);
-                                    if (ad) handleSelectAddress(ad);
-                                }}
-                                style={{
-                                    padding: '4px 8px', borderRadius: 8,
-                                    border: '1px solid var(--border)', background: 'var(--bg-elevated)',
-                                    fontSize: '0.8rem', outline: 'none', maxWidth: 160,
-                                    color: 'var(--text-primary)',
-                                }}
-                                defaultValue=""
-                            >
-                                <option value="" disabled>Saved addresses...</option>
-                                {savedAddresses.map(a => (
-                                    <option key={a.id} value={a.id}>
-                                        {a.label || a.address_type} — {(a.full_address || '').substring(0, 20)}...
-                                    </option>
-                                ))}
-                            </select>
-                        )}
-                    </div>
-
-                    <textarea
-                        className="input"
-                        placeholder="Enter full delivery address..."
-                        value={deliveryAddress}
-                        onChange={e => setDeliveryAddress(e.target.value)}
-                        rows={2}
-                        style={{ resize: 'none', marginTop: 'var(--space-sm)' }}
-                        id="delivery-address"
-                    />
-
-                    {}
-                    <div style={{
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        marginTop: 'var(--space-sm)', marginBottom: 4,
-                    }}>
-                        <label className="input-label" style={{ margin: 0, fontSize: '0.8rem' }}>
-                            {resolvingMapAddress ? 'Updating address from pin...' : 'Tap, drag the pin, or use GPS'}
-                        </label>
-                        <button
-                            type="button"
-                            onClick={fetchCurrentLocation}
-                            disabled={fetchingLocation}
-                            className="btn btn-ghost btn-sm"
-                            style={{
-                                color: fetchingLocation ? 'var(--text-muted)' : 'var(--primary)',
-                                padding: '6px 12px', fontSize: '0.8rem',
-                                background: 'var(--bg-elevated)', borderRadius: 8,
-                                border: '1px solid var(--border)',
-                                display: 'flex', alignItems: 'center', gap: 6,
-                            }}
-                        >
-                            {fetchingLocation ? (
-                                <><Loader size={14} className="spin" /> Finding...</>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
+                    {cartItems.map((item) => (
+                        <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', paddingBottom: 'var(--space-4)', borderBottom: '1px solid var(--color-divider)' }}>
+                            {item.image ? (
+                                <img src={item.image} alt={item.name} style={{ width: 64, height: 64, borderRadius: '12px', objectFit: 'cover' }} />
                             ) : (
-                                <><Navigation size={14} /> Use My Location</>
+                                <div style={{ width: 64, height: 64, borderRadius: '12px', background: 'var(--color-divider)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🍽️</div>
                             )}
-                        </button>
+                            
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <h4 style={{ fontWeight: 700, margin: '0 0 4px 0', fontSize: 'var(--text-body)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</h4>
+                                <p style={{ color: 'var(--color-text-secondary)', margin: 0, fontSize: 'var(--text-body)' }}>₹{item.discount_price || item.price}</p>
+                            </div>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                                <div style={{ fontWeight: 800, fontSize: 'var(--text-body)' }}>
+                                    ₹{((item.discount_price || item.price) * item.quantity).toFixed(2)}
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: '100px', padding: '4px 12px' }}>
+                                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)} style={{ background: 'none', border: 'none', color: 'var(--brand-customer)', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
+                                        <Minus size={16} />
+                                    </button>
+                                    <span style={{ fontWeight: 800, fontSize: 'var(--text-body)', minWidth: 20, textAlign: 'center' }}>{item.quantity}</span>
+                                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)} style={{ background: 'none', border: 'none', color: 'var(--brand-customer)', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
+                                        <Plus size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <FloatingInput
+                    label="Special Instructions (optional)"
+                    value={specialInstructions}
+                    onChange={e => setSpecialInstructions(e.target.value)}
+                    placeholder="Extra spicy, no onions, etc."
+                />
+
+                <SectionHeader title="Delivery Details" style={{ marginTop: 'var(--space-6)' }} />
+                
+                <GlassCard padding="var(--space-4)" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                    {savedAddresses.length > 0 && (
+                        <select
+                            onChange={(e) => {
+                                const ad = savedAddresses.find(a => a.id === e.target.value);
+                                if (ad) handleSelectAddress(ad);
+                            }}
+                            style={{
+                                width: '100%', padding: '12px', borderRadius: '12px',
+                                border: '1px solid var(--color-border)', background: 'var(--color-bg-card)',
+                                fontSize: 'var(--text-body)', color: 'var(--color-text-primary)',
+                                outline: 'none', fontFamily: 'inherit'
+                            }}
+                            defaultValue=""
+                        >
+                            <option value="" disabled>Select a saved address...</option>
+                            {savedAddresses.map(a => (
+                                <option key={a.id} value={a.id}>
+                                    {a.label || a.address_type} — {(a.full_address || '').substring(0, 30)}...
+                                </option>
+                            ))}
+                        </select>
+                    )}
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
+                            {resolvingMapAddress ? 'Updating address...' : 'Or set location on map'}
+                        </span>
+                        <Button 
+                            variant="secondary" 
+                            size="small" 
+                            onClick={fetchCurrentLocation} 
+                            disabled={fetchingLocation}
+                            icon={fetchingLocation ? Loader : Navigation}
+                        >
+                            {fetchingLocation ? 'Locating...' : 'Use Current'}
+                        </Button>
                     </div>
 
-                    <div style={{
-                        position: 'relative', height: 200, background: 'var(--bg-elevated)',
-                        borderRadius: 16, overflow: 'hidden', border: '1px solid var(--border)',
-                    }}>
+                    <div style={{ height: 200, borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--color-border)', position: 'relative' }}>
                         <MapView
                             center={deliveryCoords}
                             markers={[{
@@ -423,63 +338,73 @@ const CartPage = () => {
                             style={{ height: '100%', width: '100%' }}
                         />
                     </div>
+                    
+                    <textarea
+                        value={deliveryAddress}
+                        onChange={e => setDeliveryAddress(e.target.value)}
+                        placeholder="Enter full delivery address manually..."
+                        rows={3}
+                        style={{
+                            width: '100%', padding: '12px', borderRadius: '12px',
+                            border: '1px solid var(--color-border)', background: 'var(--color-bg-card)',
+                            fontSize: 'var(--text-body)', color: 'var(--color-text-primary)',
+                            outline: 'none', fontFamily: 'inherit', resize: 'none'
+                        }}
+                    />
+                </GlassCard>
+
+                <div style={{ display: 'none' }}>
+                    <DeliveryFeeEstimate
+                        restaurantId={restaurant?.id}
+                        cartValue={subtotal}
+                        customerLat={deliveryCoords?.[0]}
+                        customerLng={deliveryCoords?.[1]}
+                        onEstimateChange={setDeliveryEstimate}
+                    />
                 </div>
 
-                {}
-                <DeliveryFeeEstimate
-                    restaurantId={restaurant?.id}
-                    cartValue={subtotal}
-                    customerLat={deliveryCoords?.[0]}
-                    customerLng={deliveryCoords?.[1]}
-                    onEstimateChange={setDeliveryEstimate}
-                />
-
-                <div className="card" style={{ padding: 'var(--space-md)', marginTop: 'var(--space-md)' }}>
-                    <h3 style={{ fontWeight: 700, marginBottom: 12 }}>Bill Summary</h3>
-                    {[['Subtotal', subtotal], ['Tax (5%)', tax], ['Delivery', deliveryFee]].map(([l, v]) => (
-                        <div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 'var(--font-size-sm)' }}>
-                            <span style={{ color: 'var(--text-secondary)' }}>{l}</span>
-                            <span>₹{Number(v).toFixed(2)}</span>
+                <SectionHeader title="Bill Summary" style={{ marginTop: 'var(--space-6)' }} />
+                
+                <GlassCard padding="var(--space-5)">
+                    {[['Subtotal', subtotal], ['Tax (5%)', tax], ['Delivery Fee', deliveryFee]].map(([label, value]) => (
+                        <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: 'var(--text-body)' }}>
+                            <span style={{ color: 'var(--color-text-secondary)' }}>{label}</span>
+                            <span style={{ fontWeight: 600 }}>₹{Number(value).toFixed(2)}</span>
                         </div>
                     ))}
-                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: 10, display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-                        <span style={{ fontWeight: 700 }}>Total</span>
-                        <span style={{ fontWeight: 800, color: 'var(--accent)' }}>₹{total.toFixed(2)}</span>
+                    <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--color-border)', margin: '16px 0' }} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 800, fontSize: 'var(--text-h3)' }}>Total</span>
+                        <span style={{ fontWeight: 800, fontSize: 'var(--text-h3)', color: 'var(--brand-customer)' }}>₹{total.toFixed(2)}</span>
                     </div>
-                </div>
+                </GlassCard>
 
-                <div className="card" style={{ padding: 'var(--space-md)', marginTop: 'var(--space-md)', marginBottom: 'var(--space-lg)' }}>
-                    <h3 style={{ fontWeight: 700, marginBottom: 12 }}>Payment Method</h3>
-                    <div style={{ display: 'flex', gap: 12 }}>
-                        <button
-                            onClick={() => setPaymentMethod('cod')}
-                            className={`btn ${paymentMethod === 'cod' ? 'btn-primary' : 'btn-secondary'}`}
-                            style={{ flex: 1, padding: '12px 4px', fontSize: '0.9rem' }}
-                        >
-                            Cash on Delivery
-                        </button>
-                        <button
-                            onClick={() => setPaymentMethod('razorpay')}
-                            className={`btn ${paymentMethod === 'razorpay' ? 'btn-primary' : 'btn-secondary'}`}
-                            style={{ flex: 1, padding: '12px 4px', fontSize: '0.9rem' }}
-                        >
-                            Pay Online
-                        </button>
-                    </div>
-                </div>
+                <SectionHeader title="Payment" style={{ marginTop: 'var(--space-6)' }} />
+                
+                <SegmentedControl 
+                    options={[
+                        { label: <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Banknote size={16}/> Cash</div>, value: 'cod' },
+                        { label: <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CreditCard size={16}/> Online</div>, value: 'razorpay' }
+                    ]}
+                    value={paymentMethod}
+                    onChange={setPaymentMethod}
+                    brandColor="var(--brand-customer)"
+                />
 
-                {}
-                <button
-                    className="btn btn-primary btn-full btn-lg"
-                    onClick={handlePlaceOrder}
-                    disabled={placing || !deliveryAddress.trim()}
-                    id="place-order-btn"
-                >
-                    {placing ? 'Processing...' : `Place Order — ₹${total.toFixed(2)}`}
-                    {!placing && <ArrowRight size={20} />}
-                </button>
-            </motion.div>
-        </div>
+                <div style={{ marginTop: 'var(--space-8)', marginBottom: 'var(--space-6)' }}>
+                    <Button 
+                        variant="primary" 
+                        fullWidth 
+                        size="large" 
+                        onClick={handlePlaceOrder}
+                        disabled={placing || !deliveryAddress.trim()}
+                    >
+                        {placing ? 'Processing...' : `Place Order — ₹${total.toFixed(2)}`}
+                    </Button>
+                </div>
+            </div>
+        </PageContainer>
     );
 };
+
 export default CartPage;

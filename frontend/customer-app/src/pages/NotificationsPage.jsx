@@ -5,8 +5,16 @@ import { ArrowLeft, Bell, BellOff, CheckCheck, Package, Clock, Star, Gift, Info 
 import { notificationsAPI } from '../services/api';
 import toast from 'react-hot-toast';
 
+import {
+    PageContainer,
+    IconButton,
+    Button,
+    GlassCard,
+    EmptyState
+} from '../../../shared-ui/PremiumUI';
+
 const typeIcons = { order: Package, info: Info, promo: Gift, rating: Star, system: Bell };
-const typeColors = { order: '#60a5fa', info: '#a78bfa', promo: '#f97316', rating: '#fbbf24', system: '#64748b' };
+const typeColors = { order: '#3b82f6', info: '#8b5cf6', promo: '#f97316', rating: '#fbbf24', system: '#64748b' };
 
 const NotificationsPage = () => {
     const navigate = useNavigate();
@@ -51,46 +59,38 @@ const NotificationsPage = () => {
     };
 
     return (
-        <div className="page" style={{ paddingBottom: 100 }}>
-            <div className="page-header">
-                <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer' }}><ArrowLeft size={22} /></button>
-                <h1 className="page-title">Notifications</h1>
-                {unreadCount > 0 && <button onClick={markAllRead} className="btn btn-secondary btn-sm"><CheckCheck size={14} /> Read All</button>}
+        <PageContainer padding="0">
+            <div style={{ position: 'sticky', top: 0, zIndex: 10, backgroundColor: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', padding: 'var(--space-4)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                    <IconButton icon={ArrowLeft} onClick={() => navigate(-1)} />
+                    <h1 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Notifications</h1>
+                </div>
+                {unreadCount > 0 && (
+                    <Button variant="secondary" size="small" onClick={markAllRead} icon={CheckCheck}>
+                        Read All
+                    </Button>
+                )}
             </div>
 
-            <div
-                className="card"
-                style={{
-                    marginBottom: 16,
-                    padding: 18,
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.98), rgba(242,247,255,0.95))',
-                    display: 'grid',
-                    gap: 14,
-                }}
-            >
-                <div>
-                    <p style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', fontWeight: 800 }}>
-                        Inbox
-                    </p>
-                    <h2 style={{ marginTop: 6, fontSize: '1.3rem', lineHeight: 1.12, fontWeight: 800 }}>
-                        Updates about your orders, promos, and account
-                    </h2>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
-                    <div style={{ padding: 12, borderRadius: 16, background: 'rgba(100, 116, 139, 0.08)' }}>
-                        <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 700 }}>Total</div>
-                        <div style={{ marginTop: 4, fontSize: '1.2rem', fontWeight: 800 }}>{notifications.length}</div>
+            <div style={{ padding: 'var(--space-4)', paddingBottom: '120px' }}>
+                <GlassCard padding="var(--space-4)" style={{ marginBottom: 'var(--space-5)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                        <div style={{ width: 48, height: 48, borderRadius: '16px', backgroundColor: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Bell size={24} color="#3b82f6" />
+                        </div>
+                        <div>
+                            <h2 style={{ margin: 0, fontSize: 'var(--text-body)', fontWeight: 800 }}>Inbox</h2>
+                            <p style={{ margin: '4px 0 0 0', fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>Updates about your orders, promos, and account</p>
+                        </div>
                     </div>
-                    <div style={{ padding: 12, borderRadius: 16, background: 'rgba(96, 165, 250, 0.12)' }}>
-                        <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 700 }}>Unread</div>
-                        <div style={{ marginTop: 4, fontSize: '1.2rem', fontWeight: 800 }}>{unreadCount}</div>
-                    </div>
-                </div>
-            </div>
+                </GlassCard>
 
-            {loading ? [1, 2, 3, 4].map((i) => <div key={i} className="skeleton" style={{ height: 82, marginBottom: 10 }} />) :
-                notifications.length > 0 ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {loading ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                        {[1, 2, 3, 4].map((i) => <div key={i} style={{ height: 80, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />)}
+                    </div>
+                ) : notifications.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                         {notifications.map((notification, index) => {
                             const TypeIcon = typeIcons[notification.notification_type] || Bell;
                             const typeColor = typeColors[notification.notification_type] || '#64748b';
@@ -101,35 +101,47 @@ const NotificationsPage = () => {
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: index * 0.03 }}
                                     onClick={() => !notification.is_read && markRead(notification.id)}
-                                    style={{
-                                        display: 'flex',
-                                        gap: 12,
-                                        padding: '16px',
-                                        borderRadius: 18,
-                                        background: notification.is_read ? 'var(--bg-card)' : `${typeColor}08`,
-                                        border: `1px solid ${notification.is_read ? 'var(--border)' : `${typeColor}30`}`,
-                                        cursor: notification.is_read ? 'default' : 'pointer',
-                                        transition: 'all 0.2s',
-                                        boxShadow: notification.is_read ? 'var(--shadow-sm)' : '0 14px 26px rgba(148, 163, 184, 0.1)',
-                                    }}
                                 >
-                                    <div style={{ width: 40, height: 40, borderRadius: 12, background: `${typeColor}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                        <TypeIcon size={18} color={typeColor} />
-                                    </div>
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        <p style={{ fontWeight: notification.is_read ? 600 : 800, fontSize: '0.92rem', marginBottom: 4 }}>{notification.title}</p>
-                                        <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>{notification.message}</p>
-                                        <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={10} /> {timeAgo(notification.created_at)}</p>
-                                    </div>
-                                    {!notification.is_read && <div style={{ width: 8, height: 8, borderRadius: 4, background: typeColor, marginTop: 6, flexShrink: 0 }} />}
+                                    <GlassCard 
+                                        padding="var(--space-4)" 
+                                        style={{ 
+                                            display: 'flex', 
+                                            alignItems: 'flex-start', 
+                                            gap: 'var(--space-3)',
+                                            backgroundColor: notification.is_read ? 'var(--color-bg-base)' : `${typeColor}08`,
+                                            border: `1px solid ${notification.is_read ? 'var(--color-border)' : `${typeColor}30`}`,
+                                            cursor: notification.is_read ? 'default' : 'pointer'
+                                        }}
+                                    >
+                                        <div style={{ width: 40, height: 40, borderRadius: '12px', background: `${typeColor}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                            <TypeIcon size={20} color={typeColor} />
+                                        </div>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                                                <p style={{ margin: 0, fontWeight: notification.is_read ? 600 : 800, fontSize: 'var(--text-body)' }}>{notification.title}</p>
+                                                {!notification.is_read && <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: typeColor, flexShrink: 0, marginTop: 4 }} />}
+                                            </div>
+                                            <p style={{ margin: 0, fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>{notification.message}</p>
+                                            <p style={{ margin: '6px 0 0 0', fontSize: '11px', color: 'var(--color-text-tertiary)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                <Clock size={12} /> {timeAgo(notification.created_at)}
+                                            </p>
+                                        </div>
+                                    </GlassCard>
                                 </motion.div>
                             );
                         })}
                     </div>
                 ) : (
-                    <div className="card" style={{ marginTop: 40 }}><div className="empty-state"><BellOff /><h3>No Notifications</h3><p>You're all caught up!</p></div></div>
+                    <div style={{ marginTop: 'var(--space-8)' }}>
+                        <EmptyState 
+                            icon={BellOff} 
+                            title="No Notifications" 
+                            description="You're all caught up! When you get updates, they'll show up here."
+                        />
+                    </div>
                 )}
-        </div>
+            </div>
+        </PageContainer>
     );
 };
 

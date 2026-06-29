@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { authAPI } from '../services/api';
+import AuthLayout from '../components/shared/AuthLayout';
+import { Button, FloatingInput } from '../../../shared-ui/PremiumUI';
 
 export default function ForgotPasswordPage() {
     const navigate = useNavigate();
@@ -28,49 +29,43 @@ export default function ForgotPasswordPage() {
     };
 
     return (
-        <div className="auth-shell">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="auth-card"
-            >
-                <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                    <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 8 }}>Forgot Password</h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                        Enter your email to receive a password reset OTP.
-                    </p>
-                </div>
+        <AuthLayout 
+            title="Reset your password"
+            subtitle="Don't worry, it happens to the best of us. Let's get you back into your account."
+        >
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-5)' }}>
+                <h2 style={{ fontSize: 'var(--text-h2)', marginBottom: 'var(--space-2)' }}>Forgot Password</h2>
+                <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-body)' }}>Enter your email to receive a password reset OTP.</p>
+            </div>
 
-                <form onSubmit={handleSubmit}>
-                    <input
-                        className="input"
-                        type="email"
-                        placeholder="Email address"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        style={{ marginBottom: 20 }}
-                        disabled={sent}
-                    />
-                    
-                    <button
-                        type="submit"
-                        className="btn btn-primary"
-                        disabled={loading || sent}
-                        style={{ width: '100%', padding: 14, fontSize: '1rem', marginBottom: 16 }}
-                    >
-                        {loading ? 'Sending OTP...' : sent ? 'Sent!' : 'Send OTP'} <ArrowRight size={18} />
-                    </button>
-                    
-                    <Link
-                        to="/login"
-                        className="btn btn-secondary"
-                        style={{ width: '100%', padding: 14, fontSize: '1rem', display: 'flex', justifyContent: 'center' }}
-                    >
-                        <ArrowLeft size={18} /> Back to Login
-                    </Link>
-                </form>
-            </motion.div>
-        </div>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                <FloatingInput 
+                    label="Email Address"
+                    icon={Mail}
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={sent}
+                />
+                
+                <Button 
+                    type="submit" 
+                    variant="primary" 
+                    fullWidth 
+                    size="medium" 
+                    disabled={loading || sent}
+                    style={{ marginTop: 'var(--space-2)' }}
+                >
+                    {loading ? 'Sending OTP...' : sent ? 'Sent!' : 'Send OTP'}
+                </Button>
+                
+                <Link to="/login" style={{ textDecoration: 'none' }}>
+                    <Button type="button" variant="ghost" fullWidth size="medium">
+                        Back to Login
+                    </Button>
+                </Link>
+            </form>
+        </AuthLayout>
     );
 }

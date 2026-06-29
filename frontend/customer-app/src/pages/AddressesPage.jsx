@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,8 +8,17 @@ import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
 import AddressPickerMap from '../components/maps/AddressPickerMap';
 
+import {
+    PageContainer,
+    IconButton,
+    Button,
+    GlassCard,
+    EmptyState,
+    FloatingInput
+} from '../../../shared-ui/PremiumUI';
+
 const typeIcons = { home: Home, work: Briefcase, other: Heart };
-const typeColors = { home: '#60a5fa', work: '#a78bfa', other: '#f43f5e' };
+const typeColors = { home: '#3b82f6', work: '#8b5cf6', other: '#ec4899' };
 
 const emptyForm = {
     address_type: 'home',
@@ -38,9 +46,14 @@ const AddressesPage = () => {
     useEffect(() => { fetchAddresses(); }, []);
 
     const fetchAddresses = async () => {
-        try { const { data } = await customersAPI.getAddresses(); setAddresses(data.results || data || []); }
-        catch { }
-        finally { setLoading(false); }
+        try { 
+            const { data } = await customersAPI.getAddresses(); 
+            setAddresses(data.results || data || []); 
+        } catch { 
+            toast.error('Failed to load addresses');
+        } finally { 
+            setLoading(false); 
+        }
     };
 
     const openCreate = () => { setForm({ ...emptyForm }); setModal({ mode: 'create' }); };
@@ -61,6 +74,7 @@ const AddressesPage = () => {
             toast.success('Address auto-filled from GPS!');
         }
     };
+
     const openEdit = (addr) => {
         setForm({
             address_type: addr.address_type || 'home',
@@ -100,203 +114,235 @@ const AddressesPage = () => {
         e.preventDefault();
         setSaving(true);
         try {
-            if (modal.mode === 'create') { await customersAPI.addAddress(form); toast.success('Address saved'); }
-            else { await customersAPI.updateAddress(modal.id, form); toast.success('Address updated'); }
+            if (modal.mode === 'create') { 
+                await customersAPI.addAddress(form); 
+                toast.success('Address saved'); 
+            } else { 
+                await customersAPI.updateAddress(modal.id, form); 
+                toast.success('Address updated'); 
+            }
             setModal(null);
             fetchAddresses();
         } catch (err) {
             const detail = err.response?.data;
             const msg = detail ? (typeof detail === 'string' ? detail : JSON.stringify(detail)) : 'Failed to save address';
             toast.error(msg);
+        } finally { 
+            setSaving(false); 
         }
-        finally { setSaving(false); }
     };
 
     const handleDelete = async (id) => {
         if (!window.confirm('Delete this address?')) return;
-        try { await customersAPI.deleteAddress(id); toast.success('Address deleted'); fetchAddresses(); }
-        catch { toast.error('Failed to delete'); }
+        try { 
+            await customersAPI.deleteAddress(id); 
+            toast.success('Address deleted'); 
+            fetchAddresses(); 
+        } catch { 
+            toast.error('Failed to delete'); 
+        }
     };
 
     return (
-        <div className="page" style={{ paddingBottom: 100 }}>
-            <div className="page-header">
-                <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer' }}><ArrowLeft size={22} /></button>
-                <h1 className="page-title">Saved Addresses</h1>
-                <button onClick={openCreate} className="btn btn-primary btn-sm"><Plus size={16} /> Add</button>
+        <PageContainer padding="0">
+            <div style={{ position: 'sticky', top: 0, zIndex: 10, backgroundColor: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', padding: 'var(--space-4)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                    <IconButton icon={ArrowLeft} onClick={() => navigate(-1)} />
+                    <h1 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Addresses</h1>
+                </div>
+                <Button variant="secondary" size="small" icon={Plus} onClick={openCreate}>Add</Button>
             </div>
 
-            <div
-                className="card"
-                style={{
-                    marginBottom: 16,
-                    padding: 18,
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.98), rgba(244,247,255,0.95))',
-                    display: 'grid',
-                    gap: 14,
-                }}
-            >
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-                    <div>
-                        <p style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#5b8def', fontWeight: 800 }}>
-                            Delivery Spots
-                        </p>
-                        <h2 style={{ marginTop: 6, fontSize: '1.32rem', lineHeight: 1.12, fontWeight: 800 }}>
-                            Keep checkout fast with ready-to-use addresses
-                        </h2>
+            <div style={{ padding: 'var(--space-4)' }}>
+                {loading ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                        {[1, 2, 3].map(i => <div key={i} style={{ height: 120, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />)}
                     </div>
-                    <div style={{ width: 42, height: 42, borderRadius: 16, background: 'rgba(96, 165, 250, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa', flexShrink: 0 }}>
-                        <MapPin size={20} />
-                    </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
-                    <div style={{ padding: 12, borderRadius: 16, background: 'rgba(96, 165, 250, 0.08)' }}>
-                        <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 700 }}>Saved</div>
-                        <div style={{ marginTop: 4, fontSize: '1.2rem', fontWeight: 800 }}>{addresses.length}</div>
-                    </div>
-                    <div style={{ padding: 12, borderRadius: 16, background: 'rgba(251, 191, 36, 0.12)' }}>
-                        <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 700 }}>Default</div>
-                        <div style={{ marginTop: 4, fontSize: '1.02rem', fontWeight: 800 }}>
-                            {addresses.find((address) => address.is_default)?.label || addresses.find((address) => address.is_default)?.address_type || 'None'}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {loading ? [1, 2, 3].map(i => <div key={i} className="skeleton" style={{ height: 80, marginBottom: 12 }} />) :
-                addresses.length > 0 ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        {addresses.map((addr, i) => {
-                            const addrType = addr.address_type || 'other';
-                            const TypeIcon = typeIcons[addrType] || Heart;
-                            const typeColor = typeColors[addrType] || '#f43f5e';
-                            return (
-                                <motion.div key={addr.id} className="card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                                    style={{ display: 'grid', gap: 14, padding: 16 }}>
-                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                                    <div style={{ width: 40, height: 40, borderRadius: 10, background: `${typeColor}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                        <TypeIcon size={20} color={typeColor} />
-                                    </div>
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                                            <p style={{ fontWeight: 600, textTransform: 'capitalize' }}>{addrType}</p>
-                                            {addr.label && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>({addr.label})</span>}
-                                            {addr.is_default && <Star size={12} fill="#fbbf24" color="#fbbf24" />}
-                                        </div>
-                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                                            {addr.full_address}, {addr.city} {addr.pincode}
-                                        </p>
-                                        {addr.landmark && <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>Near: {addr.landmark}</p>}
-                                    </div>
-                                    <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                                        <button onClick={() => openEdit(addr)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4 }}><Edit size={16} /></button>
-                                        <button onClick={() => handleDelete(addr.id)} style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: 4 }}><Trash2 size={16} /></button>
-                                    </div>
-                                    </div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
-                                        <button
-                                            onClick={() => handleDeliverHere(addr)}
-                                            className="btn btn-outline btn-sm"
-                                            style={{ minHeight: 40 }}
-                                        >
-                                            <MapPin size={14} /> Deliver Here
-                                        </button>
-                                        <button
-                                            onClick={() => openEdit(addr)}
-                                            className="btn btn-secondary btn-sm"
-                                            style={{ minHeight: 40 }}
-                                        >
-                                            <Edit size={14} /> Edit
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            );
-                        })}
+                ) : addresses.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                        <AnimatePresence>
+                            {addresses.map((addr, i) => {
+                                const addrType = addr.address_type || 'other';
+                                const TypeIcon = typeIcons[addrType] || Heart;
+                                const typeColor = typeColors[addrType] || '#ec4899';
+                                
+                                return (
+                                    <motion.div key={addr.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                                        <GlassCard padding="var(--space-4)" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                                            <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start' }}>
+                                                <div style={{ width: 40, height: 40, borderRadius: '12px', backgroundColor: `${typeColor}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                    <TypeIcon size={20} color={typeColor} />
+                                                </div>
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                                                        <h3 style={{ margin: 0, fontSize: 'var(--text-body)', fontWeight: 700, textTransform: 'capitalize' }}>{addrType}</h3>
+                                                        {addr.label && <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>({addr.label})</span>}
+                                                        {addr.is_default && <div style={{ display: 'flex', alignItems: 'center', gap: 2, backgroundColor: 'rgba(251, 191, 36, 0.1)', color: '#d97706', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 800 }}><Star size={10} fill="currentColor"/> Default</div>}
+                                                    </div>
+                                                    <p style={{ margin: '4px 0 0 0', fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                                                        {addr.full_address}, {addr.city} {addr.pincode}
+                                                    </p>
+                                                    {addr.landmark && <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: 'var(--color-text-tertiary)' }}>Near: {addr.landmark}</p>}
+                                                </div>
+                                                <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                                                    <IconButton variant="ghost" icon={Edit} onClick={() => openEdit(addr)} />
+                                                    <IconButton variant="ghost" icon={Trash2} onClick={() => handleDelete(addr.id)} style={{ color: 'var(--color-danger)' }} />
+                                                </div>
+                                            </div>
+                                            
+                                            <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+                                                <Button fullWidth variant="outline" size="small" icon={MapPin} onClick={() => handleDeliverHere(addr)}>
+                                                    Deliver Here
+                                                </Button>
+                                                <Button fullWidth variant="secondary" size="small" icon={Edit} onClick={() => openEdit(addr)}>
+                                                    Edit
+                                                </Button>
+                                            </div>
+                                        </GlassCard>
+                                    </motion.div>
+                                );
+                            })}
+                        </AnimatePresence>
                     </div>
                 ) : (
-                    <div className="card"><div className="empty-state"><MapPin /><h3>No Saved Addresses</h3><p>Add addresses for faster checkout</p><button onClick={openCreate} className="btn btn-primary" style={{ marginTop: 12 }}><Plus size={16} /> Add Address</button></div></div>
+                    <div style={{ marginTop: 'var(--space-8)' }}>
+                        <EmptyState
+                            icon={MapPin}
+                            title="No Saved Addresses"
+                            description="Add addresses for faster checkout"
+                            action={<Button onClick={openCreate} icon={Plus}>Add Address</Button>}
+                        />
+                    </div>
                 )}
+            </div>
 
-            {}
             <AnimatePresence>
                 {modal && (
-                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 1000 }}>
-                        <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 25 }}
-                            className="card" style={{ width: '100%', maxWidth: 480, borderRadius: '20px 20px 0 0', maxHeight: '85vh', overflow: 'auto' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                                <h2 style={{ fontWeight: 700 }}>{modal.mode === 'create' ? 'New Address' : 'Edit Address'}</h2>
-                                <button onClick={() => setModal(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={20} /></button>
+                    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+                        <motion.div 
+                            initial={{ y: '100%' }} 
+                            animate={{ y: 0 }} 
+                            exit={{ y: '100%' }} 
+                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                            style={{ 
+                                width: '100%', 
+                                maxWidth: '480px', 
+                                backgroundColor: 'var(--color-bg-base)', 
+                                borderRadius: '24px 24px 0 0', 
+                                padding: 'var(--space-5)', 
+                                paddingBottom: 'calc(var(--space-5) + env(safe-area-inset-bottom))',
+                                maxHeight: '90vh', 
+                                overflowY: 'auto' 
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5)' }}>
+                                <h2 style={{ margin: 0, fontSize: 'var(--text-h2)' }}>{modal.mode === 'create' ? 'New Address' : 'Edit Address'}</h2>
+                                <IconButton icon={X} variant="ghost" onClick={() => setModal(null)} />
                             </div>
-                            <form onSubmit={handleSave}>
-                                {}
-                                <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+
+                            <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2)' }}>
                                     {['home', 'work', 'other'].map(type => {
                                         const Icon = typeIcons[type];
+                                        const isSelected = form.address_type === type;
                                         return (
-                                            <button key={type} type="button" onClick={() => setForm({ ...form, address_type: type })}
-                                                style={{ flex: 1, padding: '10px 12px', borderRadius: 10, border: `2px solid ${form.address_type === type ? typeColors[type] : 'var(--border)'}`, background: form.address_type === type ? `${typeColors[type]}15` : 'var(--bg-elevated)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, cursor: 'pointer', textTransform: 'capitalize', fontWeight: 500, color: form.address_type === type ? typeColors[type] : 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                                                <Icon size={16} /> {type}
+                                            <button 
+                                                key={type} 
+                                                type="button" 
+                                                onClick={() => setForm({ ...form, address_type: type })}
+                                                style={{ 
+                                                    padding: '12px 8px', 
+                                                    borderRadius: '12px', 
+                                                    border: `2px solid ${isSelected ? typeColors[type] : 'var(--color-border)'}`, 
+                                                    backgroundColor: isSelected ? `${typeColors[type]}10` : 'transparent', 
+                                                    display: 'flex', 
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center', 
+                                                    justifyContent: 'center', 
+                                                    gap: 6, 
+                                                    cursor: 'pointer', 
+                                                    textTransform: 'capitalize', 
+                                                    fontWeight: 700, 
+                                                    color: isSelected ? typeColors[type] : 'var(--color-text-secondary)', 
+                                                    fontSize: '12px',
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                            >
+                                                <Icon size={20} /> {type}
                                             </button>
                                         );
                                     })}
                                 </div>
-                                {}
-                                <button
-                                    type="button"
-                                    onClick={autoFillFromGPS}
+
+                                <Button 
+                                    type="button" 
+                                    variant="secondary" 
+                                    onClick={autoFillFromGPS} 
                                     disabled={gpsLoading}
-                                    style={{
-                                        width: '100%', padding: '10px 16px', marginBottom: 12,
-                                        background: 'var(--bg-elevated)', border: '1px dashed var(--accent)',
-                                        borderRadius: 10, display: 'flex', alignItems: 'center',
-                                        justifyContent: 'center', gap: 8, cursor: 'pointer',
-                                        color: 'var(--accent)', fontWeight: 600, fontSize: '0.85rem',
-                                    }}
+                                    style={{ color: 'var(--brand-customer)', backgroundColor: 'rgba(217, 70, 239, 0.1)', border: '1px dashed var(--brand-customer)' }}
                                 >
                                     {gpsLoading ? <Loader size={16} className="spin" /> : <Navigation size={16} />}
-                                    {gpsLoading ? 'Detecting...' : 'Use Current Location'}
-                                </button>
-                                <div style={{ marginBottom: 14 }}>
-                                    <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: 8 }}>
-                                        Drag the pin or tap the map to save the exact drop location for orders.
-                                    </p>
-                                    <AddressPickerMap
-                                        height={220}
-                                        initialPosition={
-                                            form.latitude && form.longitude
-                                                ? [parseFloat(form.latitude), parseFloat(form.longitude)]
-                                                : null
-                                        }
-                                        onAddressSelect={handleAddressMapSelect}
+                                    <span style={{ marginLeft: 8 }}>{gpsLoading ? 'Detecting...' : 'Use Current Location'}</span>
+                                </Button>
+
+                                <div>
+                                    <p style={{ margin: '0 0 8px 0', fontSize: '11px', color: 'var(--color-text-tertiary)', fontWeight: 600 }}>Pin your exact location</p>
+                                    <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+                                        <AddressPickerMap
+                                            height={180}
+                                            initialPosition={
+                                                form.latitude && form.longitude
+                                                    ? [parseFloat(form.latitude), parseFloat(form.longitude)]
+                                                    : null
+                                            }
+                                            onAddressSelect={handleAddressMapSelect}
+                                        />
+                                    </div>
+                                </div>
+
+                                <FloatingInput 
+                                    label="Custom label (optional, e.g. Mom's House)" 
+                                    value={form.label} 
+                                    onChange={e => setForm({ ...form, label: e.target.value })} 
+                                />
+                                
+                                <FloatingInput 
+                                    label="Full Address" 
+                                    value={form.full_address} 
+                                    onChange={e => setForm({ ...form, full_address: e.target.value })} 
+                                    required
+                                />
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+                                    <FloatingInput label="City" value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} required />
+                                    <FloatingInput label="State" value={form.state} onChange={e => setForm({ ...form, state: e.target.value })} required />
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+                                    <FloatingInput label="Pincode" value={form.pincode} onChange={e => setForm({ ...form, pincode: e.target.value })} required />
+                                    <FloatingInput label="Landmark" value={form.landmark} onChange={e => setForm({ ...form, landmark: e.target.value })} />
+                                </div>
+
+                                <label style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', backgroundColor: 'var(--color-divider)', borderRadius: '12px', cursor: 'pointer', fontSize: 'var(--text-body)', fontWeight: 600 }}>
+                                    <input 
+                                        type="checkbox" 
+                                        checked={form.is_default} 
+                                        onChange={e => setForm({ ...form, is_default: e.target.checked })} 
+                                        style={{ width: 20, height: 20, accentColor: 'var(--brand-customer)' }}
                                     />
-                                </div>
-                                <input className="input" placeholder="Custom label (optional, e.g. Mom's House)" value={form.label} onChange={e => setForm({ ...form, label: e.target.value })} style={{ marginBottom: 12 }} />
-                                <textarea className="input" placeholder="Full Address *" value={form.full_address} onChange={e => setForm({ ...form, full_address: e.target.value })} required rows={2} style={{ marginBottom: 12, resize: 'none' }} />
-                                <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-                                    <input className="input" placeholder="City *" value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} required />
-                                    <input className="input" placeholder="State *" value={form.state} onChange={e => setForm({ ...form, state: e.target.value })} required />
-                                </div>
-                                <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-                                    <input className="input" placeholder="Pincode *" value={form.pincode} onChange={e => setForm({ ...form, pincode: e.target.value })} required />
-                                    <input className="input" placeholder="Landmark" value={form.landmark} onChange={e => setForm({ ...form, landmark: e.target.value })} />
-                                </div>
-                                <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-                                    <input className="input" placeholder="Latitude" value={form.latitude} readOnly />
-                                    <input className="input" placeholder="Longitude" value={form.longitude} readOnly />
-                                </div>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, cursor: 'pointer', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                    <input type="checkbox" checked={form.is_default} onChange={e => setForm({ ...form, is_default: e.target.checked })} />
                                     Set as default address
                                 </label>
-                                <button type="submit" className="btn btn-primary" disabled={saving} style={{ width: '100%', marginTop: 8 }}>
+
+                                <Button type="submit" variant="primary" size="large" disabled={saving} style={{ marginTop: 'var(--space-2)' }}>
                                     {saving ? 'Saving...' : modal.mode === 'create' ? 'Save Address' : 'Update Address'}
-                                </button>
+                                </Button>
                             </form>
                         </motion.div>
                     </div>
                 )}
             </AnimatePresence>
-        </div>
+        </PageContainer>
     );
 };
+
 export default AddressesPage;

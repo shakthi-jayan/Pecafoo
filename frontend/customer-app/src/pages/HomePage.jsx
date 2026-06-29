@@ -2,17 +2,28 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    Search, MapPin, ChevronRight, ChevronDown,
+    Search, MapPin, ChevronRight,
     Utensils, Coffee, Pizza, Salad, Cake, Soup,
-    Navigation, Loader, RefreshCw, ShoppingBag, ClipboardList
+    Navigation, RefreshCw, ShoppingBag, ClipboardList, Loader
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from '../context/LocationContext';
 import { restaurantsAPI } from '../services/api';
-import RestaurantCard from '../components/RestaurantCard';
 import CustomerHomeHeader from '../components/home/CustomerHomeHeader';
 import RestaurantMap from '../components/maps/RestaurantMap';
-import { ContentShelf, PageHero, SectionHeader } from '../../../shared-ui/PremiumUI';
+
+import {
+    PageContainer,
+    HeroBanner,
+    SearchBar,
+    SectionHeader,
+    HorizontalScroller,
+    RestaurantCard,
+    EmptyState,
+    Button,
+    Chip,
+    GlassCard
+} from '../../../shared-ui/PremiumUI';
 
 const fallbackCategories = [
     { name: 'All', icon: Utensils, color: '#ffb546', softColor: '#fff1cf' },
@@ -104,253 +115,133 @@ const HomePage = () => {
         : fallbackCategories;
 
     return (
-        <div className="page page-shell stack-safe">
-            <CustomerHomeHeader
-                greeting={greeting()}
-                firstName={user?.first_name}
-                onNotifications={() => navigate('/notifications')}
-            />
-
-            <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 }}
-            >
-                <PageHero
-                    eyebrow="Pecafoo picks today"
-                    title="Cravings, beautifully close."
-                    description="Explore trending meals and local favorites, with every part of your next order just a tap away."
-                    actions={<><button className="btn btn-primary" onClick={() => navigate('/food-products')}>Order now <ChevronRight size={16} /></button><button className="btn btn-outline" onClick={() => navigate('/search')}>Explore nearby</button></>}
-                >
-                    <button onClick={handleRetryLocation} className="premium-location-card" type="button">
-                        <span className="premium-location-icon">{locationLoading || retrying ? <Loader size={20} className="spin" /> : <MapPin size={20} />}</span>
-                        <span><small>Delivering to</small><strong>{locationLoading || retrying ? 'Finding your location…' : address || (permissionDenied ? 'Enable location' : 'Current location')}</strong></span>
-                        <ChevronDown size={16} />
-                    </button>
-                </PageHero>
-            </motion.div>
-
-            <motion.div
-                className="search-bar"
-                onClick={() => navigate('/search')}
-                style={{ cursor: 'pointer', marginBottom: 18 }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-            >
-                <Search size={20} />
-                <input
-                    placeholder="Search restaurants, dishes..."
-                    readOnly
-                    style={{ cursor: 'pointer' }}
-                    id="home-search"
+        <PageContainer padding="0">
+            <div style={{ padding: 'var(--space-4)' }}>
+                <CustomerHomeHeader
+                    greeting={greeting()}
+                    firstName={user?.first_name}
+                    onNotifications={() => navigate('/notifications')}
                 />
-            </motion.div>
+            </div>
 
-            <motion.div
-                className="quick-links"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.16 }}
-            >
-                <button className="quick-link-card" onClick={() => navigate('/food-products')}>
-                    <span className="quick-link-icon" style={{ background: 'rgba(255, 194, 76, 0.2)', color: '#ff9b3f' }}>
-                        <ShoppingBag size={18} />
-                    </span>
-                    <span className="quick-link-title">Browse Food</span>
-                    <span className="quick-link-copy">Meals, snacks, and daily specials</span>
-                </button>
-                <button className="quick-link-card" onClick={() => navigate('/orders')}>
-                    <span className="quick-link-icon" style={{ background: 'rgba(217, 70, 239, 0.14)', color: 'var(--accent-strong)' }}>
-                        <ClipboardList size={18} />
-                    </span>
-                    <span className="quick-link-title">My Orders</span>
-                    <span className="quick-link-copy">Track current and past deliveries</span>
-                </button>
-            </motion.div>
-
-            <motion.section
-                style={{ marginTop: 20 }}
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-            >
-                <div className="section-header">
-                    <h2 className="section-title" style={{ marginBottom: 0 }}>
-                        Explore on Map
-                    </h2>
-                    <button
-                        className="see-all"
-                        onClick={handleRetryLocation}
+            <div style={{ padding: '0 var(--space-4)' }}>
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+                    <HeroBanner
+                        eyebrow="Pecafoo Picks Today"
+                        title="Cravings, beautifully close."
+                        description="Explore trending meals and local favorites, with every part of your next order just a tap away."
+                        actions={
+                            <>
+                                <Button onClick={() => navigate('/food-products')}>Order now</Button>
+                                <Button variant="secondary" onClick={() => navigate('/search')}>Explore nearby</Button>
+                            </>
+                        }
                     >
-                        Update Location <ChevronRight size={14} />
-                    </button>
-                </div>
-                <div
-                    className="card"
-                    style={{
-                        padding: 12,
-                        overflow: 'hidden',
-                        background: 'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,247,242,0.98))',
-                    }}
-                >
-                    <div style={{ marginBottom: 10 }}>
-                        <p style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--accent-strong)' }}>
-                            {address ? 'Restaurants near your selected address' : 'Enable location to discover nearby places'}
-                        </p>
-                        <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
-                            {address || 'Use GPS or tap update location to center the map around you.'}
-                        </p>
-                        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.45, marginTop: 6 }}>
-                            Drag the blue pin or tap anywhere on the map to set your exact delivery location.
-                        </p>
-                    </div>
-                    <RestaurantMap
-                        restaurants={restaurants}
-                        height={260}
-                        userLocation={coords}
-                        onUserLocationChange={handleManualMapLocationChange}
-                        interactiveUserLocation
+                        <GlassCard padding="var(--space-4)" className="flex-column" style={{ width: '100%', maxWidth: '300px' }}>
+                            <Button 
+                                variant="secondary" 
+                                fullWidth 
+                                onClick={handleRetryLocation} 
+                                icon={locationLoading || retrying ? Loader : MapPin}
+                            >
+                                {locationLoading || retrying ? 'Finding...' : address || (permissionDenied ? 'Enable location' : 'Current location')}
+                            </Button>
+                        </GlassCard>
+                    </HeroBanner>
+                </motion.div>
+
+                <div onClick={() => navigate('/search')} style={{ marginBottom: 'var(--space-6)', cursor: 'pointer' }}>
+                    <SearchBar 
+                        placeholder="Search restaurants, dishes..."
+                        icon={Search}
+                        readOnly
+                        style={{ pointerEvents: 'none' }} 
                     />
                 </div>
-            </motion.section>
 
-            <motion.section
-                className="promo-card"
-                initial={{ opacity: 0, scale: 0.97 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.22 }}
-            >
-                <p className="promo-eyebrow">First Order Offer</p>
-                <h3 className="promo-title">Get 30% off your first meal today</h3>
-                <p className="promo-copy">Use code PECAFOO30 at checkout to unlock the welcome offer.</p>
-                <button
-                    className="btn btn-primary btn-sm"
-                    onClick={() => navigate('/food-products')}
-                    style={{ marginTop: 14 }}
-                >
-                    Claim offer <ChevronRight size={16} />
-                </button>
-            </motion.section>
+                <HorizontalScroller>
+                    {displayedCategories.map(({ name, icon, color }) => (
+                        <Chip
+                            key={name}
+                            label={name}
+                            icon={icon}
+                            isActive={activeCategory === name}
+                            brandColor={color}
+                            onClick={() => {
+                                setActiveCategory(name);
+                                if (name === 'All') navigate('/food-products');
+                                else navigate(`/food-products?q=${encodeURIComponent(name)}`);
+                            }}
+                        />
+                    ))}
+                </HorizontalScroller>
 
-            <motion.section
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-            >
-                <div className="section-header">
-                    <h2 className="section-title" style={{ marginBottom: 0 }}>Categories</h2>
-                    <button className="see-all" onClick={() => navigate('/food-products')}>
-                        Browse Dishes <ChevronRight size={14} />
-                    </button>
-                </div>
-                <div className="category-row">
-                    {displayedCategories.map(({ name, icon: Icon, color, softColor, itemCount }) => {
-                        const isActive = activeCategory === name;
-                        return (
-                            <motion.button
-                                key={name}
-                                className={`category-chip ${isActive ? 'active' : ''}`}
-                                onClick={() => {
-                                    setActiveCategory(name);
-                                    if (name === 'All') {
-                                        navigate('/food-products');
-                                        return;
-                                    }
-                                    navigate(`/food-products?q=${encodeURIComponent(name)}`);
-                                }}
-                                whileTap={{ scale: 0.96 }}
-                            >
-                                <div
-                                    className="category-icon"
-                                    style={{
-                                        background: isActive ? color : softColor,
-                                        color: isActive ? 'white' : color,
-                                    }}
-                                >
-                                    <Icon size={24} />
+                {featuredRestaurants.length > 0 && (
+                    <motion.section style={{ marginTop: 'var(--space-6)' }}>
+                        <SectionHeader 
+                            eyebrow="Editor's Shelf" 
+                            title="Featured near you" 
+                            action={<Button variant="ghost" size="small" onClick={() => navigate('/search?featured=true')}>See All</Button>}
+                        />
+                        <HorizontalScroller>
+                            {featuredRestaurants.map((restaurant) => (
+                                <div key={restaurant.id} style={{ width: '320px' }}>
+                                    <RestaurantCard 
+                                        name={restaurant.name}
+                                        subtitle={restaurant.cuisine_type || 'Local Favorite'}
+                                        image={restaurant.image_url}
+                                        rating={restaurant.rating}
+                                    />
                                 </div>
-                                <span className="category-label">{name}</span>
-                                {itemCount ? (
-                                    <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>{itemCount} items</span>
-                                ) : null}
-                            </motion.button>
-                        );
-                    })}
-                </div>
-            </motion.section>
-
-            {featuredRestaurants.length > 0 && (
-                <motion.section
-                    style={{ marginTop: 22 }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                >
-                    <SectionHeader eyebrow="Editor’s shelf" title="Featured near you" description="Standout kitchens and local favorites worth discovering." action={<button className="see-all" onClick={() => navigate('/search?featured=true')}>See All <ChevronRight size={14} /></button>} />
-                    <ContentShelf>
-                        {featuredRestaurants.map((restaurant) => (
-                            <div key={restaurant.id}>
-                                <RestaurantCard restaurant={restaurant} />
-                            </div>
-                        ))}
-                    </ContentShelf>
-                </motion.section>
-            )}
-
-            <motion.section
-                style={{ marginTop: 22 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-            >
-                <SectionHeader eyebrow="Around you" title={coords ? 'Nearby restaurants' : restaurants.length > 0 ? 'Restaurants' : 'No restaurants yet'} description="Fresh options organized for quick, comfortable browsing." action={coords && (
-                        <button
-                            className="btn btn-outline btn-sm"
-                            onClick={fetchRestaurants}
-                            style={{ minHeight: 38, paddingInline: 12, color: 'var(--accent-strong)' }}
-                        >
-                            <RefreshCw size={12} /> Refresh
-                        </button>
-                    )} />
-
-                {loading ? (
-                    <div className="results-stack">
-                        {[1, 2, 3].map((item) => (
-                            <div key={item} className="skeleton" style={{ height: 230 }} />
-                        ))}
-                    </div>
-                ) : restaurants.length > 0 ? (
-                    <div className="results-stack">
-                        {restaurants.map((restaurant, index) => (
-                            <motion.div
-                                key={restaurant.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.08 * index }}
-                            >
-                                <RestaurantCard restaurant={restaurant} showDistance={!!coords} />
-                            </motion.div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="empty-state">
-                        <Utensils />
-                        <h3>No restaurants nearby</h3>
-                        <p>We&apos;re expanding quickly. New restaurants are added daily.</p>
-                        {!coords && (
-                            <button
-                                className="btn btn-primary"
-                                onClick={handleRetryLocation}
-                                style={{ marginTop: 12 }}
-                            >
-                                <Navigation size={16} /> Enable Location
-                            </button>
-                        )}
-                    </div>
+                            ))}
+                        </HorizontalScroller>
+                    </motion.section>
                 )}
-            </motion.section>
-        </div>
+
+                <motion.section style={{ marginTop: 'var(--space-6)' }}>
+                    <SectionHeader 
+                        eyebrow="Around you"
+                        title={coords ? 'Nearby restaurants' : restaurants.length > 0 ? 'Restaurants' : 'No restaurants yet'}
+                        action={coords && <Button variant="ghost" size="small" onClick={fetchRestaurants} icon={RefreshCw}>Refresh</Button>}
+                    />
+
+                    {loading ? (
+                        <div style={{ display: 'grid', gap: 'var(--space-5)', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+                            {[1, 2, 3, 4].map(i => <div key={i} style={{ height: 260, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />)}
+                        </div>
+                    ) : restaurants.length > 0 ? (
+                        <div style={{ display: 'grid', gap: 'var(--space-5)', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+                            {restaurants.map((restaurant, index) => (
+                                <motion.div key={restaurant.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
+                                    <RestaurantCard 
+                                        name={restaurant.name}
+                                        subtitle={restaurant.cuisine_type || 'Restaurant'}
+                                        image={restaurant.image_url}
+                                        rating={restaurant.rating}
+                                        time={restaurant.estimated_delivery_time ? `${restaurant.estimated_delivery_time} min` : undefined}
+                                    />
+                                </motion.div>
+                            ))}
+                        </div>
+                    ) : (
+                        <EmptyState 
+                            icon={Utensils}
+                            title="No restaurants nearby"
+                            description="We're expanding quickly. New restaurants are added daily."
+                            action={
+                                !coords && (
+                                    <Button onClick={handleRetryLocation} icon={Navigation}>
+                                        Enable Location
+                                    </Button>
+                                )
+                            }
+                        />
+                    )}
+                </motion.section>
+                
+                <div style={{ height: '120px' }} /> {/* Space for bottom nav */}
+            </div>
+        </PageContainer>
     );
 };
 

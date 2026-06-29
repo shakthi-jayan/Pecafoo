@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Smartphone, Sparkles, MapPin, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, Smartphone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { PremiumAuthLayout } from '../../../shared-ui/PremiumUI';
-
+import AuthLayout from '../components/shared/AuthLayout';
+import { Button, SegmentedControl, FloatingInput, PasswordInput } from '../../../shared-ui/PremiumUI';
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -17,7 +16,6 @@ const LoginPage = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [phoneOtp, setPhoneOtp] = useState('');
     const [otpRequested, setOtpRequested] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [loginMode, setLoginMode] = useState('password');
 
@@ -32,7 +30,7 @@ const LoginPage = () => {
                 navigate(from, { replace: true });
             }
         } catch {
-            
+            // Error handled by AuthContext interceptor
         } finally {
             setLoading(false);
         }
@@ -48,7 +46,6 @@ const LoginPage = () => {
                 navigate(from, { replace: true });
             }
         } catch {
-            
         } finally {
             setLoading(false);
         }
@@ -69,11 +66,10 @@ const LoginPage = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const data = await verifyPhoneOtp({
+            await verifyPhoneOtp({
                 phone_number: phoneNumber.trim(),
                 otp: phoneOtp.trim(),
             });
-
             navigate(from, { replace: true });
         } finally {
             setLoading(false);
@@ -81,191 +77,114 @@ const LoginPage = () => {
     };
 
     return (
-        <PremiumAuthLayout
-            tone="customer"
-            eyebrow="Food, beautifully simple"
-            title="Everything you crave, closer than ever."
-            description="Discover local favorites, follow every order live, and turn an everyday meal into something worth looking forward to."
-            features={[
-                { icon: Sparkles, title: 'Curated for you', copy: 'Restaurants and dishes matched to your taste.' },
-                { icon: MapPin, title: 'Live delivery', copy: 'Clear ETAs from the kitchen to your door.' },
-                { icon: ShieldCheck, title: 'Order confidently', copy: 'Secure sign-in and dependable support.' },
-            ]}
+        <AuthLayout 
+            title="Welcome Back" 
+            subtitle="Continue where you left off and get your cravings delivered fast."
         >
-            <motion.div
-                className="auth-card"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45 }}
-            >
-                <div className="auth-brand">
-                    <motion.div
-                        className="auth-mark"
-                        initial={{ scale: 0.92, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.12 }}
-                    >
-                        P
-                    </motion.div>
-                    <p className="auth-eyebrow">Welcome Back</p>
-                    <h1 className="auth-title">Login to your account</h1>
-                    <p className="auth-subtitle">Continue where you left off and get your cravings delivered fast.</p>
-                </div>
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-5)' }}>
+                <h2 style={{ fontSize: 'var(--text-h2)', marginBottom: 'var(--space-2)' }}>Log in to Pecafoo</h2>
+                <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-body)' }}>Enter your details below</p>
+            </div>
 
-                <div className="responsive-actions" style={{ marginBottom: 16 }}>
-                    <button type="button" className={`btn ${loginMode === 'password' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setLoginMode('password')}>
-                        Email Login
-                    </button>
-                    <button type="button" className={`btn ${loginMode === 'otp' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setLoginMode('otp')}>
-                        Phone OTP
-                    </button>
-                </div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-5)' }}>
+                <SegmentedControl 
+                    options={[
+                        { label: 'Email', value: 'password' },
+                        { label: 'Phone', value: 'otp' }
+                    ]}
+                    value={loginMode}
+                    onChange={setLoginMode}
+                    brandColor="var(--brand-customer)"
+                />
+            </div>
 
-                {loginMode === 'password' ? (
-                <form onSubmit={handleLogin}>
-                    <div className="input-group">
-                        <label className="input-label">Email</label>
-                        <div className="input-icon-wrapper">
-                            <Mail />
-                            <input
-                                type="email"
-                                className="input"
-                                placeholder="your@email.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                id="login-email"
-                                autoComplete="username"
-                            />
-                        </div>
-                    </div>
+            {loginMode === 'password' ? (
+                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                    <FloatingInput 
+                        label="Email Address"
+                        icon={Mail}
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        autoComplete="username"
+                    />
+                    
+                    <PasswordInput 
+                        label="Password"
+                        icon={Lock}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        autoComplete="current-password"
+                    />
 
-                    <div className="input-group">
-                        <label className="input-label">Password</label>
-                        <div className="input-icon-wrapper">
-                            <Lock />
-                            <input
-                                type={showPassword ? 'text' : 'password'}
-                                className="input"
-                                placeholder="Enter your password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                id="login-password"
-                                autoComplete="current-password"
-                                style={{ paddingRight: '46px' }}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                style={{
-                                    position: 'absolute',
-                                    right: '14px',
-                                    top: '50%',
-                                    transform: 'translateY(-50%)',
-                                    color: 'var(--text-muted)',
-                                }}
-                            >
-                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                            </button>
-                        </div>
-                    </div>
-
-                    <div style={{ textAlign: 'right', marginBottom: 16 }}>
-                        <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: 'var(--accent-strong)', fontWeight: 700 }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-8px' }}>
+                        <Link to="/forgot-password" style={{ fontSize: 'var(--text-caption)', color: 'var(--brand-customer)', fontWeight: 600, textDecoration: 'none' }}>
                             Forgot password?
                         </Link>
                     </div>
 
-                    <button
-                        type="submit"
-                        className="btn btn-primary btn-full btn-lg"
-                        disabled={loading}
-                        id="login-submit"
-                    >
-                        {loading ? 'Signing in...' : 'Login'}
-                        {!loading && <ArrowRight size={20} />}
-                    </button>
+                    <Button type="submit" variant="primary" fullWidth size="medium" disabled={loading} style={{ marginTop: 'var(--space-2)' }}>
+                        {loading ? 'Signing in...' : 'Log In'}
+                    </Button>
                 </form>
-                ) : (
-                <form onSubmit={handlePhoneOtpLogin}>
-                    <div className="input-group">
-                        <label className="input-label">Phone Number</label>
-                        <div className="input-icon-wrapper">
-                            <Smartphone />
-                            <input
-                                type="tel"
-                                className="input"
-                                placeholder="+91 98765 43210"
-                                value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
+            ) : (
+                <form onSubmit={handlePhoneOtpLogin} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                    <FloatingInput 
+                        label="Phone Number"
+                        icon={Smartphone}
+                        type="tel"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        required
+                        disabled={otpRequested}
+                    />
+
+                    {otpRequested ? (
+                        <>
+                            <FloatingInput 
+                                label="Enter OTP"
+                                type="text"
+                                value={phoneOtp}
+                                onChange={(e) => setPhoneOtp(e.target.value)}
                                 required
                             />
-                        </div>
-                    </div>
-
-                    {otpRequested && (
-                        <div className="input-group">
-                            <label className="input-label">OTP</label>
-                            <div className="input-icon-wrapper">
-                                <Lock />
-                                <input
-                                    type="text"
-                                    className="input"
-                                    placeholder="Enter 6-digit OTP"
-                                    value={phoneOtp}
-                                    onChange={(e) => setPhoneOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                                    required
-                                />
-                            </div>
-                        </div>
+                            <Button type="submit" variant="primary" fullWidth size="medium" disabled={loading}>
+                                {loading ? 'Verifying...' : 'Verify & Log In'}
+                            </Button>
+                        </>
+                    ) : (
+                        <Button type="button" onClick={handleRequestOtp} variant="primary" fullWidth size="medium" disabled={loading || !phoneNumber}>
+                            {loading ? 'Sending OTP...' : 'Get OTP'}
+                        </Button>
                     )}
-
-                    <div className="responsive-actions">
-                        {!otpRequested ? (
-                            <button type="button" className="btn btn-primary btn-full" disabled={loading} onClick={handleRequestOtp}>
-                                {loading ? 'Sending OTP...' : 'Send OTP'}
-                            </button>
-                        ) : (
-                            <>
-                                <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
-                                    {loading ? 'Verifying...' : 'Verify OTP'}
-                                </button>
-                                <button type="button" className="btn btn-secondary btn-full" disabled={loading} onClick={handleRequestOtp}>
-                                    Resend OTP
-                                </button>
-                            </>
-                        )}
-                    </div>
                 </form>
-                )}
+            )}
 
-                <div className="divider">or continue with</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', margin: 'var(--space-5) 0' }}>
+                <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
+                <span style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-tertiary)', fontWeight: 600, textTransform: 'uppercase' }}>OR</span>
+                <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
+            </div>
 
-                <button
-                    onClick={handleGoogleLogin}
-                    className="btn btn-secondary btn-full"
-                    disabled={loading}
-                    id="google-login"
-                    style={{ gap: '12px', fontWeight: 800 }}
-                >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                    </svg>
-                    Continue with Google
-                </button>
+            <Button type="button" variant="secondary" fullWidth size="medium" onClick={handleGoogleLogin} disabled={loading}>
+                <svg width="20" height="20" viewBox="0 0 24 24" style={{ marginRight: '8px' }}>
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                </svg>
+                Continue with Google
+            </Button>
 
-                <p style={{ textAlign: 'center', marginTop: 22, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                    Don&apos;t have an account?{' '}
-                    <Link to="/register" style={{ color: 'var(--accent-strong)', fontWeight: 800 }}>
-                        Sign Up
-                    </Link>
-                </p>
-            </motion.div>
-        </PremiumAuthLayout>
+            <p style={{ textAlign: 'center', marginTop: 'var(--space-5)', fontSize: 'var(--text-body)', color: 'var(--color-text-secondary)' }}>
+                Don't have an account?{' '}
+                <Link to="/register" style={{ color: 'var(--brand-customer)', fontWeight: 600, textDecoration: 'none' }}>
+                    Sign up
+                </Link>
+            </p>
+        </AuthLayout>
     );
 };
 

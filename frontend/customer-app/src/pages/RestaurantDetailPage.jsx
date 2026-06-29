@@ -2,14 +2,25 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    ArrowLeft, Star, Clock, Heart, Plus, Minus,
-    ChevronRight, Search, X, Share2, MessageSquare
+    ArrowLeft, Star, Clock, Heart, Search, X, Share2, MessageSquare, AlertCircle
 } from 'lucide-react';
 import { restaurantsAPI, customersAPI } from '../services/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
 import toast from 'react-hot-toast';
+
+import {
+    PageContainer,
+    Button,
+    IconButton,
+    FoodCard,
+    SearchBar,
+    Chip,
+    HorizontalScroller,
+    EmptyState,
+    GlassCard
+} from '../../../shared-ui/PremiumUI';
 
 const RestaurantDetailPage = () => {
     const navigate = useNavigate();
@@ -125,7 +136,6 @@ const RestaurantDetailPage = () => {
                 toast.success('Link copied to clipboard');
             }
         } catch {
-            
         }
     };
 
@@ -151,337 +161,219 @@ const RestaurantDetailPage = () => {
 
     if (loading) {
         return (
-            <div className="page detail-shell">
-                <div className="skeleton" style={{ height: 300, borderRadius: '0 0 30px 30px' }} />
-                <div style={{ padding: 16 }}>
-                    <div className="skeleton" style={{ height: 146, marginTop: -20, marginBottom: 16 }} />
-                    <div className="skeleton" style={{ height: 48, marginBottom: 12 }} />
-                    {[1, 2, 3].map((item) => (
-                        <div key={item} className="skeleton" style={{ height: 152, marginBottom: 12 }} />
-                    ))}
+            <PageContainer padding="0">
+                <div style={{ height: 300, backgroundColor: 'var(--color-divider)' }} />
+                <div style={{ padding: 'var(--space-4)' }}>
+                    <div style={{ height: 120, backgroundColor: 'var(--color-bg-card)', borderRadius: 'var(--radius-card)', marginTop: -40, marginBottom: 'var(--space-4)' }} />
+                    <div style={{ height: 60, backgroundColor: 'var(--color-divider)', borderRadius: '100px', marginBottom: 'var(--space-5)' }} />
+                    {[1, 2, 3].map(i => <div key={i} style={{ height: 140, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)', marginBottom: 'var(--space-4)' }} />)}
                 </div>
-            </div>
+            </PageContainer>
         );
     }
 
     if (!restaurant) return null;
 
     return (
-        <div className="detail-shell">
-            <div className="detail-cover">
-                {restaurant.cover_image ? (
+        <PageContainer padding="0">
+            {/* Header / Cover */}
+            <div style={{ position: 'relative', height: '280px', backgroundColor: 'var(--color-divider)' }}>
+                {restaurant.cover_image && (
                     <img
                         src={restaurant.cover_image}
                         alt={restaurant.name}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
-                ) : (
-                    <div
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: 'var(--gradient-primary)',
-                            color: 'white',
-                            fontSize: '4rem',
-                        }}
-                    />
                 )}
+                {/* Overlay gradient */}
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 100%)' }} />
 
-                <div className="detail-toolbar">
-                    <button onClick={() => navigate(-1)} className="detail-glass-btn">
-                        <ArrowLeft size={20} />
-                    </button>
-                    <div className="detail-toolbar-group">
-                        <button onClick={handleShare} className="detail-glass-btn">
-                            <Share2 size={18} />
-                        </button>
-                        <button onClick={handleToggleWishlist} className="detail-glass-btn">
-                            <Heart size={18} color={isWishlisted ? '#ff6ea9' : 'white'} fill={isWishlisted ? '#ff6ea9' : 'transparent'} />
-                        </button>
+                <div style={{ position: 'absolute', top: 'var(--space-4)', left: 'var(--space-4)', right: 'var(--space-4)', display: 'flex', justifyContent: 'space-between' }}>
+                    <IconButton icon={ArrowLeft} onClick={() => navigate(-1)} style={{ backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)' }} />
+                    <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                        <IconButton icon={Share2} onClick={handleShare} style={{ backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)' }} />
+                        <IconButton 
+                            icon={Heart} 
+                            onClick={handleToggleWishlist} 
+                            style={{ backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', color: isWishlisted ? '#f43f5e' : 'var(--color-text-primary)' }} 
+                        />
                     </div>
                 </div>
 
-                <div className="detail-title-block" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ position: 'absolute', bottom: '-40px', left: 'var(--space-4)', right: 'var(--space-4)', display: 'flex', gap: 'var(--space-4)', alignItems: 'flex-end' }}>
                     {restaurant.logo && (
-                        <img 
-                            src={restaurant.logo} 
-                            alt={`${restaurant.name} logo`} 
-                            style={{ 
-                                width: 64, 
-                                height: 64, 
-                                borderRadius: '50%', 
-                                border: '3px solid white', 
-                                objectFit: 'cover', 
-                                backgroundColor: 'white',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                            }} 
-                        />
+                        <div style={{ width: 80, height: 80, borderRadius: '24px', backgroundColor: 'white', padding: '4px', boxShadow: 'var(--shadow-soft)' }}>
+                            <img src={restaurant.logo} alt={restaurant.name} style={{ width: '100%', height: '100%', borderRadius: '20px', objectFit: 'cover' }} />
+                        </div>
                     )}
-                    <div>
-                        <h1>{restaurant.name}</h1>
-                        <p>{restaurant.cuisine_type}</p>
+                    <div style={{ marginBottom: '44px', color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
+                        <h1 style={{ fontSize: 'var(--text-h1)', margin: 0 }}>{restaurant.name}</h1>
+                        <p style={{ fontSize: 'var(--text-body)', margin: 0, opacity: 0.9 }}>{restaurant.cuisine_type}</p>
                     </div>
                 </div>
             </div>
 
-            <div className="detail-panel">
-                <div className="detail-summary">
-                    <div className="detail-summary-row">
-                        <button
+            <div style={{ padding: '0 var(--space-4)', marginTop: '60px' }}>
+                {/* Info Card */}
+                <GlassCard padding="var(--space-4)" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)' }}>
+                        <div 
                             onClick={() => navigate(`/restaurant/${slug}/reviews`)}
-                            className="rating-pill"
-                            style={{ cursor: 'pointer' }}
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(255, 204, 0, 0.15)', color: '#D97706', padding: '6px 12px', borderRadius: '100px', fontSize: 'var(--text-caption)', fontWeight: 800, cursor: 'pointer' }}
                         >
                             <Star size={14} fill="currentColor" />
-                            {restaurant.average_rating || 'New'} | {restaurant.total_ratings || 0} ratings
-                        </button>
-                        <span>
+                            {restaurant.average_rating || 'New'} ({restaurant.total_ratings || 0})
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'var(--color-divider)', padding: '6px 12px', borderRadius: '100px', fontSize: 'var(--text-caption)', fontWeight: 800 }}>
                             <Clock size={14} />
                             {restaurant.average_delivery_time || 30} min
-                        </span>
-                        <span style={{ color: restaurant.is_open ? 'var(--success)' : 'var(--danger)' }}>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: restaurant.is_open ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 71, 111, 0.1)', color: restaurant.is_open ? '#15803d' : '#be123c', padding: '6px 12px', borderRadius: '100px', fontSize: 'var(--text-caption)', fontWeight: 800 }}>
                             {restaurant.is_open ? 'Open now' : 'Closed'}
-                        </span>
+                        </div>
                     </div>
 
-                    <button
-                        onClick={() => navigate(`/restaurant/${slug}/reviews`)}
-                        className="detail-link-card"
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <span className="quick-link-icon" style={{ width: 38, height: 38, marginBottom: 0, background: 'rgba(217, 70, 239, 0.14)', color: 'var(--accent-strong)' }}>
-                                <MessageSquare size={18} />
-                            </span>
-                            <div style={{ textAlign: 'left' }}>
-                                <strong>View all reviews</strong>
-                                <span>See what customers are saying</span>
-                            </div>
+                    <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--color-border)' }} />
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: 'rgba(217, 70, 239, 0.1)', color: 'var(--brand-customer)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <MessageSquare size={20} />
                         </div>
-                        <ChevronRight size={18} color="var(--text-muted)" />
-                    </button>
+                        <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => navigate(`/restaurant/${slug}/reviews`)}>
+                            <div style={{ fontWeight: 700, fontSize: 'var(--text-body)' }}>View all reviews</div>
+                            <div style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)' }}>See what customers are saying</div>
+                        </div>
+                    </div>
 
                     {restaurant.minimum_order_amount > 0 && (
-                        <p style={{
-                            marginTop: 14,
-                            color: 'var(--text-secondary)',
-                            fontSize: '0.82rem',
-                            fontWeight: 700,
-                        }}>
-                            Minimum order: Rs {restaurant.minimum_order_amount} | Delivery fee: Rs {restaurant.delivery_fee || 'Free'}
-                        </p>
+                        <>
+                            <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--color-border)' }} />
+                            <div style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
+                                Minimum order: ₹{restaurant.minimum_order_amount} • Delivery fee: ₹{restaurant.delivery_fee || 'Free'}
+                            </div>
+                        </>
                     )}
-                </div>
+                </GlassCard>
 
-                <div style={{ marginTop: 16 }}>
+                {/* Search & Categories */}
+                <div style={{ marginBottom: 'var(--space-5)', position: 'sticky', top: '16px', zIndex: 10 }}>
                     <AnimatePresence mode="wait">
                         {showSearch ? (
                             <motion.div
-                                key="search-input"
-                                initial={{ opacity: 0, y: -8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -8 }}
-                                className="search-bar"
+                                key="search"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                style={{ display: 'flex', gap: 'var(--space-2)' }}
                             >
-                                <Search size={16} />
-                                <input
+                                <SearchBar
                                     placeholder="Search dishes..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                    icon={Search}
                                     autoFocus
+                                    style={{ flex: 1 }}
                                 />
-                                <button onClick={() => { setShowSearch(false); setSearchTerm(''); }} style={{ color: 'var(--text-muted)' }}>
-                                    <X size={16} />
-                                </button>
+                                <Button variant="ghost" icon={X} onClick={() => { setShowSearch(false); setSearchTerm(''); }} />
                             </motion.div>
                         ) : (
-                            <motion.button
-                                key="search-btn"
-                                onClick={() => setShowSearch(true)}
-                                className="detail-search-toggle"
+                            <motion.div
+                                key="btn"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}
                             >
-                                <Search size={16} />
-                                Search in menu
-                            </motion.button>
+                                {restaurant.categories?.length > 0 && (
+                                    <HorizontalScroller style={{ flex: 1, padding: 0, margin: 0 }}>
+                                        {restaurant.categories.map((category) => (
+                                            <Chip
+                                                key={category.id}
+                                                label={`${category.name} (${category.item_count || category.items?.length || 0})`}
+                                                isActive={activeCategory === category.id}
+                                                onClick={() => setActiveCategory(category.id)}
+                                            />
+                                        ))}
+                                    </HorizontalScroller>
+                                )}
+                                <IconButton icon={Search} onClick={() => setShowSearch(true)} style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)', flexShrink: 0 }} />
+                            </motion.div>
                         )}
                     </AnimatePresence>
                 </div>
 
-                {!searchTerm && restaurant.categories?.length > 0 && (
-                    <div className="menu-chip-row">
-                        {restaurant.categories.map((category) => (
-                            <button
-                                key={category.id}
-                                onClick={() => setActiveCategory(category.id)}
-                                className={`menu-chip ${activeCategory === category.id ? 'active' : ''}`}
-                            >
-                                {category.name} ({category.item_count || category.items?.length || 0})
-                            </button>
-                        ))}
-                    </div>
-                )}
-
-                <div className="results-stack">
+                {/* Menu Items */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                     {filteredItems.length > 0 ? (
-                        filteredItems.map((item, index) => {
-                            const qty = getCartQuantity(item.id);
-                            const isFoodWishlisted = foodWishlist.has(item.id);
-                            const isVeg = item.food_type === 'veg' || item.food_type === 'vegan';
-
-                            return (
-                                <motion.div
-                                    key={item.id}
-                                    className="card menu-card"
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.03 }}
-                                >
-                                    <div className="menu-card-copy">
-                                        <div style={{
-                                            width: 14,
-                                            height: 14,
-                                            borderRadius: 3,
-                                            border: `2px solid ${isVeg ? '#22c55e' : '#ef476f'}`,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            marginBottom: 6,
-                                        }}>
-                                            <div style={{
-                                                width: 6,
-                                                height: 6,
-                                                borderRadius: '50%',
-                                                background: isVeg ? '#22c55e' : '#ef476f',
-                                            }} />
-                                        </div>
-
-                                        <h4>
-                                            {item.name}
-                                            {item.is_bestseller && (
-                                                <span className="badge badge-accent">Best</span>
-                                            )}
-                                        </h4>
-
-                                        <div className="menu-price-row">
-                                            <strong>₹{item.discount_price || item.price}</strong>
-                                            {item.discount_price && parseFloat(item.discount_price) < parseFloat(item.price) && (
-                                                <span>₹{item.price}</span>
-                                            )}
-                                        </div>
-
-                                        {item.description && (
-                                            <p>
-                                                {item.description}
-                                            </p>
-                                        )}
-
-                                        <button
-                                            onClick={() => handleToggleFoodWishlist(item.id, item.name)}
-                                            style={{
-                                                marginTop: 8,
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: 4,
-                                                color: isFoodWishlisted ? '#f43f5e' : 'var(--text-muted)',
-                                                fontSize: '0.75rem',
-                                                fontWeight: 700,
-                                            }}
-                                        >
-                                            <Heart
-                                                size={12}
-                                                fill={isFoodWishlisted ? '#f43f5e' : 'transparent'}
-                                                color={isFoodWishlisted ? '#f43f5e' : 'var(--text-muted)'}
-                                            />
-                                            {isFoodWishlisted ? 'Saved' : 'Save'}
-                                        </button>
-                                    </div>
-
-                                    <div className="menu-card-side">
-                                        <div className="menu-item-image-frame">
-                                            {item.image ? (
-                                                <img
-                                                    src={item.image}
-                                                    alt={item.name}
-                                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                    loading="lazy"
-                                                />
-                                            ) : (
-                                                <div style={{
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    fontSize: '1.5rem',
-                                                }}
-                                            />
-                                            )}
-                                        </div>
-
-                                        {!item.is_available ? (
-                                            <span className="badge badge-danger">Sold Out</span>
-                                        ) : qty === 0 ? (
-                                            <button
-                                                onClick={() => handleAddToCart(item)}
-                                                className="menu-action-btn"
-                                            >
-                                                ADD
-                                            </button>
-                                        ) : (
-                                            <div className="menu-stepper">
-                                                <button onClick={() => updateQuantity(item.id, qty - 1)}>
-                                                    <Minus size={14} />
-                                                </button>
-                                                <span style={{ minWidth: 16, textAlign: 'center', fontWeight: 800 }}>
-                                                    {qty}
-                                                </span>
-                                                <button onClick={() => handleAddToCart(item)}>
-                                                    <Plus size={14} />
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </motion.div>
-                            );
-                        })
+                        filteredItems.map((item, index) => (
+                            <FoodCard 
+                                key={item.id}
+                                name={item.name}
+                                description={item.description}
+                                image={item.image}
+                                price={parseFloat(item.price)}
+                                discountPrice={item.discount_price ? parseFloat(item.discount_price) : null}
+                                isVeg={item.food_type === 'veg' || item.food_type === 'vegan'}
+                                isBestseller={item.is_bestseller}
+                                isAvailable={item.is_available}
+                                quantity={getCartQuantity(item.id)}
+                                onAdd={() => handleAddToCart(item)}
+                                onIncrement={() => handleAddToCart(item)}
+                                onDecrement={() => updateQuantity(item.id, getCartQuantity(item.id) - 1)}
+                                onWishlist={() => handleToggleFoodWishlist(item.id, item.name)}
+                                isWishlisted={foodWishlist.has(item.id)}
+                            />
+                        ))
                     ) : (
-                        <div className="empty-state" style={{ paddingInline: 0 }}>
-                            <Search size={36} style={{ opacity: 0.55 }} />
-                            <h3>{searchTerm ? 'No matching dishes' : 'No items available'}</h3>
-                        </div>
+                        <EmptyState 
+                            icon={Search}
+                            title={searchTerm ? 'No matching dishes' : 'No items available'}
+                            description="Try searching for something else or changing categories."
+                        />
                     )}
                 </div>
+                
+                <div style={{ height: '100px' }} />
             </div>
 
+            {/* Sticky Cart */}
             <AnimatePresence>
                 {cartCount > 0 && !isCartDrawerOpen && (
                     <motion.div
                         initial={{ y: 100, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 100, opacity: 0 }}
+                        style={{
+                            position: 'fixed',
+                            bottom: 'var(--space-5)',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: 'calc(100% - var(--space-8))',
+                            maxWidth: '500px',
+                            backgroundColor: 'var(--brand-customer)',
+                            color: 'white',
+                            padding: 'var(--space-3) var(--space-4)',
+                            borderRadius: '16px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            boxShadow: '0 8px 30px rgba(217, 70, 239, 0.4)',
+                            zIndex: 100
+                        }}
                         onClick={openCartDrawer}
-                        className="sticky-cart"
                     >
                         <div>
-                            <div style={{ fontWeight: 800, fontSize: '0.96rem' }}>
-                                {cartCount} item{cartCount !== 1 ? 's' : ''}
-                            </div>
-                            <div style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.88)' }}>
-                                ₹{cartTotal.toFixed(2)}
-                            </div>
+                            <div style={{ fontWeight: 800, fontSize: 'var(--text-body)' }}>{cartCount} item{cartCount !== 1 ? 's' : ''}</div>
+                            <div style={{ fontSize: 'var(--text-caption)', opacity: 0.9 }}>₹{cartTotal.toFixed(2)}</div>
                         </div>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 800 }}>
-                            <span style={{ overflowWrap: 'anywhere' }}>
-                                {cartRestaurant?.id === restaurant.id ? 'View Cart' : `Cart from ${cartRestaurant?.name || 'another restaurant'}`}
-                            </span>
-                            <ChevronRight size={18} style={{ flexShrink: 0 }} />
+                        <div style={{ fontWeight: 800, fontSize: 'var(--text-body)' }}>
+                            View Cart
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </PageContainer>
     );
 };
 

@@ -1,15 +1,23 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    ArrowLeft, Search, Filter, Heart, Plus, Minus, Star,
-    Leaf, Drumstick, Clock, ChevronRight, X, SlidersHorizontal
+    ArrowLeft, Search, SlidersHorizontal, X, Clock, ChevronRight
 } from 'lucide-react';
 import { restaurantsAPI, customersAPI } from '../services/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+
+import {
+    PageContainer,
+    IconButton,
+    SearchBar,
+    Button,
+    FoodCard,
+    EmptyState,
+    GlassCard
+} from '../../../shared-ui/PremiumUI';
 
 const foodTypeFilters = [
     { value: '', label: 'All', icon: '🍽️' },
@@ -67,7 +75,6 @@ const FoodProductsPage = () => {
             .catch(() => setPlatformCategories([]));
     }, []);
 
-    
     useEffect(() => {
         if (isAuthenticated) {
             customersAPI.getFoodWishlist()
@@ -125,314 +132,168 @@ const FoodProductsPage = () => {
         );
     };
 
+    const buildMediaUrl = (value) => {
+        if (!value || typeof value !== 'string') return '';
+        if (/^(https?:|data:|blob:)/i.test(value)) return value;
+        const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://api.pecafoo.com/api';
+        const mediaBase = apiBase.replace(/\/api\/?$/, '');
+        return `${mediaBase}${value.startsWith('/') ? value : `/${value}`}`;
+    };
+
     return (
-        <div className="page" style={{ paddingBottom: 100 }}>
-            {}
-            <div className="page-header" style={{ marginBottom: 'var(--space-sm)' }}>
-                <button
-                    onClick={() => navigate(-1)}
-                    style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer' }}
-                >
-                    <ArrowLeft size={22} />
-                </button>
-                <h1 className="page-title">Browse Food</h1>
-                <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    style={{
-                        background: showFilters ? 'var(--accent)' : 'none',
-                        border: 'none', color: showFilters ? 'white' : 'var(--text-primary)',
-                        cursor: 'pointer', padding: 6, borderRadius: 8,
-                    }}
-                >
-                    <SlidersHorizontal size={20} />
-                </button>
-            </div>
-
-            {}
-            <div className="search-bar" style={{ marginBottom: 'var(--space-md)' }}>
-                <Search size={18} />
-                <input
-                    placeholder="Search food items..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    id="food-search"
-                />
-                {search && (
-                    <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-                        <X size={16} />
-                    </button>
-                )}
-            </div>
-
-            {}
-            <div style={{
-                display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 'var(--space-md)',
-                scrollbarWidth: 'none', paddingBottom: 4,
-            }}>
-                {foodTypeFilters.map(f => (
-                    <button
-                        key={f.value}
-                        onClick={() => setFoodType(f.value)}
-                        style={{
-                            padding: '8px 16px', borderRadius: 'var(--radius-full)',
-                            background: foodType === f.value ? 'var(--accent)' : 'var(--bg-card)',
-                            color: foodType === f.value ? 'white' : 'var(--text-secondary)',
-                            border: `1px solid ${foodType === f.value ? 'var(--accent)' : 'var(--border)'}`,
-                            fontSize: '0.85rem', fontWeight: 500, whiteSpace: 'nowrap',
-                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-                            transition: 'all 0.2s',
-                        }}
-                    >
-                        <span>{f.icon}</span> {f.label}
-                    </button>
-                ))}
-            </div>
-
-            {platformCategories.length > 0 && (
-                <div style={{
-                    display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 'var(--space-md)',
-                    scrollbarWidth: 'none', paddingBottom: 4,
-                }}>
-                    {platformCategories.slice(0, 12).map((category) => {
-                        const isActive = search.trim().toLowerCase() === String(category.name || '').trim().toLowerCase();
-                        return (
-                            <button
-                                key={category.name}
-                                onClick={() => setSearch(category.name)}
-                                style={{
-                                    padding: '8px 14px',
-                                    borderRadius: 'var(--radius-full)',
-                                    background: isActive ? 'var(--gradient-primary)' : 'var(--bg-card)',
-                                    color: isActive ? 'white' : 'var(--text-secondary)',
-                                    border: `1px solid ${isActive ? 'transparent' : 'var(--border)'}`,
-                                    fontSize: '0.8rem',
-                                    fontWeight: 700,
-                                    whiteSpace: 'nowrap',
-                                    cursor: 'pointer',
-                                    boxShadow: isActive ? 'var(--shadow-accent)' : 'none',
-                                }}
-                            >
-                                {category.name}
-                            </button>
-                        );
-                    })}
+        <PageContainer padding="0">
+            <div style={{ position: 'sticky', top: 0, zIndex: 10, backgroundColor: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', padding: 'var(--space-4)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                    <IconButton icon={ArrowLeft} onClick={() => navigate(-1)} />
+                    <h1 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Browse Food</h1>
                 </div>
-            )}
+                <IconButton 
+                    icon={SlidersHorizontal} 
+                    variant={showFilters ? 'primary' : 'ghost'} 
+                    onClick={() => setShowFilters(!showFilters)} 
+                />
+            </div>
 
-            {}
-            <AnimatePresence>
-                {showFilters && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        style={{ overflow: 'hidden', marginBottom: 'var(--space-md)' }}
-                    >
-                        <div style={{
-                            background: 'var(--bg-card)', padding: 'var(--space-md)',
-                            borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)',
-                        }}>
-                            <p style={{ fontWeight: 600, marginBottom: 8, fontSize: '0.85rem' }}>Sort By</p>
-                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                                {sortOptions.map(s => (
-                                    <button
-                                        key={s.value}
-                                        onClick={() => setSort(s.value)}
-                                        style={{
-                                            padding: '6px 14px', borderRadius: 8,
-                                            background: sort === s.value ? 'var(--accent)' : 'var(--bg-elevated)',
-                                            color: sort === s.value ? 'white' : 'var(--text-secondary)',
-                                            border: 'none', fontSize: '0.8rem', cursor: 'pointer',
-                                        }}
-                                    >
-                                        {s.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <div style={{ padding: 'var(--space-4)', paddingBottom: '120px' }}>
+                <div style={{ marginBottom: 'var(--space-4)' }}>
+                    <SearchBar 
+                        placeholder="Search food items..." 
+                        value={search} 
+                        onChange={e => setSearch(e.target.value)} 
+                    />
+                </div>
 
-            {}
-            {!loading && (
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 'var(--space-md)' }}>
-                    {items.length} items found
-                </p>
-            )}
-
-            {}
-            {loading ? (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                    {[1, 2, 3, 4, 5, 6].map(i => (
-                        <div key={i} className="skeleton" style={{ height: 240, borderRadius: 16 }} />
+                <div style={{ display: 'flex', gap: 'var(--space-2)', overflowX: 'auto', marginBottom: 'var(--space-4)', scrollbarWidth: 'none' }}>
+                    <style>{`div::-webkit-scrollbar { display: none; }`}</style>
+                    {foodTypeFilters.map(f => (
+                        <button
+                            key={f.value}
+                            onClick={() => setFoodType(f.value)}
+                            style={{
+                                padding: '8px 16px', borderRadius: '100px',
+                                background: foodType === f.value ? 'var(--brand-customer)' : 'var(--color-bg-base)',
+                                color: foodType === f.value ? 'white' : 'var(--color-text-secondary)',
+                                border: `1px solid ${foodType === f.value ? 'var(--brand-customer)' : 'var(--color-border)'}`,
+                                fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap',
+                                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+                                transition: 'all 0.2s', flexShrink: 0
+                            }}
+                        >
+                            <span>{f.icon}</span> {f.label}
+                        </button>
                     ))}
                 </div>
-            ) : items.length > 0 ? (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                    {items.map((item, index) => {
-                        const qty = getCartQuantity(item.id);
-                        const isWishlisted = foodWishlist.has(item.id);
-                        return (
-                            <motion.div
-                                key={item.id}
-                                className="card"
-                                style={{ padding: 0, overflow: 'hidden', position: 'relative' }}
-                                initial={{ opacity: 0, y: 15 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.03 }}
-                            >
-                                {}
-                                <div style={{ position: 'relative', height: 130, overflow: 'hidden' }}>
-                                    {item.image ? (
-                                        <img
-                                            src={item.image} alt={item.name}
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                            loading="lazy"
-                                        />
-                                    ) : (
-                                        <div style={{
-                                            width: '100%', height: '100%',
-                                            background: 'linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-card) 100%)',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontSize: '2rem',
-                                        }}>
-                                            🍽️
-                                        </div>
-                                    )}
 
-                                    {}
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); toggleFoodWishlist(item.id, item.name); }}
-                                        style={{
-                                            position: 'absolute', top: 8, right: 8,
-                                            background: 'rgba(0,0,0,0.5)', border: 'none',
-                                            borderRadius: '50%', width: 28, height: 28,
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            cursor: 'pointer',
-                                        }}
-                                    >
-                                        <Heart
-                                            size={14}
-                                            color={isWishlisted ? '#f43f5e' : 'white'}
-                                            fill={isWishlisted ? '#f43f5e' : 'transparent'}
-                                        />
-                                    </button>
+                {platformCategories.length > 0 && (
+                    <div style={{ display: 'flex', gap: 'var(--space-2)', overflowX: 'auto', marginBottom: 'var(--space-4)', scrollbarWidth: 'none' }}>
+                        {platformCategories.slice(0, 12).map((category) => {
+                            const isActive = search.trim().toLowerCase() === String(category.name || '').trim().toLowerCase();
+                            return (
+                                <button
+                                    key={category.name}
+                                    onClick={() => setSearch(category.name)}
+                                    style={{
+                                        padding: '6px 14px',
+                                        borderRadius: '100px',
+                                        background: isActive ? 'rgba(217, 70, 239, 0.1)' : 'var(--color-bg-card)',
+                                        color: isActive ? 'var(--brand-customer)' : 'var(--color-text-secondary)',
+                                        border: `1px solid ${isActive ? 'var(--brand-customer)' : 'var(--color-border)'}`,
+                                        fontSize: '11px',
+                                        fontWeight: 700,
+                                        whiteSpace: 'nowrap',
+                                        cursor: 'pointer',
+                                        flexShrink: 0
+                                    }}
+                                >
+                                    {category.name}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
 
-                                    {}
-                                    <div style={{
-                                        position: 'absolute', top: 8, left: 8,
-                                        width: 16, height: 16, borderRadius: 3,
-                                        border: `2px solid ${item.food_type === 'veg' || item.food_type === 'vegan' ? '#22c55e' : '#ef4444'}`,
-                                        background: 'rgba(0,0,0,0.5)',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    }}>
-                                        <div style={{
-                                            width: 8, height: 8, borderRadius: '50%',
-                                            background: item.food_type === 'veg' || item.food_type === 'vegan' ? '#22c55e' : '#ef4444',
-                                        }} />
-                                    </div>
-
-                                    {item.is_bestseller && (
-                                        <span style={{
-                                            position: 'absolute', bottom: 8, left: 8,
-                                            background: 'var(--accent)', color: 'white',
-                                            fontSize: '0.65rem', fontWeight: 700, padding: '2px 8px',
-                                            borderRadius: 4,
-                                        }}>
-                                            ⭐ Bestseller
-                                        </span>
-                                    )}
+                <AnimatePresence>
+                    {showFilters && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            style={{ overflow: 'hidden', marginBottom: 'var(--space-4)' }}
+                        >
+                            <GlassCard padding="var(--space-4)">
+                                <p style={{ fontWeight: 800, margin: '0 0 var(--space-3) 0', fontSize: '11px', textTransform: 'uppercase', color: 'var(--color-text-tertiary)' }}>Sort By</p>
+                                <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+                                    {sortOptions.map(s => (
+                                        <button
+                                            key={s.value}
+                                            onClick={() => setSort(s.value)}
+                                            style={{
+                                                padding: '8px 16px', borderRadius: '8px',
+                                                background: sort === s.value ? 'var(--brand-customer)' : 'var(--color-bg-base)',
+                                                color: sort === s.value ? 'white' : 'var(--color-text-secondary)',
+                                                border: '1px solid var(--color-border)', fontSize: '12px', fontWeight: 700, cursor: 'pointer',
+                                            }}
+                                        >
+                                            {s.label}
+                                        </button>
+                                    ))}
                                 </div>
+                            </GlassCard>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
-                                {}
-                                <div style={{ padding: '10px 12px' }}>
-                                    <h4 style={{
-                                        fontWeight: 600, fontSize: '0.85rem', marginBottom: 2,
-                                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                                    }}>
-                                        {item.name}
-                                    </h4>
+                {!loading && (
+                    <p style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', fontWeight: 600, marginBottom: 'var(--space-4)' }}>
+                        {items.length} items found
+                    </p>
+                )}
 
-                                    <div
-                                        onClick={() => navigate(`/restaurant/${item.restaurant_slug}`)}
-                                        style={{
-                                            fontSize: '0.7rem', color: 'var(--accent)', marginBottom: 6,
-                                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
-                                        }}
-                                    >
-                                        {item.restaurant_name}
-                                        <ChevronRight size={10} />
-                                    </div>
-
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <div>
-                                            {item.category_name && (
-                                                <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginBottom: 4 }}>
-                                                    {item.category_name}
-                                                </p>
-                                            )}
-                                            <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>
-                                                ₹{item.discount_price || item.price}
-                                            </span>
-                                            {item.discount_price && parseFloat(item.discount_price) < parseFloat(item.price) && (
-                                                <span style={{
-                                                    textDecoration: 'line-through', color: 'var(--text-muted)',
-                                                    fontSize: '0.75rem', marginLeft: 4,
-                                                }}>
-                                                    ₹{item.price}
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        {}
-                                        {qty === 0 ? (
-                                            <button
-                                                onClick={() => handleAddToCart(item)}
-                                                style={{
-                                                    background: 'var(--accent)', color: 'white', border: 'none',
-                                                    borderRadius: 6, padding: '4px 12px', fontSize: '0.75rem',
-                                                    fontWeight: 700, cursor: 'pointer',
-                                                }}
-                                            >
-                                                ADD
-                                            </button>
-                                        ) : (
-                                            <div style={{
-                                                display: 'flex', alignItems: 'center', gap: 6,
-                                                background: 'var(--accent)', borderRadius: 6, padding: '2px 6px',
-                                            }}>
-                                                <button
-                                                    onClick={() => updateQuantity(item.id, qty - 1)}
-                                                    style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 2 }}
-                                                >
-                                                    <Minus size={12} />
-                                                </button>
-                                                <span style={{ color: 'white', fontWeight: 700, fontSize: '0.8rem', minWidth: 14, textAlign: 'center' }}>
-                                                    {qty}
-                                                </span>
-                                                <button
-                                                    onClick={() => handleAddToCart(item)}
-                                                    style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 2 }}
-                                                >
-                                                    <Plus size={12} />
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
-                </div>
-            ) : (
-                <div className="empty-state" style={{ marginTop: 'var(--space-2xl)' }}>
-                    <Search size={40} style={{ opacity: 0.5 }} />
-                    <h3>No food items found</h3>
-                    <p>Try a different search or filter</p>
-                </div>
-            )}
-        </div>
+                {loading ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                        {[1, 2, 3, 4, 5, 6].map(i => (
+                            <div key={i} style={{ height: 160, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />
+                        ))}
+                    </div>
+                ) : items.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                        {items.map((item, index) => {
+                            const qty = getCartQuantity(item.id);
+                            const isWishlisted = foodWishlist.has(item.id);
+                            return (
+                                <motion.div key={item.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.03 }}>
+                                    <FoodCard
+                                        name={item.name}
+                                        description={`${item.restaurant_name} • ${item.category_name || ''}`}
+                                        image={buildMediaUrl(item.image)}
+                                        price={item.price}
+                                        discountPrice={item.discount_price}
+                                        isVeg={item.food_type === 'veg' || item.food_type === 'vegan'}
+                                        isBestseller={item.is_bestseller}
+                                        isAvailable={true}
+                                        quantity={qty}
+                                        onAdd={() => handleAddToCart(item)}
+                                        onIncrement={() => handleAddToCart(item)}
+                                        onDecrement={() => updateQuantity(item.id, qty - 1)}
+                                        onWishlist={() => toggleFoodWishlist(item.id, item.name)}
+                                        isWishlisted={isWishlisted}
+                                    />
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div style={{ marginTop: 'var(--space-8)' }}>
+                        <EmptyState
+                            icon={Search}
+                            title="No food items found"
+                            description="Try a different search or filter"
+                            action={<Button onClick={() => { setSearch(''); setFoodType(''); setShowFilters(false); }}>Clear Filters</Button>}
+                        />
+                    </div>
+                )}
+            </div>
+        </PageContainer>
     );
 };
 
