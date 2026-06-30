@@ -14,6 +14,12 @@ export const FloatingInput = React.forwardRef(({
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(props.value || props.defaultValue ? true : false);
 
+  React.useEffect(() => {
+    if (props.value !== undefined) {
+      setHasValue(String(props.value).length > 0);
+    }
+  }, [props.value]);
+
   const handleFocus = (e) => {
     setIsFocused(true);
     if (props.onFocus) props.onFocus(e);

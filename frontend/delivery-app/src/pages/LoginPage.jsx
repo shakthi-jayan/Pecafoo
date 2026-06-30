@@ -70,6 +70,7 @@ export default function LoginPage() {
                         label="Email Address" 
                         type="email" 
                         value={email} 
+                        brandColor="var(--brand-delivery)"
                         autoComplete="email"
                                 onChange={(e) => setEmail(e.target.value)} 
                         required 
@@ -78,11 +79,12 @@ export default function LoginPage() {
                         id="password"
                         label="Password" 
                         value={password} 
+                        brandColor="var(--brand-delivery)"
                         autoComplete="current-password"
                                     onChange={(e) => setPassword(e.target.value)} 
                         required 
                     />
-                    <Button type="submit" variant="primary" size="large" disabled={loading} style={{ width: '100%', marginTop: 'var(--space-2)' }}>
+                    <Button type="submit" variant="primary" size="large" disabled={loading} brandColor="var(--brand-delivery)" style={{ width: '100%', marginTop: 'var(--space-2)' }}>
                         {loading ? 'Signing in...' : 'Sign In'}
                     </Button>
                 </form>

@@ -523,7 +523,7 @@ const RegisterPage = () => {
                             </Link>
                         </motion.div>
                     ) : (
-                    <form onSubmit={handle} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                         
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                             <FloatingInput name="first_name" label="First Name" value={formData.first_name} onChange={handleChange} required />

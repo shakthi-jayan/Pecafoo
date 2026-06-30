@@ -68,6 +68,7 @@ const LoginPage = () => {
                         label="Email Address"
                         type="email" 
                         value={email} 
+                        brandColor="var(--brand-restaurant)"
                         autoComplete="email"
                                 onChange={(e) => setEmail(e.target.value)} 
                         required 
@@ -76,12 +77,13 @@ const LoginPage = () => {
                     <PasswordInput 
                         label="Password"
                         value={password} 
+                        brandColor="var(--brand-restaurant)"
                         autoComplete="current-password"
                                     onChange={(e) => setPassword(e.target.value)} 
                         required 
                     />
                     
-                    <Button type="submit" variant="primary" fullWidth size="large" disabled={loading} style={{ marginTop: 'var(--space-2)' }}>
+                    <Button type="submit" variant="primary" fullWidth size="large" disabled={loading} brandColor="var(--brand-restaurant)" style={{ marginTop: 'var(--space-2)' }}>
                         {loading ? 'Signing in...' : 'Sign In'}
                     </Button>
                 </form>
