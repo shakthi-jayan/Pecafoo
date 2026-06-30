@@ -14,7 +14,7 @@ import {
     Button,
     GlassCard,
     Skeleton
-} from '../../../shared-ui/PremiumUI';
+} from '../shared-ui/PremiumUI';
 
 const statusColors = {
     placed: '#6366f1', confirmed: '#3b82f6', preparing: '#f59e0b',

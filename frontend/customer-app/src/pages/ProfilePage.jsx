@@ -9,7 +9,7 @@ import {
     ProfileHero, 
     SettingsGroup, 
     SettingsRow 
-} from '../../../shared-ui/PremiumUI';
+} from '../shared-ui/PremiumUI';
 
 const ProfilePage = () => {
     const navigate = useNavigate();

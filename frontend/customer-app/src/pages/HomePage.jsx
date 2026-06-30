@@ -24,7 +24,7 @@ import {
     Chip,
     GlassCard,
     Skeleton
-} from '../../../shared-ui/PremiumUI';
+} from '../shared-ui/PremiumUI';
 
 const fallbackCategories = [
     { name: 'All', icon: Utensils, color: '#ffb546', softColor: '#fff1cf' },

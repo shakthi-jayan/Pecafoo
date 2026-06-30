@@ -3,7 +3,7 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, Truck, Store, ArrowRight, ShieldAlert, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { PremiumAuthLayout } from '../../../shared-ui/PremiumUI';
+import { PremiumAuthLayout } from '../shared-ui/PremiumUI';
 
 const ROLE_ICONS = {
     customer: <User size={24} />,

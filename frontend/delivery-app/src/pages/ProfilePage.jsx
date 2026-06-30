@@ -4,7 +4,7 @@ import { ArrowLeft, Truck, Shield, Save, Camera, FileText, Upload, ExternalLink 
 import { useNavigate } from 'react-router-dom';
 import { deliveryAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { ProfileHero, GlassCard, Button, FloatingInput } from '../../../shared-ui/PremiumUI';
+import { ProfileHero, GlassCard, Button, FloatingInput } from '../shared-ui/PremiumUI';
 
 const ProfilePage = ({ user, onLogout }) => {
     const navigate = useNavigate();

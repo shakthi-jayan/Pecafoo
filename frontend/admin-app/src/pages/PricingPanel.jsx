@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Clock3, Percent, Settings2, Sparkles, Target, Truck } from 'lucide-react';
 import { deliveryAPI } from '../services/api';
-import { PageHero, GlassCard, Button, MetricCard } from '../../../shared-ui/PremiumUI';
+import { PageHero, GlassCard, Button, MetricCard } from '../shared-ui/PremiumUI';
 
 const defaultPricing = {
     base_fee: '35.00',

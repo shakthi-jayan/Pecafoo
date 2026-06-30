@@ -5,7 +5,7 @@ import { ArrowRight, FileText, Upload, MapPin, Loader2, AlertCircle, ExternalLin
 import { useAuth } from '../App';
 import { restaurantsAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { AuthProgress, PremiumAuthLayout, FloatingInput, PasswordInput, Button, GlassCard } from '../../../shared-ui/PremiumUI';
+import { AuthProgress, PremiumAuthLayout, FloatingInput, PasswordInput, Button, GlassCard } from '../shared-ui/PremiumUI';
 
 const RegisterPage = () => {
     const navigate = useNavigate();

@@ -19,7 +19,7 @@ import {
     FloatingInput,
     SegmentedControl,
     GlassCard
-} from '../../../shared-ui/PremiumUI';
+} from '../shared-ui/PremiumUI';
 
 const CartPage = () => {
     const navigate = useNavigate();

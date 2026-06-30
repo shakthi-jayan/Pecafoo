@@ -19,7 +19,7 @@ import {
     YAxis,
 } from 'recharts';
 import { deliveryAPI } from '../../services/api';
-import { GlassCard, PageHero } from '../../../../shared-ui/PremiumUI';
+import { GlassCard, PageHero } from '../../shared-ui/PremiumUI';
 
 const chartGradient = ['#FF5A1F', '#FF7B47', '#FF9A70', '#FFC2AE'];
 

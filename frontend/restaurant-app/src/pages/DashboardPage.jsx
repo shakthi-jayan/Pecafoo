@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { IndianRupee, ShoppingBag, TrendingUp, Clock } from 'lucide-react';
 import { ordersAPI, restaurantsAPI } from '../services/api';
-import { MetricCard, PageHero, SectionHeader, PageContainer, GlassCard, EmptyState } from '../../../shared-ui/PremiumUI';
+import { MetricCard, PageHero, SectionHeader, PageContainer, GlassCard, EmptyState } from '../shared-ui/PremiumUI';
 
 const DashboardPage = () => {
     const [stats, setStats] = useState({ orders: 0, revenue: 0, pending: 0 });

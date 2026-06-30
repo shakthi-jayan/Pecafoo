@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ClipboardList, Search, Eye, Filter } from 'lucide-react';
 import { ordersAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { PageHero, GlassCard, EmptyState, Button, FloatingInput } from '../../../shared-ui/PremiumUI';
+import { PageHero, GlassCard, EmptyState, Button, FloatingInput } from '../shared-ui/PremiumUI';
 
 const statusColors = { placed: '#60a5fa', confirmed: '#a78bfa', preparing: '#fbbf24', ready: '#34d399', picked_up: '#f97316', delivered: '#10b981', cancelled: '#ef4444' };
 

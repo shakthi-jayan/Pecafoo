@@ -4,7 +4,7 @@ import { ArrowRight, Navigation, ShieldCheck, TrendingUp } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../App';
-import { PremiumAuthLayout, GlassCard, FloatingInput, PasswordInput, Button } from '../../../shared-ui/PremiumUI';
+import { PremiumAuthLayout, GlassCard, FloatingInput, PasswordInput, Button } from '../shared-ui/PremiumUI';
 
 export default function LoginPage() {
     const { login } = useAuth();

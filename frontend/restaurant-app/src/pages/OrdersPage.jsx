@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ClipboardList, Check, X } from 'lucide-react';
 import { ordersAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { PageHero, SectionHeader, PageContainer, GlassCard, EmptyState, Skeleton, Button } from '../../../shared-ui/PremiumUI';
+import { PageHero, SectionHeader, PageContainer, GlassCard, EmptyState, Skeleton, Button } from '../shared-ui/PremiumUI';
 
 const statusFlow = { placed: 'confirmed', confirmed: 'preparing', preparing: 'ready', ready: 'picked_up' };
 

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { GlassCard, EmptyState, Button } from '../../../shared-ui/PremiumUI';
+import { GlassCard, EmptyState, Button } from '../shared-ui/PremiumUI';
 import { AlertTriangle } from 'lucide-react';
 
 export default function NotFoundPage() {

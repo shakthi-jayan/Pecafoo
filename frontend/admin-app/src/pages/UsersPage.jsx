@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Search, UserCheck, UserX, Store, Truck, Shield, User } from 'lucide-react';
 import { usersAPI } from '../services/api';
-import { PageHero, GlassCard, EmptyState } from '../../../shared-ui/PremiumUI';
+import { PageHero, GlassCard, EmptyState } from '../shared-ui/PremiumUI';
 
 const roleColors = { customer: '#60a5fa', restaurant: '#a78bfa', delivery: '#10b981', admin: '#f43f5e' };
 const roleIcons = { customer: User, restaurant: Store, delivery: Truck, admin: Shield };

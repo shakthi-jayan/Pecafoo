@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Mail } from 'lucide-react';
 import { authAPI } from '../services/api';
-import { PremiumAuthLayout, Button, FloatingInput } from '../../../shared-ui/PremiumUI';
+import { PremiumAuthLayout, Button, FloatingInput } from '../shared-ui/PremiumUI';
 
 export default function ForgotPasswordPage() {
     const navigate = useNavigate();

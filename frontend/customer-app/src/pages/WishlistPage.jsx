@@ -15,7 +15,7 @@ import {
     GlassCard,
     RestaurantCard,
     Skeleton
-} from '../../../shared-ui/PremiumUI';
+} from '../shared-ui/PremiumUI';
 
 const WishlistPage = () => {
     const navigate = useNavigate();

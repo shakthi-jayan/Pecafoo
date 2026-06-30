@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, Tags, GripVertical, X } from 'lucide-react';
 import { restaurantsAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { PageContainer, PageHero, GlassCard, EmptyState, Skeleton, Button, FloatingInput } from '../../../shared-ui/PremiumUI';
+import { PageContainer, PageHero, GlassCard, EmptyState, Skeleton, Button, FloatingInput } from '../shared-ui/PremiumUI';
 
 const CategoriesPage = () => {
     const [restaurants, setRestaurants] = useState([]);

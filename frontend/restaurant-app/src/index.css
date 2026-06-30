@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-@import '../../shared-ui/premium-ui.css';
+@import './shared-ui/premium-ui.css';
 
 :root {
   --bg-primary: #fafafa;

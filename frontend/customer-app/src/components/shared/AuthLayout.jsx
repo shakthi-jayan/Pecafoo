@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, MapPin, ShieldCheck } from 'lucide-react';
-import { GlassCard } from '../../../../shared-ui/PremiumUI';
+import { GlassCard } from '../../shared-ui/PremiumUI';
 
 export default function AuthLayout({ children, title, subtitle }) {
   return (

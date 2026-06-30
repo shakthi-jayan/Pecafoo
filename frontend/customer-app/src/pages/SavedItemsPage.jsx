@@ -11,7 +11,7 @@ import {
     EmptyState,
     Button,
     GlassCard
-} from '../../../shared-ui/PremiumUI';
+} from '../shared-ui/PremiumUI';
 
 const buildMediaUrl = (value) => {
     if (!value || typeof value !== 'string') return '';

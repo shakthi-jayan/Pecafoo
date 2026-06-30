@@ -14,7 +14,7 @@ import {
     HorizontalScroller,
     GlassCard,
     Skeleton
-} from '../../../shared-ui/PremiumUI';
+} from '../shared-ui/PremiumUI';
 
 const SearchPage = () => {
     const navigate = useNavigate();

@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Mail, Lock } from 'lucide-react';
 import { authAPI } from '../services/api';
-import { PremiumAuthLayout, Button, FloatingInput, PasswordInput } from '../../../shared-ui/PremiumUI';
+import { PremiumAuthLayout, Button, FloatingInput, PasswordInput } from '../shared-ui/PremiumUI';
 
 export default function ResetPasswordPage() {
     const navigate = useNavigate();

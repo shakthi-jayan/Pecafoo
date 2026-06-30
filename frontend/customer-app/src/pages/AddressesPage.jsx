@@ -16,7 +16,7 @@ import {
     EmptyState,
     FloatingInput,
     Skeleton
-} from '../../../shared-ui/PremiumUI';
+} from '../shared-ui/PremiumUI';
 
 const typeIcons = { home: Home, work: Briefcase, other: Heart };
 const typeColors = { home: '#3b82f6', work: '#8b5cf6', other: '#ec4899' };

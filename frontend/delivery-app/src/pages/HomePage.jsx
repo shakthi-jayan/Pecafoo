@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import MapView from '../components/shared/MapView';
 import SurgeBadge from '../components/shared/SurgeBadge';
 import { useAuth } from '../App';
-import { MetricCard, PageHero, SectionHeader, GlassCard } from '../../../shared-ui/PremiumUI';
+import { MetricCard, PageHero, SectionHeader, GlassCard } from '../shared-ui/PremiumUI';
 
 const INCOMING_POLL_INTERVAL = 8000; 
 const ACCEPT_TIMEOUT = 15; 

@@ -1,0 +1,108 @@
+/* ============================================================
+   PECAFOO — APPLE HIG DESIGN TOKENS (Phase 0)
+   ============================================================ */
+:root {
+  /* ---------------------------------------------------------
+     COLOR SYSTEM (Light Theme ONLY)
+     --------------------------------------------------------- */
+  --color-bg-base: #F5F5F7;
+  --color-bg-card: #FFFFFF;
+  --color-border: #E5E5EA;
+  --color-divider: #E5E5EA;
+
+  --color-text-primary: #111111;
+  --color-text-secondary: #6B7280;
+  --color-text-tertiary: #9CA3AF;
+  --color-text-inverse: #FFFFFF;
+
+  /* Brand Colors (Reserved for Buttons, Icons, Highlights, Badges, Progress) */
+  --brand-customer: #D946EF;    /* Purple / Pink */
+  --brand-restaurant: #F97316;  /* Orange / Gold */
+  --brand-delivery: #22C55E;    /* Green */
+  --brand-admin: #0EA5E9;       /* Blue */
+
+  /* Semantic Colors */
+  --color-error: #FF3B30;
+  --color-success: #34C759;
+  --color-warning: #FFCC00;
+
+  /* ---------------------------------------------------------
+     TYPOGRAPHY (Apple HIG Scale)
+     --------------------------------------------------------- */
+  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", sans-serif;
+  
+  --text-display: 48px;
+  --text-hero: 36px;
+  --text-h1: 32px;
+  --text-h2: 24px;
+  --text-h3: 20px;
+  --text-body: 16px;
+  --text-caption: 13px;
+
+  --line-height-tight: 1.1;
+  --line-height-normal: 1.3;
+  --line-height-relaxed: 1.5;
+
+  /* ---------------------------------------------------------
+     SPACING SCALE
+     --------------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* ---------------------------------------------------------
+     CORNER RADIUS
+     --------------------------------------------------------- */
+  --radius-card: 22px;
+  --radius-dialog: 28px;
+  --radius-image: 20px;
+  --radius-avatar: 20px;
+  --radius-input: 16px;
+  --radius-button: 18px;
+  --radius-full: 9999px;
+
+  /* ---------------------------------------------------------
+     SHADOWS (Soft, diffused, layered)
+     --------------------------------------------------------- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.03);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04);
+  --shadow-floating: 0 24px 48px rgba(0, 0, 0, 0.1), 0 12px 24px rgba(0, 0, 0, 0.05);
+
+  /* ---------------------------------------------------------
+     MOTION (Gentle Springs, No Bouncing)
+     --------------------------------------------------------- */
+  --motion-duration-fast: 150ms;
+  --motion-duration-base: 250ms;
+  --motion-duration-slow: 350ms;
+
+  --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-easing-entrance: cubic-bezier(0, 0, 0.2, 1);
+  --motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* Base resets to enforce the design rules globally when this is imported */
+body {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, .text-h1 { font-size: var(--text-h1); line-height: var(--line-height-tight); font-weight: 700; letter-spacing: -0.04em; margin: 0; }
+h2, .text-h2 { font-size: var(--text-h2); line-height: var(--line-height-tight); font-weight: 600; letter-spacing: -0.03em; margin: 0; }
+h3, .text-h3 { font-size: var(--text-h3); line-height: var(--line-height-normal); font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+p, .text-body { font-size: var(--text-body); line-height: var(--line-height-relaxed); margin: 0; }
+.text-display { font-size: var(--text-display); line-height: var(--line-height-tight); font-weight: 800; letter-spacing: -0.05em; }
+.text-hero { font-size: var(--text-hero); line-height: var(--line-height-tight); font-weight: 700; letter-spacing: -0.04em; }
+.text-caption { font-size: var(--text-caption); line-height: var(--line-height-normal); color: var(--color-text-secondary); }
+
+.auth-marketing-pane { display: none; }
+@media (min-width: 900px) { .auth-marketing-pane { display: flex !important; } }

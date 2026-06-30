@@ -4,7 +4,7 @@ import { ArrowRight, UserPlus } from 'lucide-react';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../App';
-import { GlassCard, Button } from '../../../shared-ui/PremiumUI';
+import { GlassCard, Button } from '../shared-ui/PremiumUI';
 
 export default function BecomePartnerPage() {
     const { state } = useLocation();

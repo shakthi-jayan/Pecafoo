@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Save, Store, Clock, MapPin, IndianRupee, Image as ImageIcon, Plus, UploadCloud, X, FileText, ExternalLink, ShieldCheck, Loader2 } from 'lucide-react';
 import { restaurantsAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { PageContainer, PageHero, GlassCard, EmptyState, Skeleton, Button, FloatingInput } from '../../../shared-ui/PremiumUI';
+import { PageContainer, PageHero, GlassCard, EmptyState, Skeleton, Button, FloatingInput } from '../shared-ui/PremiumUI';
 
 const SettingsPage = () => {
     const [restaurants, setRestaurants] = useState([]);

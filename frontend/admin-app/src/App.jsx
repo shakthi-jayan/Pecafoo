@@ -28,7 +28,7 @@ import UsersPage from './pages/UsersPage';
 import OrdersPage from './pages/OrdersPage';
 import PricingPanel from './pages/PricingPanel';
 import NotFoundPage from './pages/NotFoundPage';
-import { AuthProgress, MetricCard, PageHero, PremiumAuthLayout, SectionHeader, GlassCard, EmptyState, Button, FloatingInput } from '../../shared-ui/PremiumUI';
+import { AuthProgress, MetricCard, PageHero, PremiumAuthLayout, SectionHeader, GlassCard, EmptyState, Button, FloatingInput } from './shared-ui/PremiumUI';
 
 const AuthContext = createContext(null);
 const useAuth = () => useContext(AuthContext);

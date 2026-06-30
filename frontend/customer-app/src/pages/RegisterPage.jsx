@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Phone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { PremiumAuthLayout, Button, FloatingInput, PasswordInput } from '../../../shared-ui/PremiumUI';
+import { PremiumAuthLayout, Button, FloatingInput, PasswordInput } from '../shared-ui/PremiumUI';
 
 const RegisterPage = () => {
     const navigate = useNavigate();

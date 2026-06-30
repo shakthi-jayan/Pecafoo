@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../App';
 import { deliveryAPI } from '../services/api';
-import { AuthProgress, PremiumAuthLayout, GlassCard, FloatingInput, PasswordInput, Button } from '../../../shared-ui/PremiumUI';
+import { AuthProgress, PremiumAuthLayout, GlassCard, FloatingInput, PasswordInput, Button } from '../shared-ui/PremiumUI';
 
 export default function RegisterPage() {
     const { register } = useAuth();

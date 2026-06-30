@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Edit, Plus, Trash2, UtensilsCrossed, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { restaurantsAPI } from '../services/api';
-import { PageContainer, PageHero, GlassCard, EmptyState, Skeleton, Button, FloatingInput } from '../../../shared-ui/PremiumUI';
+import { PageContainer, PageHero, GlassCard, EmptyState, Skeleton, Button, FloatingInput } from '../shared-ui/PremiumUI';
 
 const createInitialForm = () => ({
     category: '',

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, ChefHat, Clock3, BarChart3 } from 'lucide-react';
 import { useAuth } from '../App';
 import toast from 'react-hot-toast';
-import { PremiumAuthLayout, FloatingInput, PasswordInput, Button } from '../../../shared-ui/PremiumUI';
+import { PremiumAuthLayout, FloatingInput, PasswordInput, Button } from '../shared-ui/PremiumUI';
 
 const LoginPage = () => {
     const navigate = useNavigate();

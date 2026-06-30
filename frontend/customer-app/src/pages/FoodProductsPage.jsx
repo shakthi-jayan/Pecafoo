@@ -18,7 +18,7 @@ import {
     EmptyState,
     GlassCard,
     Skeleton
-} from '../../../shared-ui/PremiumUI';
+} from '../shared-ui/PremiumUI';
 
 const foodTypeFilters = [
     { value: '', label: 'All', icon: '🍽️' },

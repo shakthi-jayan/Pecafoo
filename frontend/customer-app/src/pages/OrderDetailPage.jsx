@@ -20,7 +20,7 @@ import {
     GlassCard,
     EmptyState,
     Skeleton
-} from '../../../shared-ui/PremiumUI';
+} from '../shared-ui/PremiumUI';
 
 const statusColors = {
     placed: '#6366f1',
