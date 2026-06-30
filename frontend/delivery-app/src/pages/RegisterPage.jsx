@@ -99,7 +99,7 @@ export default function RegisterPage() {
             if (docs.id_proof) profileData.append('id_proof', docs.id_proof);
             if (docs.license_image) profileData.append('license_image', docs.license_image);
 
-            await deliveryAPI.updateProfile(profileData);
+            await deliveryAPI.createProfile(profileData);
 
             toast.success('Account created!');
             navigate('/', { replace: true });

@@ -124,6 +124,9 @@ export const authAPI = {
 // RESTAURANTS API
 // ============================================
 export const restaurantsAPI = {
+  createRestaurant: (data) => api.post('/restaurants/my/', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
   getAll: (params) => api.get('/restaurants/', { params }),
   getBySlug: (slug) => api.get(`/restaurants/${slug}/`),
   getReviews: (slug) => api.get(`/restaurants/${slug}/reviews/`),
