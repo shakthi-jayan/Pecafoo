@@ -62,7 +62,16 @@ export const AuthProvider = ({ children }) => {
             toast.success('Account created successfully!');
             return data;
         } catch (error) {
+            const status = error.response?.status;
             const errData = error.response?.data;
+            const errString = JSON.stringify(errData || {});
+            
+            if (status === 409 || errString.includes('ACCOUNT_EXISTS') || errString.includes('already exists')) {
+                toast.error('An account with this email already exists. Redirecting to login...');
+                error.isAccountExists = true;
+                throw error;
+            }
+            
             if (!errData) {
                 toast.error('Registration failed. Please check your connection.');
             } else if (typeof errData === 'string') {

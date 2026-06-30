@@ -115,7 +115,8 @@ const LoginPage = () => {
                                 type="email"
                                 icon={Mail}
                                 value={email}
-                                onChange={(e) = autoComplete="email" > setEmail(e.target.value)}
+                                autoComplete="email"
+                                onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
@@ -123,7 +124,8 @@ const LoginPage = () => {
                                     label="Password"
                                     icon={Lock}
                                     value={password}
-                                    onChange={(e) = autoComplete="current-password" > setPassword(e.target.value)}
+                                    autoComplete="current-password"
+                                    onChange={(e) => setPassword(e.target.value)}
                                     required
                                 />
                                 <div style={{ textAlign: 'right' }}>

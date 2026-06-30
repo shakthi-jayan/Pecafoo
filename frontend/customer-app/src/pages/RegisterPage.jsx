@@ -29,7 +29,10 @@ const RegisterPage = () => {
         try {
             await register(formData);
             navigate('/', { replace: true });
-        } catch {
+        } catch (error) {
+            if (error.isAccountExists) {
+                navigate('/login', { replace: true });
+            }
         } finally {
             setLoading(false);
         }
@@ -40,7 +43,10 @@ const RegisterPage = () => {
         try {
             await googleLogin();
             navigate('/', { replace: true });
-        } catch {
+        } catch (error) {
+            if (error.isAccountExists) {
+                navigate('/login', { replace: true });
+            }
         } finally {
             setLoading(false);
         }
