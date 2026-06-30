@@ -1,87 +1,10 @@
-import { BrowserRouter, Routes, Route, NavLink, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-import { useState, useEffect, createContext, useContext, useCallback } from 'react';
-import {
-  LayoutDashboard,
-  Users,
-  Store,
-  ClipboardList,
-  LogOut,
-  ArrowRight,
-  ShoppingBag,
-  IndianRupee,
-  Menu,
-  X,
-  ShieldCheck,
-  Truck,
-  ExternalLink,
-  Settings2,
-  Clock3,
-  Activity,
-  BarChart3,
-  ServerCog,
-} from 'lucide-react';
-import { authAPI, restaurantsAPI, deliveryAPI, analyticsAPI } from './services/api';
-import { motion } from 'framer-motion';
-import toast from 'react-hot-toast';
-import UsersPage from './pages/UsersPage';
-import OrdersPage from './pages/OrdersPage';
-import PricingPanel from './pages/PricingPanel';
-import NotFoundPage from './pages/NotFoundPage';
-import { AuthProgress, MetricCard, PageHero, PremiumAuthLayout, SectionHeader, GlassCard, EmptyState, Button, FloatingInput } from './shared-ui/PremiumUI';
-
-const AuthContext = createContext(null);
-const useAuth = () => useContext(AuthContext);
-
-function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('admin_user');
-    const storedTokens = localStorage.getItem('admin_tokens');
-    return storedUser && storedTokens ? JSON.parse(storedUser) : null;
-  });
-  const loading = false;
-
-  const login = useCallback(async (email, password) => {
-    const { data } = await authAPI.login({ email, password });
-    if (data.user.role !== 'admin' && !data.user.is_staff) {
-      throw new Error('Admin access required');
-    }
-    localStorage.setItem('admin_user', JSON.stringify(data.user));
-    localStorage.setItem('admin_tokens', JSON.stringify(data.tokens));
-    setUser(data.user);
-  }, []);
-
-  const register = useCallback(async (formData) => {
-    const { data } = await authAPI.register({ ...formData, role: 'admin' });
-    localStorage.setItem('admin_user', JSON.stringify(data.user));
-    localStorage.setItem('admin_tokens', JSON.stringify(data.tokens));
-    setUser(data.user);
-    return data;
-  }, []);
-
-  const logout = useCallback(async () => {
-    try {
-      const tokens = JSON.parse(localStorage.getItem('admin_tokens') || '{}');
-      if (tokens.refresh) {
-        await authAPI.logout({ refresh: tokens.refresh });
-      }
-    } catch {
-      
-    }
-    localStorage.removeItem('admin_user');
-    localStorage.removeItem('admin_tokens');
-    setUser(null);
-  }, []);
-
-  return <AuthContext.Provider value={{ user, loading, isAuthenticated: !!user, login, register, logout }}>{children}</AuthContext.Provider>;
-}
-
 function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handle = async (event) => {
     event.preventDefault();
@@ -98,37 +21,290 @@ function LoginPage() {
   };
 
   return (
-    <PremiumAuthLayout
-      tone="admin"
-      eyebrow="Pecafoo operations"
-      title="The whole platform, with the signal turned up."
-      description="Monitor growth, review operations, and keep every side of the marketplace healthy from one deliberate workspace."
-      features={[
-        { icon: Activity, title: 'Live operations', copy: 'Orders and activity without the clutter.' },
-        { icon: BarChart3, title: 'Decision-ready metrics', copy: 'The numbers that matter, in context.' },
-        { icon: ServerCog, title: 'Platform control', copy: 'Management tools with clear hierarchy.' },
-      ]}
-    >
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="auth-card">
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ width: 64, height: 64, margin: '0 auto 16px', background: 'var(--gradient-primary)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem', boxShadow: 'var(--shadow-accent)' }}>Admin</div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 4 }}>Admin Panel</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Pecafoo Management Console</p>
+    <div className="admin-login-layout">
+      <style>{`
+        .admin-login-layout {
+          display: flex;
+          align-items: stretch;
+          justify-content: center;
+          min-height: 100vh;
+          background-color: #f8fafc;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          overflow: hidden;
+        }
+        .admin-left {
+          flex: 0 0 50%;
+          background: #ffffff;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 64px;
+          border-right: 1px solid #e2e8f0;
+          position: relative;
+        }
+        .admin-left::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.03), transparent 70%);
+          pointer-events: none;
+        }
+        .admin-left-content {
+          max-width: 440px;
+          margin: 0 auto;
+          width: 100%;
+        }
+        .admin-right {
+          flex: 0 0 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 48px;
+          background: #f8fafc;
+        }
+        .admin-card {
+          width: 100%;
+          max-width: 480px;
+          background: #ffffff;
+          padding: 48px;
+          border-radius: 28px;
+          border: 1px solid #f1f5f9;
+          box-shadow: 0 24px 48px -12px rgba(0,0,0,0.05), 0 4px 24px rgba(0,0,0,0.02);
+        }
+        .admin-feature {
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
+          margin-bottom: 32px;
+        }
+        .admin-feature-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 14px;
+          background: #eff6ff;
+          color: #2563EB;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .apple-input-group {
+          position: relative;
+          margin-bottom: 20px;
+        }
+        .apple-input {
+          width: 100%;
+          height: 56px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          padding: 0 16px 0 48px;
+          font-size: 15px;
+          color: #0f172a;
+          transition: all 0.2s ease;
+          outline: none;
+        }
+        .apple-input:focus {
+          border-color: #2563EB;
+          box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+          background: #ffffff;
+        }
+        .apple-input::placeholder {
+          color: #94a3b8;
+        }
+        .apple-input-icon {
+          position: absolute;
+          left: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #64748b;
+          pointer-events: none;
+          transition: color 0.2s ease;
+        }
+        .apple-input:focus ~ .apple-input-icon {
+          color: #2563EB;
+        }
+        .admin-btn {
+          width: 100%;
+          height: 56px;
+          background: #2563EB;
+          color: white;
+          border: none;
+          border-radius: 16px;
+          font-size: 16px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          margin-top: 12px;
+        }
+        .admin-btn:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+          background: #1d4ed8;
+        }
+        .admin-btn:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+        .custom-checkbox {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          user-select: none;
+        }
+        .checkbox-box {
+          width: 20px;
+          height: 20px;
+          border-radius: 6px;
+          border: 1px solid #cbd5e1;
+          background: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          transition: all 0.2s ease;
+        }
+        .custom-checkbox input:checked + .checkbox-box {
+          background: #2563EB;
+          border-color: #2563EB;
+        }
+        .admin-divider {
+          height: 1px;
+          background: #e2e8f0;
+          margin: 32px 0;
+        }
+        
+        @media (max-width: 1023px) {
+          .admin-login-layout { flex-direction: column; }
+          .admin-left { display: none; }
+          .admin-right { flex: none; width: 100%; min-height: 100vh; padding: 24px; }
+          .admin-card { padding: 32px 24px; box-shadow: 0 12px 32px -8px rgba(0,0,0,0.08); }
+        }
+      `}</style>
+      
+      <div className="admin-left">
+        <div className="admin-left-content">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
+            <div style={{ width: 40, height: 40, background: '#1e3a8a', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+              <ShieldCheck size={22} />
+            </div>
+            <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.1em', color: '#1e3a8a' }}>PECAFOO OPERATIONS</span>
+          </div>
+          
+          <h1 style={{ fontSize: '46px', fontWeight: 800, lineHeight: 1.1, color: '#0f172a', marginBottom: 24, letterSpacing: '-0.02em' }}>
+            The entire platform,<br/>under one dashboard.
+          </h1>
+          <p style={{ fontSize: '18px', color: '#64748b', lineHeight: 1.6, marginBottom: 56 }}>
+            Monitor restaurants, delivery partners, customers and business operations from one secure workspace.
+          </p>
+
+          <div className="admin-feature">
+            <div className="admin-feature-icon"><ShieldCheck size={24} /></div>
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>Secure Administration</h3>
+              <p style={{ fontSize: 15, color: '#64748b', margin: 0, lineHeight: 1.5 }}>Role-based secure access for platform oversight.</p>
+            </div>
+          </div>
+          <div className="admin-feature">
+            <div className="admin-feature-icon"><Activity size={24} /></div>
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>Live Analytics</h3>
+              <p style={{ fontSize: 15, color: '#64748b', margin: 0, lineHeight: 1.5 }}>Monitor orders and revenue in real time.</p>
+            </div>
+          </div>
+          <div className="admin-feature">
+            <div className="admin-feature-icon"><ServerCog size={24} /></div>
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>Marketplace Control</h3>
+              <p style={{ fontSize: 15, color: '#64748b', margin: 0, lineHeight: 1.5 }}>Restaurants, deliveries and customers in context.</p>
+            </div>
+          </div>
+          <div className="admin-feature">
+            <div className="admin-feature-icon"><Zap size={24} /></div>
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>Instant Actions</h3>
+              <p style={{ fontSize: 15, color: '#64748b', margin: 0, lineHeight: 1.5 }}>Approve, suspend and manage accounts instantly.</p>
+            </div>
+          </div>
         </div>
-        <form onSubmit={handle}>
-          <FloatingInput type="email" label="Admin email" value={email} onChange={(event) => setEmail(event.target.value)} required />
-          <div style={{ height: 'var(--space-3)' }} />
-          <FloatingInput type="password" label="Password" value={password} onChange={(event) => setPassword(event.target.value)} required />
-          <div style={{ height: 'var(--space-4)' }} />
-          <Button type="submit" variant="primary" size="large" disabled={loading} style={{ width: '100%' }}>
-            {loading ? 'Signing in...' : 'Sign In'} <ArrowRight size={18} />
-          </Button>
-        </form>
-        <p style={{ textAlign: 'center', marginTop: 20, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-          Need the first admin account? <Link to="/register" style={{ color: 'var(--accent)', fontWeight: 600 }}>Bootstrap Admin</Link>
-        </p>
-      </motion.div>
-    </PremiumAuthLayout>
+      </div>
+
+      <div className="admin-right">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="admin-card">
+          
+          <div style={{ textAlign: 'center', marginBottom: 40 }}>
+            <div style={{ width: 56, height: 56, margin: '0 auto 20px', background: '#eff6ff', border: '1px solid #dbeafe', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563EB' }}>
+              <ShieldCheck size={28} />
+            </div>
+            <h2 style={{ fontSize: '32px', fontWeight: 800, color: '#0f172a', marginBottom: 8, letterSpacing: '-0.02em' }}>Admin Panel</h2>
+            <p style={{ color: '#64748b', fontSize: '15px' }}>Pecafoo Management Console</p>
+          </div>
+
+          <form onSubmit={handle}>
+            <div className="apple-input-group">
+              <input
+                type="email"
+                className="apple-input"
+                placeholder="Admin email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+              <Mail size={20} className="apple-input-icon" />
+            </div>
+            
+            <div className="apple-input-group">
+              <input
+                type="password"
+                className="apple-input"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+              />
+              <Lock size={20} className="apple-input-icon" />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, marginTop: 12 }}>
+              <label className="custom-checkbox">
+                <input type="checkbox" style={{ display: 'none' }} checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
+                <div className="checkbox-box">
+                  {rememberMe && <Check size={14} strokeWidth={3} />}
+                </div>
+                <span style={{ fontSize: 14, color: '#475569', fontWeight: 500 }}>Remember me</span>
+              </label>
+              
+              <Link to="#" onClick={(e) => { e.preventDefault(); toast('Password reset is managed by Super Admins.', { icon: '🔒' }) }} style={{ fontSize: 14, color: '#2563EB', fontWeight: 600, textDecoration: 'none' }}>
+                Forgot Password?
+              </Link>
+            </div>
+
+            <button type="submit" className="admin-btn" disabled={loading}>
+              {loading ? 'Authenticating...' : 'Sign In'} <ArrowRight size={18} />
+            </button>
+          </form>
+
+          <div className="admin-divider" />
+          
+          <div style={{ textAlign: 'center' }}>
+            <Link to="/register" style={{ display: 'inline-block', padding: '10px 20px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, color: '#334155', fontSize: 14, fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s' }}>
+              Bootstrap Admin
+            </Link>
+            <p style={{ marginTop: 24, fontSize: 13, color: '#94a3b8' }}>
+              Need help? <a href="#" style={{ color: '#64748b', textDecoration: 'underline' }}>Contact System Administrator</a>
+            </p>
+          </div>
+
+        </motion.div>
+      </div>
+    </div>
   );
 }
 
