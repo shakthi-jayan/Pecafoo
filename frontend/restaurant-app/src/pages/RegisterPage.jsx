@@ -384,11 +384,12 @@ const RegisterPage = () => {
             <style>{`
                 .premium-register-layout {
                     display: flex;
-                    align-items: center;
+                    align-items: stretch;
                     justify-content: center;
                     background-color: #f8fafc;
                     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
                     width: 100%;
+                    min-height: 100vh;
                 }
                 .premium-register-container {
                     display: flex;
@@ -397,7 +398,7 @@ const RegisterPage = () => {
                     margin: auto;
                     padding-inline: 48px;
                     gap: 32px;
-                    align-items: center;
+                    align-items: stretch;
                     justify-content: center;
                 }
                 .premium-register-left {
@@ -409,8 +410,9 @@ const RegisterPage = () => {
                 }
                 .premium-register-right {
                     display: flex;
+                    flex-direction: column;
                     align-items: center;
-                    justify-content: center;
+                    justify-content: flex-start;
                 }
                 .premium-register-card {
                     width: 100%;
@@ -510,17 +512,19 @@ const RegisterPage = () => {
                     }
                     .premium-register-container {
                         height: 100vh;
-                        padding-block: 24px;
                     }
                     .premium-register-left {
                         height: 100%;
                         overflow-y: auto;
                         padding-right: 16px;
+                        padding-top: 48px;
+                        padding-bottom: 48px;
                     }
                     .premium-register-right {
                         height: 100%;
                         overflow-y: auto;
-                        padding: 16px;
+                        padding-top: 48px;
+                        padding-bottom: 48px;
                     }
                 }
 
