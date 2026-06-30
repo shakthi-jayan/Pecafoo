@@ -323,12 +323,12 @@ def process_admin_login():
     # Replace the return block
     new_content = pre_return + new_return
     
-    # Replace the whole old function with the newly constructed one
-    # Note: we need to append the rest of the file after the LoginPage function
+    # We must preserve the content before the match!
+    pre_match = content[:match.start()]
     post_return = content[match.end():]
     
     with open(path, "w", encoding="utf-8") as f:
-        f.write(new_content + post_return)
+        f.write(pre_match + new_content + post_return)
 
 process_admin_login()
 print("Admin Login UI redesigned")

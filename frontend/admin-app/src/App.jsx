@@ -1,3 +1,81 @@
+import { BrowserRouter, Routes, Route, NavLink, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { useState, useEffect, createContext, useContext, useCallback } from 'react';
+import {
+  LayoutDashboard,
+  Users,
+  Store,
+  ClipboardList,
+  LogOut,
+  ArrowRight,
+  ShoppingBag,
+  IndianRupee,
+  Menu,
+  X,
+  ShieldCheck,
+  Truck,
+  ExternalLink,
+  Settings2,
+  Clock3,
+  Activity,
+  BarChart3,
+  ServerCog,
+  Mail, Lock, Zap, Check} from 'lucide-react';
+import { authAPI, restaurantsAPI, deliveryAPI, analyticsAPI } from './services/api';
+import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
+import UsersPage from './pages/UsersPage';
+import OrdersPage from './pages/OrdersPage';
+import PricingPanel from './pages/PricingPanel';
+import NotFoundPage from './pages/NotFoundPage';
+import { AuthProgress, MetricCard, PageHero, PremiumAuthLayout, SectionHeader, GlassCard, EmptyState, Button, FloatingInput } from './shared-ui/PremiumUI';
+
+const AuthContext = createContext(null);
+const useAuth = () => useContext(AuthContext);
+
+function AuthProvider({ children }) {
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem('admin_user');
+    const storedTokens = localStorage.getItem('admin_tokens');
+    return storedUser && storedTokens ? JSON.parse(storedUser) : null;
+  });
+  const loading = false;
+
+  const login = useCallback(async (email, password) => {
+    const { data } = await authAPI.login({ email, password });
+    if (data.user.role !== 'admin' && !data.user.is_staff) {
+      throw new Error('Admin access required');
+    }
+    localStorage.setItem('admin_user', JSON.stringify(data.user));
+    localStorage.setItem('admin_tokens', JSON.stringify(data.tokens));
+    setUser(data.user);
+  }, []);
+
+  const register = useCallback(async (formData) => {
+    const { data } = await authAPI.register({ ...formData, role: 'admin' });
+    localStorage.setItem('admin_user', JSON.stringify(data.user));
+    localStorage.setItem('admin_tokens', JSON.stringify(data.tokens));
+    setUser(data.user);
+    return data;
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      const tokens = JSON.parse(localStorage.getItem('admin_tokens') || '{}');
+      if (tokens.refresh) {
+        await authAPI.logout({ refresh: tokens.refresh });
+      }
+    } catch {
+      
+    }
+    localStorage.removeItem('admin_user');
+    localStorage.removeItem('admin_tokens');
+    setUser(null);
+  }, []);
+
+  return <AuthContext.Provider value={{ user, loading, isAuthenticated: !!user, login, register, logout }}>{children}</AuthContext.Provider>;
+}
+
 function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
