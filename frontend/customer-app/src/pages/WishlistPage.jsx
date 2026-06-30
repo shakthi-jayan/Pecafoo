@@ -6,6 +6,7 @@ import { useWishlist } from '../context/WishlistContext';
 import { customersAPI } from '../services/api';
 import toast from 'react-hot-toast';
 
+import { RestaurantCard } from '../components/RestaurantCard';
 import {
     PageContainer,
     IconButton,
@@ -13,7 +14,7 @@ import {
     EmptyState,
     Button,
     GlassCard,
-    RestaurantCard,
+    
     Skeleton
 } from '../shared-ui/PremiumUI';
 

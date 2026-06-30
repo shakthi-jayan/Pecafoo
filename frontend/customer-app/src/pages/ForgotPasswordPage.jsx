@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
                     icon={Mail}
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) = autoComplete="email" > setEmail(e.target.value)}
                     required
                     disabled={sent}
                 />

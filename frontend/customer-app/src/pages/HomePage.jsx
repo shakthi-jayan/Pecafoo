@@ -12,13 +12,14 @@ import { restaurantsAPI } from '../services/api';
 import CustomerHomeHeader from '../components/home/CustomerHomeHeader';
 import RestaurantMap from '../components/maps/RestaurantMap';
 
+import { RestaurantCard } from '../components/RestaurantCard';
 import {
     PageContainer,
     HeroBanner,
     SearchBar,
     SectionHeader,
     HorizontalScroller,
-    RestaurantCard,
+    
     EmptyState,
     Button,
     Chip,
@@ -187,12 +188,7 @@ const HomePage = () => {
                         <HorizontalScroller>
                             {featuredRestaurants.map((restaurant) => (
                                 <div key={restaurant.id} style={{ width: '320px' }}>
-                                    <RestaurantCard 
-                                        name={restaurant.name}
-                                        subtitle={restaurant.cuisine_type || 'Local Favorite'}
-                                        image={restaurant.image_url}
-                                        rating={restaurant.rating}
-                                    />
+                                    <RestaurantCard restaurant={restaurant} />
                                 </div>
                             ))}
                         </HorizontalScroller>

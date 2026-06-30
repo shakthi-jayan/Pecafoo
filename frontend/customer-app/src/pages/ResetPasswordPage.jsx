@@ -79,7 +79,7 @@ export default function ResetPasswordPage() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                />
+                autoComplete="email" />
                 
                 <FloatingInput
                     label="6-digit OTP"
@@ -100,7 +100,7 @@ export default function ResetPasswordPage() {
                     onChange={handleChange}
                     required
                     minLength={8}
-                />
+                autoComplete="new-password" />
                 
                 <PasswordInput
                     label="Confirm New Password"
@@ -110,7 +110,7 @@ export default function ResetPasswordPage() {
                     onChange={handleChange}
                     required
                     minLength={8}
-                />
+                autoComplete="new-password" />
                 
                 <Button 
                     type="submit" 

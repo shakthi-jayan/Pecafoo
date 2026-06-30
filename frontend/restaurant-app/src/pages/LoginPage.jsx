@@ -68,14 +68,14 @@ const LoginPage = () => {
                         label="Email Address"
                         type="email" 
                         value={email} 
-                        onChange={(e) => setEmail(e.target.value)} 
+                        onChange={(e) = autoComplete="email" > setEmail(e.target.value)} 
                         required 
                     />
                     
                     <PasswordInput 
                         label="Password"
                         value={password} 
-                        onChange={(e) => setPassword(e.target.value)} 
+                        onChange={(e) = autoComplete="current-password" > setPassword(e.target.value)} 
                         required 
                     />
                     

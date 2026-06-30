@@ -1,3 +1,4 @@
+import React from 'react';
 // Phase 0: Design System Barrel Export
 
 export * from './components/Layout';

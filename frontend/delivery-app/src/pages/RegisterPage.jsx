@@ -193,7 +193,7 @@ export default function RegisterPage() {
                             <FloatingInput id="first_name" name="first_name" label="First Name" value={fd.first_name} onChange={ch} required />
                             <FloatingInput id="last_name" name="last_name" label="Last Name" value={fd.last_name} onChange={ch} required />
                         </div>
-                        <FloatingInput id="email" type="email" name="email" label="Email Address" value={fd.email} onChange={ch} required />
+                        <FloatingInput id="email" type="email" name="email" label="Email Address" value={fd.email} onChange={ch} required autoComplete="email" />
                         <FloatingInput id="phone_number" type="tel" name="phone_number" label="Mobile Number (e.g., +919876543210)" value={fd.phone_number} onChange={handlePhoneChange} required />
                         
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
@@ -209,8 +209,8 @@ export default function RegisterPage() {
                         </div>
                         <FloatingInput id="license_number" name="license_number" label="License Number" value={fd.license_number} onChange={ch} />
                         
-                        <PasswordInput id="password" name="password" label="Password (min 8 chars)" value={fd.password} onChange={ch} required minLength={8} />
-                        <PasswordInput id="password_confirm" name="password_confirm" label="Confirm Password" value={fd.password_confirm} onChange={ch} required minLength={8} />
+                        <PasswordInput id="password" name="password" label="Password (min 8 chars)" value={fd.password} onChange={ch} required minLength={8} autoComplete="new-password" />
+                        <PasswordInput id="password_confirm" name="password_confirm" label="Confirm Password" value={fd.password_confirm} onChange={ch} required minLength={8} autoComplete="new-password" />
 
                         <div style={{ background: 'var(--color-bg-base)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-4)' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>

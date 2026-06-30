@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, X, TrendingUp, UtensilsCrossed, Store, Tags } from 'lucide-react';
 import { restaurantsAPI } from '../services/api';
+import { RestaurantCard } from '../components/RestaurantCard';
 import {
     PageContainer,
     SearchBar,
     SectionHeader,
     Chip,
-    RestaurantCard,
+    
     EmptyState,
     Button,
     HorizontalScroller,
@@ -219,12 +220,7 @@ const SearchPage = () => {
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 'var(--space-5)' }}>
                                             {restaurantResults.map((restaurant, index) => (
                                                 <motion.div key={restaurant.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.06 }}>
-                                                    <RestaurantCard 
-                                                        name={restaurant.name}
-                                                        subtitle={restaurant.cuisine_type || 'Restaurant'}
-                                                        image={restaurant.image_url}
-                                                        rating={restaurant.rating}
-                                                    />
+                                                    <RestaurantCard restaurant={restaurant} />
                                                 </motion.div>
                                             ))}
                                         </div>

@@ -506,7 +506,7 @@ const RegisterPage = () => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                    />
+                    autoComplete="email" />
                     
                     <FloatingInput 
                         type="tel" 
@@ -686,7 +686,7 @@ const RegisterPage = () => {
                         onChange={handleChange}
                         required
                         minLength={8}
-                    />
+                    autoComplete="new-password" />
 
                     <PasswordInput
                         name="password_confirm"
@@ -695,7 +695,7 @@ const RegisterPage = () => {
                         onChange={handleChange}
                         required
                         minLength={8}
-                    />
+                    autoComplete="new-password" />
 
                     {/* Documents Section */}
                     <GlassCard padding="var(--space-4)" style={{ marginBottom: 'var(--space-5)' }}>

@@ -94,7 +94,7 @@ const RegisterPage = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                />
+                autoComplete="email" />
 
                 <FloatingInput 
                     label="Phone Number"
@@ -113,7 +113,7 @@ const RegisterPage = () => {
                     value={formData.password}
                     onChange={handleChange}
                     required
-                />
+                autoComplete="new-password" />
 
                 <PasswordInput 
                     label="Confirm Password"
@@ -122,7 +122,7 @@ const RegisterPage = () => {
                     value={formData.password_confirm}
                     onChange={handleChange}
                     required
-                />
+                autoComplete="new-password" />
 
                 <Button type="submit" variant="primary" fullWidth size="medium" disabled={loading} style={{ marginTop: 'var(--space-2)' }}>
                     {loading ? 'Creating Account...' : 'Create Account'}
