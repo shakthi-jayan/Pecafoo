@@ -384,39 +384,37 @@ const RegisterPage = () => {
             <style>{`
                 .premium-register-layout {
                     display: flex;
-                    min-height: 100vh;
+                    align-items: center;
+                    justify-content: center;
                     background-color: #f8fafc;
                     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                    width: 100%;
+                }
+                .premium-register-container {
+                    display: flex;
+                    width: 100%;
+                    max-width: 1440px;
+                    margin: auto;
+                    padding-inline: 48px;
+                    gap: 32px;
+                    align-items: center;
+                    justify-content: center;
                 }
                 .premium-register-left {
-                    flex: 0 0 40%;
-                    background: #ffffff;
-                    padding: 4vw;
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
-                    border-right: 1px solid #f1f5f9;
+                    max-width: 520px;
                     position: relative;
-                    overflow: hidden;
-                }
-                .premium-register-left::before {
-                    content: '';
-                    position: absolute;
-                    top: 0; left: 0; right: 0; bottom: 0;
-                    background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.05), transparent 60%);
-                    pointer-events: none;
                 }
                 .premium-register-right {
-                    flex: 1;
-                    padding: 4vw;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    background: #fafaf9;
                 }
                 .premium-register-card {
                     width: 100%;
-                    max-width: 680px;
+                    max-width: 640px;
                     background: rgba(255, 255, 255, 0.95);
                     backdrop-filter: blur(24px);
                     -webkit-backdrop-filter: blur(24px);
@@ -433,7 +431,7 @@ const RegisterPage = () => {
                     font-size: 16px;
                     font-weight: 600;
                     cursor: pointer;
-                    background: linear-gradient(135deg, #F97316 0%, #ea580c 100%);
+                    background: linear-gradient(135deg, var(--brand-color, #F97316) 0%, var(--brand-color-dark, #ea580c) 100%);
                     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
                     margin-top: 32px;
                     display: flex;
@@ -443,7 +441,7 @@ const RegisterPage = () => {
                 }
                 .premium-btn:hover:not(:disabled) {
                     transform: translateY(-2px);
-                    box-shadow: 0 12px 24px rgba(249, 115, 22, 0.25);
+                    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
                 }
                 .premium-btn:active:not(:disabled) {
                     transform: translateY(0);
@@ -462,8 +460,8 @@ const RegisterPage = () => {
                     width: 48px;
                     height: 48px;
                     border-radius: 14px;
-                    background: rgba(249, 115, 22, 0.1);
-                    color: #F97316;
+                    background: var(--brand-color-light, rgba(249, 115, 22, 0.1));
+                    color: var(--brand-color, #F97316);
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -486,14 +484,61 @@ const RegisterPage = () => {
                     height: 1px;
                     background: #e2e8f0;
                 }
-                @media (max-width: 992px) {
-                    .premium-register-layout { flex-direction: column; }
-                    .premium-register-left { flex: none; padding: 48px 24px; border-right: none; }
-                    .premium-register-right { padding: 24px; background: #ffffff; }
+                
+                /* Desktop Responsive Behavior */
+                @media (min-width: 1440px) {
+                    .premium-register-left { flex: 0 0 40%; }
+                    .premium-register-right { flex: 0 0 60%; }
+                }
+                @media (min-width: 1200px) and (max-width: 1439px) {
+                    .premium-register-container { padding-inline: 32px; gap: 24px; }
+                    .premium-register-left { flex: 0 0 42%; }
+                    .premium-register-right { flex: 0 0 58%; }
+                }
+                @media (min-width: 1024px) and (max-width: 1199px) {
+                    .premium-register-container { padding-inline: 24px; gap: 16px; }
+                    .premium-register-left { flex: 0 0 45%; }
+                    .premium-register-right { flex: 0 0 55%; }
+                    .premium-register-left h1 { font-size: 40px !important; }
+                }
+                
+                /* Desktop Scrolling Logic */
+                @media (min-width: 1024px) {
+                    .premium-register-layout {
+                        height: 100vh;
+                        overflow: hidden;
+                    }
+                    .premium-register-container {
+                        height: 100vh;
+                        padding-block: 24px;
+                    }
+                    .premium-register-left {
+                        height: 100%;
+                        overflow-y: auto;
+                        padding-right: 16px;
+                    }
+                    .premium-register-right {
+                        height: 100%;
+                        overflow-y: auto;
+                        padding: 16px;
+                    }
+                }
+
+                /* Mobile/Tablet Stacked Layout */
+                @media (max-width: 1023px) {
+                    .premium-register-container { 
+                        flex-direction: column; 
+                        padding-inline: 0;
+                        gap: 0;
+                        max-width: 100%;
+                    }
+                    .premium-register-left { flex: none; padding: 48px 24px; max-width: 100%; }
+                    .premium-register-right { flex: none; padding: 24px; width: 100%; }
                     .premium-register-card { padding: 0; box-shadow: none; border-radius: 0; background: transparent; }
                 }
             `}</style>
             
+            <div className="premium-register-container">
             <div className="premium-register-left">
                 <div style={{ maxWidth: 420, margin: '0 auto', position: 'relative', zIndex: 1 }}>
                     <div style={{ width: 48, height: 48, background: '#0f172a', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', marginBottom: 32 }}>
@@ -715,6 +760,7 @@ const RegisterPage = () => {
                     </p>
                 </motion.div>
             </div>
+        </div>
         </div>
     );
 }
