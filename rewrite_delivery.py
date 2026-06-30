@@ -1,147 +1,19 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, FileText, Upload, User, Navigation, WalletCards, ShieldCheck, CheckCircle, Loader2 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { useAuth } from '../App';
-import { deliveryAPI } from '../services/api';
-import { AuthProgress, PremiumAuthLayout, GlassCard, FloatingInput, PasswordInput, Button } from '../shared-ui/PremiumUI';
+import os
+import re
 
-export default function RegisterPage() {
-    const { register } = useAuth();
-    const navigate = useNavigate();
-    const [fd, setFd] = useState({
-        first_name: '',
-        last_name: '',
-        email: '',
-        phone_number: '',
-        password: '',
-        password_confirm: '',
-        vehicle_type: 'motorcycle',
-        vehicle_number: '',
-        license_number: '',
-    });
-    const [docs, setDocs] = useState({
-        id_proof: null,
-        license_image: null,
-    });
-    const [loading, setLoading] = useState(false);
-    const [accountExists, setAccountExists] = useState(false);
+def process_delivery():
+    path = r"c:\Users\Machodev\Documents\Pecafoo\frontend\delivery-app\src\pages\RegisterPage.jsx"
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
 
-    // visually-hidden style for accessibility
-    const visuallyHidden = {
-        position: 'absolute',
-        width: 1,
-        height: 1,
-        padding: 0,
-        margin: -1,
-        overflow: 'hidden',
-        clip: 'rect(0 0 0 0)',
-        whiteSpace: 'nowrap',
-        border: 0,
-    };
-
-    const normalizePhoneNumber = (value) => {
-        // Remove all non-digit characters except +
-        let cleaned = value.replace(/[^\d+]/g, '');
-        
-        // If it starts with +, keep it as is
-        if (cleaned.startsWith('+')) {
-            return cleaned;
-        }
-        
-        // Remove leading 0 if present
-        if (cleaned.startsWith('0') && cleaned.length > 10) {
-            cleaned = cleaned.substring(1);
-        }
-        
-        // If 10 digits, prepend +91
-        if (cleaned.length === 10) {
-            return '+91' + cleaned;
-        }
-        
-        // If 12 digits starting with 91, prepend +
-        if (cleaned.length === 12 && cleaned.startsWith('91')) {
-            return '+' + cleaned;
-        }
-        
-        return cleaned;
-    };
-
-    const handlePhoneChange = (e) => {
-        let value = e.target.value;
-        // Normalize as user types
-        value = normalizePhoneNumber(value);
-        setFd({ ...fd, phone_number: value });
-    };
-
-    const handle = async (e) => {
-        e.preventDefault();
-        if (fd.password !== fd.password_confirm) {
-            toast.error('Passwords do not match.');
-            return;
-        }
-        setLoading(true);
-        try {
-            await register({
-                first_name: fd.first_name,
-                last_name: fd.last_name,
-                email: fd.email,
-                phone_number: fd.phone_number,
-                password: fd.password,
-                password_confirm: fd.password_confirm,
-            });
-
-            const profileData = new FormData();
-            profileData.append('vehicle_type', fd.vehicle_type);
-            profileData.append('vehicle_number', fd.vehicle_number);
-            profileData.append('license_number', fd.license_number);
-            if (docs.id_proof) profileData.append('id_proof', docs.id_proof);
-            if (docs.license_image) profileData.append('license_image', docs.license_image);
-
-            await deliveryAPI.updateProfile(profileData);
-
-            toast.success('Account created!');
-            navigate('/', { replace: true });
-        } catch (err) {
-            if (err.response?.data?.code === 'ACCOUNT_EXISTS') {
-                setAccountExists(true);
-                return;
-            }
-            const errorMsg = err.response?.data?.phone_number?.[0] || 
-                           err.response?.data?.email?.[0] || 
-                           err.response?.data?.detail || 
-                           'Registration failed.';
-            toast.error(errorMsg);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const ch = (e) => setFd({ ...fd, [e.target.name]: e.target.value });
-
-    const FileField = ({ label, name }) => (
-        <div style={{ marginBottom: 'var(--space-3)' }}>
-            <label style={{ display: 'block', fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-1)', fontWeight: 600 }}>{label}</label>
-            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-3)', cursor: 'pointer', padding: '12px 16px', background: 'var(--color-bg-base)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
-                <span style={{ color: docs[name] ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: 'var(--text-body)' }}>
-                    {docs[name]?.name || 'Choose file'}
-                </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--brand-delivery)', fontWeight: 600, fontSize: 'var(--text-caption)' }}>
-                    <Upload size={16} /> Upload
-                </span>
-                <input
-                    type="file"
-                    name={name}
-                    accept="image/*,.pdf"
-                    style={visuallyHidden}
-                    onChange={(e) => setDocs({ ...docs, [name]: e.target.files?.[0] || null })}
-                />
-            </label>
-        </div>
-    );
-
-    return (
+    match = re.search(r'(.*?)(return\s*\()', content, re.DOTALL)
+    if not match:
+        print("Could not find return in delivery")
+        return
+    
+    pre_return = match.group(1)
+    
+    new_return = """return (
         <div className="premium-register-layout">
             <style>{`
                 .premium-register-layout {
@@ -449,3 +321,10 @@ export default function RegisterPage() {
         </div>
     );
 }
+"""
+
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(pre_return + new_return)
+
+process_delivery()
+print("Delivery generated")
