@@ -380,358 +380,236 @@ const RegisterPage = () => {
     );
 
     return (
-        <PremiumAuthLayout
-            tone="restaurant"
-            eyebrow="Partner with Pecafoo"
-            title="Bring your restaurant into one beautifully organized workspace."
-            description="Create your storefront, verify the essentials, and prepare your team for a smoother service."
-            features={[
-                { icon: ChefHat, title: 'Built for service', copy: 'Menu, kitchen, and orders stay connected.' },
-                { icon: BarChart3, title: 'Grow with context', copy: 'See the signals behind every shift.' },
-                { icon: ShieldCheck, title: 'Guided verification', copy: 'Business documents in one clear flow.' },
-            ]}
-        >
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="auth-card">
-                <AuthProgress steps={['Owner', 'Restaurant', 'Verify']} current={2} />
-                <div style={{ textAlign: 'center', marginBottom: 28 }}>
-                    <div style={{ width: 64, height: 64, margin: '0 auto 16px', background: 'var(--gradient-primary)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 800, color: 'white', boxShadow: 'var(--shadow-accent)' }}>Chef</div>
-                    <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 4 }}>Create Restaurant Account</h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Register your restaurant and upload verification documents</p>
-                </div>
-
-                {/* Permission Instructions Modal/Panel */}
-                {showInstructions && permissionBlocked && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        style={{
-                            marginBottom: 20,
-                            padding: 16,
-                            background: '#fef3c7',
-                            border: '1px solid #f59e0b',
-                            borderRadius: 12,
-                            position: 'relative'
-                        }}
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                            <AlertCircle size={20} color="#f59e0b" />
-                            <strong style={{ color: '#92400e' }}>Location Permission Required</strong>
-                            <button
-                                onClick={() => setShowInstructions(false)}
-                                style={{
-                                    marginLeft: 'auto',
-                                    background: 'none',
-                                    border: 'none',
-                                    fontSize: '20px',
-                                    cursor: 'pointer',
-                                    color: '#92400e'
-                                }}
-                            >
-                                ×
-                            </button>
-                        </div>
-                        <p style={{ fontSize: '0.85rem', color: '#92400e', marginBottom: 12 }}>
-                            Please follow these steps to enable location access in {browser}:
-                        </p>
-                        <ol style={{ margin: 0, paddingLeft: 20, color: '#92400e', fontSize: '0.8rem' }}>
-                            {instructions.steps.map((step, idx) => (
-                                <li key={idx} style={{ marginBottom: 6 }}>{step}</li>
-                            ))}
-                        </ol>
-                        <button
-                            onClick={() => {
-                                setShowInstructions(false);
-                                fetchLocation();
-                            }}
-                            style={{
-                                marginTop: 12,
-                                padding: '6px 12px',
-                                background: '#f59e0b',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: 6,
-                                cursor: 'pointer',
-                                fontSize: '0.8rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 6
-                            }}
-                        >
-                            <ExternalLink size={14} />
-                            I've enabled it, try again
-                        </button>
-                    </motion.div>
-                )}
-
-                {accountExists ? (
-                    <div className="card" style={{ padding: 32, textAlign: 'center', background: 'rgba(255,180,0,0.1)', border: '1px solid rgba(255,180,0,0.3)', borderRadius: 20 }}>
-                        <AlertCircle size={48} color="#f59e0b" style={{ margin: '0 auto 16px' }} />
-                        <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text)', marginBottom: 12 }}>You already have an account!</h2>
-                        <p style={{ color: 'var(--text-secondary)', marginBottom: 24, fontSize: '0.9rem', lineHeight: 1.5 }}>
-                            The email <strong>{formData.email}</strong> is already registered on Pecafoo. You can log in and add a Restaurant profile to your existing account.
-                        </p>
-                        <button 
-                            className="btn btn-primary btn-full btn-lg"
-                            onClick={() => navigate('/login')}
-                            style={{ height: 50, borderRadius: 16 }}
-                        >
-                            Log In to Continue <ArrowRight size={18} />
-                        </button>
-                    </div>
-                ) : (
-                <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                    <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-                        <FloatingInput
-                            name="first_name"
-                            label="First Name"
-                            value={formData.first_name}
-                            onChange={handleChange}
-                            required
-                            style={{ flex: 1 }}
-                        />
-                        <FloatingInput
-                            name="last_name"
-                            label="Last Name"
-                            value={formData.last_name}
-                            onChange={handleChange}
-                            required
-                            style={{ flex: 1 }}
-                        />
-                    </div>
-
-                    <FloatingInput
-                        type="email"
-                        name="email"
-                        label="Email Address"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                    autoComplete="email" />
+        <div className="premium-register-layout">
+            <style>{`
+                .premium-register-layout {
+                    display: flex;
+                    min-height: 100vh;
+                    background-color: #f8fafc;
+                    font-family: 'Inter', sans-serif;
+                }
+                .premium-register-left {
+                    flex: 0 0 40%;
+                    background: #ffffff;
+                    padding: 4vw;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    border-right: 1px solid #f1f5f9;
+                }
+                .premium-register-right {
+                    flex: 1;
+                    padding: 4vw;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .premium-register-card {
+                    width: 100%;
+                    max-width: 640px;
+                    background: rgba(255, 255, 255, 0.9);
+                    backdrop-filter: blur(24px);
+                    -webkit-backdrop-filter: blur(24px);
+                    padding: 40px;
+                    border-radius: 28px;
+                    box-shadow: 0 20px 40px -12px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.02);
+                }
+                .premium-btn {
+                    width: 100%;
+                    height: 56px;
+                    border-radius: 16px;
+                    border: none;
+                    color: white;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    background: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+                    transition: transform 0.2s, box-shadow 0.2s;
+                    margin-top: 24px;
+                }
+                .premium-btn:hover:not(:disabled) {
+                    transform: translateY(-1px);
+                    box-shadow: 0 8px 20px rgba(249, 115, 22, 0.25);
+                }
+                .premium-btn:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                }
+                .benefit-card {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 16px;
+                    margin-bottom: 24px;
+                }
+                .benefit-icon {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 14px;
+                    background: rgba(249, 115, 22, 0.1);
+                    color: #F97316;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
+                @media (max-width: 992px) {
+                    .premium-register-layout { flex-direction: column; }
+                    .premium-register-left { flex: none; padding: 40px 24px; border-right: none; border-bottom: 1px solid #f1f5f9; }
+                    .premium-register-right { padding: 24px; }
+                    .premium-register-card { padding: 32px 24px; }
+                }
+            `}</style>
+            
+            <div className="premium-register-left">
+                <div style={{ maxWidth: 420, margin: '0 auto' }}>
+                    <p style={{ color: '#F97316', fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Pecafoo for Restaurants</p>
+                    <h1 style={{ fontSize: '40px', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.1, marginBottom: 16, color: '#0f172a' }}>
+                        Grow your business.
+                    </h1>
+                    <p style={{ fontSize: '18px', color: '#64748b', lineHeight: 1.5, marginBottom: 40 }}>
+                        Join thousands of restaurants reaching more customers and boosting revenue every day.
+                    </p>
                     
-                    <FloatingInput 
-                        type="tel" 
-                        name="phone_number" 
-                        label="Owner Phone" 
-                        value={formData.phone_number} 
-                        onChange={handlePhoneChange} 
-                        required 
-                    />
-
-                    <FloatingInput
-                        name="restaurant_name"
-                        label="Restaurant Name"
-                        value={formData.restaurant_name}
-                        onChange={handleChange}
-                        required
-                    />
-
-                    <textarea
-                        name="description"
-                        placeholder="Restaurant Description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        rows="3"
-                        style={{ 
-                            width: '100%', padding: '16px', borderRadius: 'var(--radius-input)',
-                            border: '1px solid var(--color-border)', background: 'var(--color-bg-base)',
-                            fontSize: 'var(--text-body)', color: 'var(--color-text-primary)',
-                            outline: 'none', fontFamily: 'inherit', resize: 'vertical'
-                        }}
-                    />
-
-                    <FloatingInput
-                        name="cuisine_type"
-                        label="Cuisine Type (e.g., Italian, Chinese)"
-                        value={formData.cuisine_type}
-                        onChange={handleChange}
-                        required
-                    />
-
-                    <FloatingInput
-                        name="address"
-                        label="Full Address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        required
-                    />
-
-                    <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-                        <FloatingInput
-                            name="city"
-                            label="City"
-                            value={formData.city}
-                            onChange={handleChange}
-                            required
-                            style={{ flex: 1 }}
-                        />
-                        <FloatingInput
-                            name="state"
-                            label="State"
-                            value={formData.state}
-                            onChange={handleChange}
-                            required
-                            style={{ flex: 1 }}
-                        />
-                    </div>
-
-                    <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-                        <FloatingInput
-                            name="pincode"
-                            label="Pincode"
-                            value={formData.pincode}
-                            onChange={handleChange}
-                            required
-                            style={{ flex: 1 }}
-                        />
-                        <FloatingInput 
-                            name="restaurant_phone" 
-                            label="Restaurant Phone (Optional)" 
-                            value={formData.restaurant_phone} 
-                            onChange={handlePhoneChange} 
-                            style={{ flex: 1 }}
-                        />
-                    </div>
-
-                    {/* Location Section */}
-                    <div style={{
-                        marginTop: 16,
-                        marginBottom: 16,
-                        padding: 16,
-                        background: 'var(--bg-alt)',
-                        borderRadius: 12,
-                        border: formData.latitude ? '1px solid #10b981' : (permissionBlocked ? '1px solid #f59e0b' : '1px solid var(--border-color)')
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                                    <MapPin size={18} color={permissionBlocked ? '#f59e0b' : 'var(--accent)'} />
-                                    <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                                        Restaurant Location
-                                    </div>
-                                    {!formData.latitude && (
-                                        <span style={{
-                                            fontSize: '0.7rem',
-                                            background: permissionBlocked ? '#fef3c7' : '#ef444420',
-                                            color: permissionBlocked ? '#92400e' : '#ef4444',
-                                            padding: '2px 6px',
-                                            borderRadius: 4,
-                                            fontWeight: 600
-                                        }}>
-                                            {permissionBlocked ? 'Permission Blocked' : 'Required'}
-                                        </span>
-                                    )}
-                                </div>
-                                <div style={{ fontSize: '0.75rem', color: formData.latitude ? '#10b981' : (permissionBlocked ? '#92400e' : 'var(--text-muted)') }}>
-                                    {formData.latitude ?
-                                        `📍 Lat: ${Number(formData.latitude).toFixed(6)}, Lng: ${Number(formData.longitude).toFixed(6)}` :
-                                        (permissionBlocked ? '⚠️ Location access is blocked. Click "Show Instructions" to enable.' : '📍 Required for accurate delivery routing')
-                                    }
-                                </div>
+                    <div>
+                        <div className="benefit-card">
+                            <div className="benefit-icon"><BarChart3 size={24} /></div>
+                            <div>
+                                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>More Orders</h3>
+                                <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Reach thousands of hungry customers in your area instantly.</p>
                             </div>
-                            <button
-                                type="button"
-                                onClick={fetchLocation}
-                                disabled={fetchingLocation}
-                                className="btn"
-                                style={{
-                                    padding: '8px 16px',
-                                    fontSize: '0.875rem',
-                                    background: formData.latitude ? 'var(--bg-card)' : (permissionBlocked ? '#fef3c7' : 'var(--accent)'),
-                                    color: formData.latitude ? 'var(--text-primary)' : (permissionBlocked ? '#92400e' : 'white'),
-                                    border: formData.latitude ? '1px solid var(--border-color)' : (permissionBlocked ? '1px solid #f59e0b' : 'none'),
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 8,
-                                    fontWeight: 600,
-                                    minWidth: '160px',
-                                    justifyContent: 'center'
-                                }}
-                            >
-                                {fetchingLocation ? (
-                                    <>
-                                        <Loader2 size={16} className="spin" />
-                                        Getting Location...
-                                    </>
-                                ) : (
-                                    <>
-                                        <MapPin size={16} />
-                                        {formData.latitude ? 'Update Location' : (permissionBlocked ? 'Show Instructions' : 'Allow Location Access')}
-                                    </>
-                                )}
-                            </button>
                         </div>
-                        {permissionBlocked && !showInstructions && (
-                            <button
-                                type="button"
-                                onClick={() => setShowInstructions(true)}
-                                style={{
-                                    marginTop: 12,
-                                    fontSize: '0.7rem',
-                                    color: '#f59e0b',
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    textDecoration: 'underline'
-                                }}
-                            >
-                                Need help? Click here for detailed instructions
-                            </button>
-                        )}
+                        <div className="benefit-card">
+                            <div className="benefit-icon"><ChefHat size={24} /></div>
+                            <div>
+                                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>Easy Menu Management</h3>
+                                <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Update your offerings, prices, and availability in real-time.</p>
+                            </div>
+                        </div>
+                        <div className="benefit-card">
+                            <div className="benefit-icon"><ShieldCheck size={24} /></div>
+                            <div>
+                                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>Fast Verification</h3>
+                                <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Quick onboarding process to get you selling as soon as possible.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div className="premium-register-right">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="premium-register-card">
+                    
+                    <div style={{ textAlign: 'center', marginBottom: 32 }}>
+                        <AuthProgress steps={['Details', 'Location', 'Verify']} current={1} brandColor="#F97316" />
+                        <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginTop: 16, marginBottom: 8 }}>Restaurant Information</h2>
+                        <p style={{ color: '#64748b', fontSize: '15px' }}>Create your restaurant partner account.</p>
                     </div>
 
-                    <PasswordInput
-                        name="password"
-                        label="Password (min 8 characters)"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        minLength={8}
-                    autoComplete="new-password" />
-
-                    <PasswordInput
-                        name="password_confirm"
-                        label="Confirm Password"
-                        value={formData.password_confirm}
-                        onChange={handleChange}
-                        required
-                        minLength={8}
-                    autoComplete="new-password" />
-
-                    {/* Documents Section */}
-                    <GlassCard padding="var(--space-4)" style={{ marginBottom: 'var(--space-5)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                            <FileText size={18} color="var(--brand-restaurant)" />
-                            <strong style={{ fontSize: '0.9rem' }}>Verification Documents</strong>
-                            <span style={{ fontSize: '0.7rem', color: '#ef4444', marginLeft: 'auto' }}>
-                                All files required
-                            </span>
+                    {accountExists ? (
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: 'center', padding: '32px', background: '#f8fafc', borderRadius: 20 }}>
+                            <div style={{ marginBottom: 16 }}>
+                                <AlertCircle size={40} color="#F97316" style={{ margin: '0 auto' }} />
+                            </div>
+                            <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>Account Found!</h3>
+                            <p style={{ fontSize: '15px', color: '#64748b', marginBottom: 24, lineHeight: 1.5 }}>
+                                We found an existing Pecafoo account associated with this email. You can use your existing account to become a Restaurant Partner.
+                            </p>
+                            <Link 
+                                to={`/login?email=${encodeURIComponent(formData.email)}`}
+                                className="premium-btn"
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+                            >
+                                Log In to Add Restaurant Role
+                            </Link>
+                        </motion.div>
+                    ) : (
+                    <form onSubmit={handle} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                            <FloatingInput name="first_name" label="First Name" value={formData.first_name} onChange={handleChange} required />
+                            <FloatingInput name="last_name" label="Last Name" value={formData.last_name} onChange={handleChange} required />
                         </div>
-                        <FileField label="Business License" name="business_license" />
-                        <FileField label="Food Safety Certificate" name="food_safety_certificate" />
-                        <FileField label="Owner ID Proof" name="owner_id_proof" />
-                        <p style={{ fontSize: '0.7rem', color: 'var(--color-text-tertiary)', marginTop: 8, textAlign: 'center' }}>
-                            Supported formats: Images (JPG, PNG) and PDF files (Max 5MB each)
-                        </p>
-                    </GlassCard>
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                            <FloatingInput type="email" name="email" label="Email Address" value={formData.email} onChange={handleChange} required autoComplete="email" />
+                            <FloatingInput type="tel" name="phone_number" label="Mobile Number" value={formData.phone_number} onChange={handlePhoneChange} required />
+                        </div>
+                        
+                        <div style={{ height: 1, background: '#e2e8f0', margin: '8px 0' }} />
+                        
+                        <FloatingInput name="restaurant_name" label="Restaurant Name" value={formData.restaurant_name} onChange={handleChange} required />
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+                            <FloatingInput name="cuisine_type" label="Cuisine Type (e.g., Indian, Chinese)" value={formData.cuisine_type} onChange={handleChange} />
+                            <FloatingInput type="tel" name="restaurant_phone" label="Restaurant Phone" value={formData.restaurant_phone} onChange={handleChange} />
+                        </div>
+                        
+                        <FloatingInput name="description" label="Short Description" value={formData.description} onChange={handleChange} />
+                        
+                        <div style={{ height: 1, background: '#e2e8f0', margin: '8px 0' }} />
+                        
+                        <FloatingInput name="address" label="Street Address" value={formData.address} onChange={handleChange} required />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
+                            <FloatingInput name="city" label="City" value={formData.city} onChange={handleChange} required />
+                            <FloatingInput name="state" label="State" value={formData.state} onChange={handleChange} required />
+                            <FloatingInput name="pincode" label="Pincode" value={formData.pincode} onChange={handleChange} required />
+                        </div>
+                        
+                        {/* Location Widget */}
+                        <div style={{ background: '#f8fafc', padding: 16, borderRadius: 16, border: formData.latitude ? '1px solid #10b981' : (permissionBlocked ? '1px solid #f59e0b' : '1px solid #e2e8f0') }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                        <MapPin size={16} color={permissionBlocked ? '#f59e0b' : '#F97316'} />
+                                        <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>Restaurant Location</span>
+                                        {!formData.latitude && (
+                                            <span style={{ fontSize: '11px', background: permissionBlocked ? '#fef3c7' : '#fee2e2', color: permissionBlocked ? '#92400e' : '#ef4444', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>{permissionBlocked ? 'Blocked' : 'Required'}</span>
+                                        )}
+                                    </div>
+                                    <div style={{ fontSize: '13px', color: formData.latitude ? '#10b981' : (permissionBlocked ? '#92400e' : '#64748b') }}>
+                                        {formData.latitude ? `Lat: ${Number(formData.latitude).toFixed(4)}, Lng: ${Number(formData.longitude).toFixed(4)}` : (permissionBlocked ? 'Location access is blocked.' : 'Required for delivery routing')}
+                                    </div>
+                                </div>
+                                <button type="button" onClick={fetchLocation} disabled={fetchingLocation} style={{
+                                    padding: '8px 16px', fontSize: '14px', background: formData.latitude ? '#ffffff' : (permissionBlocked ? '#fef3c7' : '#F97316'),
+                                    color: formData.latitude ? '#0f172a' : (permissionBlocked ? '#92400e' : 'white'),
+                                    border: formData.latitude ? '1px solid #e2e8f0' : (permissionBlocked ? '1px solid #f59e0b' : 'none'),
+                                    borderRadius: 12, display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600, cursor: 'pointer'
+                                }}>
+                                    {fetchingLocation ? <><Loader2 size={14} className="spin" /> Fetching...</> : <><MapPin size={14} /> {formData.latitude ? 'Update' : (permissionBlocked ? 'Instructions' : 'Allow Access')}</>}
+                                </button>
+                            </div>
+                        </div>
 
-                    <Button
-                        type="submit"
-                        variant="primary"
-                        fullWidth
-                        size="large"
-                        disabled={loading}
-                    >
-                        {loading ? 'Creating Account...' : 'Create Account'}
-                    </Button>
-                </form>
-                )}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                            <PasswordInput name="password" label="Password (min 8 chars)" value={formData.password} onChange={handleChange} required minLength={8} autoComplete="new-password" />
+                            <PasswordInput name="password_confirm" label="Confirm Password" value={formData.password_confirm} onChange={handleChange} required minLength={8} autoComplete="new-password" />
+                        </div>
 
-                <p style={{ textAlign: 'center', marginTop: 20, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                    Already have an account? <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 700 }}>Sign In</Link>
-                </p>
-            </motion.div>
-        </PremiumAuthLayout>
+                        {/* Documents Section */}
+                        <div style={{ background: '#f8fafc', padding: 20, borderRadius: 16, border: '1px solid #e2e8f0', marginTop: 8 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                                <FileText size={18} color="#F97316" />
+                                <strong style={{ fontSize: '15px', color: '#0f172a' }}>Verification Documents</strong>
+                            </div>
+                            <FileField label="Business License" name="business_license" />
+                            <FileField label="Food Safety Certificate" name="food_safety_certificate" />
+                            <FileField label="Owner ID Proof" name="owner_id_proof" />
+                        </div>
+
+                        <button type="submit" className="premium-btn" disabled={loading}>
+                            {loading ? 'Creating Account...' : 'Create Account'}
+                        </button>
+                    </form>
+                    )}
+
+                    <p style={{ textAlign: 'center', marginTop: 32, color: '#64748b', fontSize: '15px' }}>
+                        Already have an account? <Link to="/login" style={{ color: '#F97316', fontWeight: 700, textDecoration: 'none' }}>Sign In</Link>
+                    </p>
+                </motion.div>
+            </div>
+        </div>
     );
-};
+}
 
 export default RegisterPage;
