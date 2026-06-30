@@ -12,7 +12,8 @@ import {
     EmptyState,
     Button,
     HorizontalScroller,
-    GlassCard
+    GlassCard,
+    Skeleton
 } from '../../../shared-ui/PremiumUI';
 
 const SearchPage = () => {
@@ -96,10 +97,10 @@ const SearchPage = () => {
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
                             <div style={{
-                                width: '40px', height: '40px', borderRadius: '12px',
-                                backgroundColor: 'rgba(217, 70, 239, 0.14)',
+                                width: '48px', height: '48px', borderRadius: '50%',
+                                backgroundColor: 'var(--color-divider)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                color: 'var(--brand-customer)'
+                                color: 'var(--color-text-primary)'
                             }}>
                                 <TrendingUp size={20} />
                             </div>
@@ -123,7 +124,7 @@ const SearchPage = () => {
                 {loading && (
                     <div style={{ display: 'grid', gap: 'var(--space-5)', marginTop: 'var(--space-5)' }}>
                         {[1, 2, 3].map((item) => (
-                            <div key={item} style={{ height: 160, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />
+                            <Skeleton key={item} width="100%" height={160} borderRadius="var(--radius-card)" />
                         ))}
                     </div>
                 )}
@@ -188,10 +189,10 @@ const SearchPage = () => {
                                                             src={item.image}
                                                             alt={item.name}
                                                             loading="lazy"
-                                                            style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'cover', flexShrink: 0 }}
+                                                            style={{ width: 80, height: 80, borderRadius: 'var(--radius-md)', objectFit: 'cover', flexShrink: 0 }}
                                                         />
                                                     ) : (
-                                                        <div style={{ width: 80, height: 80, borderRadius: 16, background: 'var(--color-divider)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-tertiary)', flexShrink: 0 }}>
+                                                        <div style={{ width: 80, height: 80, borderRadius: 'var(--radius-md)', background: 'var(--color-divider)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-tertiary)', flexShrink: 0 }}>
                                                             <UtensilsCrossed size={24} />
                                                         </div>
                                                     )}

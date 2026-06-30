@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Edit, Plus, Trash2, UtensilsCrossed, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { restaurantsAPI } from '../services/api';
+import { PageContainer, PageHero, GlassCard, EmptyState, Skeleton, Button, FloatingInput } from '../../../shared-ui/PremiumUI';
 
 const createInitialForm = () => ({
     category: '',
@@ -198,42 +199,36 @@ const MenuPage = () => {
     };
 
     return (
-        <div>
-            <div className="page-header">
-                <div>
-                    <h1 className="page-title">Menu Management</h1>
-                    <p className="page-subtitle">
-                        Manage dishes for {activeRestaurantName}. {totalItems} item{totalItems === 1 ? '' : 's'} listed.
-                    </p>
-                </div>
-                <button className="btn btn-primary" onClick={openCreateForm}>
-                    <Plus size={18} /> Add Item
-                </button>
+        <PageContainer padding="0">
+            <div style={{ padding: 'var(--space-4)' }}>
+                <PageHero eyebrow="Menu Management" title="Craft your offerings." description={`Manage dishes for ${activeRestaurantName}. ${totalItems} item${totalItems === 1 ? '' : 's'} listed.`} compact action={<Button onClick={openCreateForm} variant="primary" icon={Plus}>Add Item</Button>} />
             </div>
 
+            <div style={{ padding: '0 var(--space-4) var(--space-4) var(--space-4)' }}>
             {loading ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                     {[1, 2, 3].map((i) => (
-                        <div key={i} className="skeleton" style={{ height: 80 }} />
+                        <Skeleton key={i} height={80} radius="var(--radius-md)" />
                     ))}
                 </div>
             ) : restaurants.length === 0 ? (
-                <div className="card">
-                    <div className="empty-state">
-                        <UtensilsCrossed />
-                        <h3>No restaurant yet</h3>
-                        <p>Create your restaurant first</p>
-                    </div>
-                </div>
+                <GlassCard padding="0">
+                    <EmptyState icon={UtensilsCrossed} title="No restaurant yet" description="Create your restaurant first" />
+                </GlassCard>
             ) : (
                 <>
                     {restaurants.length > 1 && (
-                        <div className="chip-row" style={{ marginBottom: 20 }}>
+                        <div style={{ display: 'flex', gap: 'var(--space-2)', overflowX: 'auto', marginBottom: 'var(--space-5)' }}>
                             {restaurants.map((restaurant) => (
                                 <button
                                     key={restaurant.id}
                                     onClick={() => selectRestaurant(restaurant)}
-                                    className={`btn btn-sm ${selectedRestaurantId === restaurant.id ? 'btn-primary' : 'btn-secondary'}`}
+                                    style={{ 
+                                        padding: '6px 16px', borderRadius: '100px', fontSize: 'var(--text-caption)', fontWeight: 600, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
+                                        backgroundColor: selectedRestaurantId === restaurant.id ? 'var(--brand-restaurant)' : 'var(--color-bg-card)', 
+                                        color: selectedRestaurantId === restaurant.id ? '#fff' : 'var(--color-text-secondary)',
+                                        boxShadow: selectedRestaurantId === restaurant.id ? 'var(--shadow-sm)' : 'none'
+                                    }}
                                 >
                                     {restaurant.name}
                                 </button>
@@ -242,18 +237,14 @@ const MenuPage = () => {
                     )}
 
                     {categories.length === 0 && (
-                        <div className="card" style={{ marginBottom: 20 }}>
-                            <div className="empty-state" style={{ minHeight: 'unset', padding: '1rem 0' }}>
-                                <UtensilsCrossed />
-                                <h3>No categories yet</h3>
-                                <p>Create a category first so menu items can be assigned correctly.</p>
-                            </div>
-                        </div>
+                        <GlassCard padding="0" style={{ marginBottom: 'var(--space-5)' }}>
+                            <EmptyState icon={UtensilsCrossed} title="No categories yet" description="Create a category first so menu items can be assigned correctly." />
+                        </GlassCard>
                     )}
 
-                    <div className="card">
+                    <GlassCard padding="0">
                         {menuItems.length > 0 ? (
-                            <div className="table-wrapper">
+                            <div style={{ overflowX: 'auto' }}>
                                 <table>
                                     <thead>
                                         <tr>
@@ -334,14 +325,12 @@ const MenuPage = () => {
                                                         {item.is_available ? 'Yes' : 'No'}
                                                     </span>
                                                 </td>
-                                                <td>
-                                                    <div style={{ display: 'flex', gap: 6 }}>
-                                                        <button className="btn btn-secondary btn-sm" onClick={() => openEditForm(item)}>
-                                                            <Edit size={14} />
-                                                        </button>
-                                                        <button onClick={() => deleteItem(item.id)} className="btn btn-danger btn-sm">
-                                                            <Trash2 size={14} />
-                                                        </button>
+                                                <td style={{ padding: '16px', borderBottom: '1px solid var(--color-border)' }}>
+                                                    <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                                                        <Button onClick={() => editItem(item)} variant="outline" size="small" icon={Edit} />
+                                                        <Button onClick={() => deleteItem(item.id)} variant="ghost" size="small" style={{ color: 'var(--color-danger)' }}>
+                                                            <Trash2 size={16} />
+                                                        </Button>
                                                     </div>
                                                 </td>
                                             </motion.tr>
@@ -350,18 +339,9 @@ const MenuPage = () => {
                                 </table>
                             </div>
                         ) : (
-                            <div className="empty-state">
-                                <UtensilsCrossed />
-                                <h3>No menu items</h3>
-                                <p>Add your first menu item to get started</p>
-                                {categories.length > 0 && (
-                                    <button className="btn btn-primary" onClick={openCreateForm}>
-                                        <Plus size={18} /> Add Item
-                                    </button>
-                                )}
-                            </div>
+                            <EmptyState icon={UtensilsCrossed} title="No menu items" description="Add your first menu item to get started" action={<Button onClick={openCreateForm} variant="primary" icon={Plus}>Add Item</Button>} />
                         )}
-                    </div>
+                    </GlassCard>
                 </>
             )}
 
@@ -401,187 +381,176 @@ const MenuPage = () => {
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
                                     gap: 12,
-                                    marginBottom: 20,
+                                    marginBottom: 'var(--space-4)',
                                 }}
                             >
                                 <div>
-                                    <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>
+                                    <h2 style={{ fontSize: 'var(--text-h3)', fontWeight: 800 }}>
                                         {editingItem ? 'Edit menu item' : 'Add menu item'}
                                     </h2>
-                                    <p className="page-subtitle">
+                                    <p style={{ fontSize: 'var(--text-body)', color: 'var(--color-text-secondary)' }}>
                                         {editingItem ? `Update ${editingItem.name}` : `Create a new dish for ${activeRestaurantName}`}
                                     </p>
                                 </div>
-                                <button className="btn btn-secondary btn-sm" onClick={closeForm} disabled={saving}>
-                                    <X size={16} />
-                                </button>
+                                <Button variant="ghost" size="small" onClick={closeForm} disabled={saving}>
+                                    <X size={20} />
+                                </Button>
                             </div>
 
-                            <form onSubmit={submitForm} style={{ display: 'grid', gap: 16 }}>
-                                <div style={{ display: 'grid', gap: 6 }}>
-                                    <label htmlFor="menu-category" style={{ fontWeight: 600 }}>Category</label>
-                                    <select
-                                        id="menu-category"
-                                        className="input"
-                                        value={form.category}
-                                        onChange={(e) => updateField('category', e.target.value)}
-                                    >
-                                        <option value="">Select category</option>
-                                        {categories.map((category) => (
-                                            <option key={category.id} value={category.id}>
-                                                {category.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div style={{ display: 'grid', gap: 6 }}>
-                                    <label htmlFor="menu-name" style={{ fontWeight: 600 }}>Item name</label>
-                                    <input
-                                        id="menu-name"
-                                        className="input"
-                                        value={form.name}
-                                        onChange={(e) => updateField('name', e.target.value)}
-                                        placeholder="Paneer Butter Masala"
-                                    />
-                                </div>
-
-                                <div style={{ display: 'grid', gap: 6 }}>
-                                    <label htmlFor="menu-description" style={{ fontWeight: 600 }}>Description</label>
-                                    <textarea
-                                        id="menu-description"
-                                        className="input"
-                                        value={form.description}
-                                        onChange={(e) => updateField('description', e.target.value)}
-                                        rows={4}
-                                        placeholder="Describe the dish, taste, and serving size"
-                                        style={{ resize: 'vertical' }}
-                                    />
-                                </div>
-
-                                <div
-                                    style={{
-                                        display: 'grid',
-                                        gap: 16,
-                                        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                                    }}
-                                >
-                                    <div style={{ display: 'grid', gap: 6 }}>
-                                        <label htmlFor="menu-type" style={{ fontWeight: 600 }}>Food type</label>
+                            <form onSubmit={submitForm}>
+                                <div style={{ display: 'grid', gap: 'var(--space-3)' }}>
+                                    <div>
+                                        <label htmlFor="menu-category" style={{ fontWeight: 600, fontSize: 'var(--text-caption)', marginBottom: 'var(--space-1)', display: 'block' }}>Category</label>
                                         <select
-                                            id="menu-type"
-                                            className="input"
-                                            value={form.food_type}
-                                            onChange={(e) => updateField('food_type', e.target.value)}
+                                            id="menu-category"
+                                            value={form.category}
+                                            onChange={(e) => updateField('category', e.target.value)}
+                                            style={{ 
+                                                width: '100%', padding: '16px', borderRadius: 'var(--radius-input)',
+                                                border: '1px solid var(--color-border)', background: 'var(--color-bg-base)',
+                                                fontSize: 'var(--text-body)', color: 'var(--color-text-primary)',
+                                                outline: 'none', fontFamily: 'inherit'
+                                            }}
                                         >
-                                            <option value="veg">Veg</option>
-                                            <option value="non_veg">Non Veg</option>
-                                            <option value="vegan">Vegan</option>
-                                            <option value="egg">Egg</option>
+                                            <option value="">Select category</option>
+                                            {categories.map((category) => (
+                                                <option key={category.id} value={category.id}>
+                                                    {category.name}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
 
-                                    <div style={{ display: 'grid', gap: 6 }}>
-                                        <label htmlFor="menu-price" style={{ fontWeight: 600 }}>Price</label>
-                                        <input
+                                    <FloatingInput
+                                        id="menu-name"
+                                        label="Item name"
+                                        value={form.name}
+                                        onChange={(e) => updateField('name', e.target.value)}
+                                    />
+
+                                    <div>
+                                        <label htmlFor="menu-description" style={{ fontWeight: 600, fontSize: 'var(--text-caption)', marginBottom: 'var(--space-1)', display: 'block' }}>Description</label>
+                                        <textarea
+                                            id="menu-description"
+                                            value={form.description}
+                                            onChange={(e) => updateField('description', e.target.value)}
+                                            rows={4}
+                                            placeholder="Describe the dish, taste, and serving size"
+                                            style={{ 
+                                                width: '100%', padding: '16px', borderRadius: 'var(--radius-input)',
+                                                border: '1px solid var(--color-border)', background: 'var(--color-bg-base)',
+                                                fontSize: 'var(--text-body)', color: 'var(--color-text-primary)',
+                                                outline: 'none', fontFamily: 'inherit', resize: 'vertical'
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div style={{ display: 'grid', gap: 'var(--space-3)', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+                                        <div>
+                                            <label htmlFor="menu-type" style={{ fontWeight: 600, fontSize: 'var(--text-caption)', marginBottom: 'var(--space-1)', display: 'block' }}>Food type</label>
+                                            <select
+                                                id="menu-type"
+                                                value={form.food_type}
+                                                onChange={(e) => updateField('food_type', e.target.value)}
+                                                style={{ 
+                                                    width: '100%', padding: '16px', borderRadius: 'var(--radius-input)',
+                                                    border: '1px solid var(--color-border)', background: 'var(--color-bg-base)',
+                                                    fontSize: 'var(--text-body)', color: 'var(--color-text-primary)',
+                                                    outline: 'none', fontFamily: 'inherit'
+                                                }}
+                                            >
+                                                <option value="veg">Veg</option>
+                                                <option value="non_veg">Non Veg</option>
+                                                <option value="vegan">Vegan</option>
+                                                <option value="egg">Egg</option>
+                                            </select>
+                                        </div>
+
+                                        <FloatingInput
                                             id="menu-price"
-                                            className="input"
                                             type="number"
-                                            min="0"
-                                            step="0.01"
+                                            label="Price"
                                             value={form.price}
                                             onChange={(e) => updateField('price', e.target.value)}
-                                            placeholder="199"
                                         />
-                                    </div>
 
-                                    <div style={{ display: 'grid', gap: 6 }}>
-                                        <label htmlFor="menu-discount" style={{ fontWeight: 600 }}>Discount price</label>
-                                        <input
+                                        <FloatingInput
                                             id="menu-discount"
-                                            className="input"
                                             type="number"
-                                            min="0"
-                                            step="0.01"
+                                            label="Discount price"
                                             value={form.discount_price}
                                             onChange={(e) => updateField('discount_price', e.target.value)}
-                                            placeholder="149"
                                         />
-                                    </div>
 
-                                    <div style={{ display: 'grid', gap: 6 }}>
-                                        <label htmlFor="menu-calories" style={{ fontWeight: 600 }}>Calories</label>
-                                        <input
+                                        <FloatingInput
                                             id="menu-calories"
-                                            className="input"
                                             type="number"
-                                            min="0"
+                                            label="Calories"
                                             value={form.calories}
                                             onChange={(e) => updateField('calories', e.target.value)}
-                                            placeholder="350"
                                         />
-                                    </div>
 
-                                    <div style={{ display: 'grid', gap: 6 }}>
-                                        <label htmlFor="menu-prep-time" style={{ fontWeight: 600 }}>Prep time (mins)</label>
-                                        <input
+                                        <FloatingInput
                                             id="menu-prep-time"
-                                            className="input"
                                             type="number"
-                                            min="0"
+                                            label="Prep time (mins)"
                                             value={form.preparation_time}
                                             onChange={(e) => updateField('preparation_time', e.target.value)}
-                                            placeholder="20"
                                         />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="menu-image" style={{ fontWeight: 600, fontSize: 'var(--text-caption)', marginBottom: 'var(--space-1)', display: 'block' }}>
+                                            {editingItem ? 'Replace image' : 'Item image'}
+                                        </label>
+                                        <input
+                                            id="menu-image"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => updateField('image', e.target.files?.[0] || null)}
+                                            style={{ 
+                                                width: '100%', padding: '16px', borderRadius: 'var(--radius-input)',
+                                                border: '1px solid var(--color-border)', background: 'var(--color-bg-base)',
+                                                fontSize: 'var(--text-body)', color: 'var(--color-text-primary)',
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={form.is_available}
+                                                onChange={(e) => updateField('is_available', e.target.checked)}
+                                            />
+                                            Available
+                                        </label>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={form.is_bestseller}
+                                                onChange={(e) => updateField('is_bestseller', e.target.checked)}
+                                            />
+                                            Bestseller
+                                        </label>
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'grid', gap: 6 }}>
-                                    <label htmlFor="menu-image" style={{ fontWeight: 600 }}>
-                                        {editingItem ? 'Replace image' : 'Item image'}
-                                    </label>
-                                    <input
-                                        id="menu-image"
-                                        className="input"
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => updateField('image', e.target.files?.[0] || null)}
-                                    />
-                                </div>
-
-                                <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={form.is_available}
-                                            onChange={(e) => updateField('is_available', e.target.checked)}
-                                        />
-                                        Available
-                                    </label>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={form.is_bestseller}
-                                            onChange={(e) => updateField('is_bestseller', e.target.checked)}
-                                        />
-                                        Bestseller
-                                    </label>
-                                </div>
-
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-                                    <button type="button" className="btn btn-secondary" onClick={closeForm} disabled={saving}>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 'var(--space-4)' }}>
+                                    <Button type="button" variant="ghost" onClick={closeForm} disabled={saving}>
                                         Cancel
-                                    </button>
-                                    <button type="submit" className="btn btn-primary" disabled={saving}>
+                                    </Button>
+                                    <Button type="submit" variant="primary" disabled={saving}>
                                         {saving ? 'Saving...' : editingItem ? 'Update Item' : 'Create Item'}
-                                    </button>
+                                    </Button>
                                 </div>
                             </form>
                         </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+            </div>
+        </PageContainer>
     );
 };
 

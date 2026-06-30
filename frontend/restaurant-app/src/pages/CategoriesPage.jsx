@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, Tags, GripVertical, X } from 'lucide-react';
 import { restaurantsAPI } from '../services/api';
 import toast from 'react-hot-toast';
+import { PageContainer, PageHero, GlassCard, EmptyState, Skeleton, Button, FloatingInput } from '../../../shared-ui/PremiumUI';
 
 const CategoriesPage = () => {
     const [restaurants, setRestaurants] = useState([]);
@@ -64,74 +65,80 @@ const CategoriesPage = () => {
     };
 
     return (
-        <div>
-            <div className="page-header">
-                <h1 className="page-title">Categories</h1>
-                <button onClick={openCreate} className="btn btn-primary" disabled={!selected}><Plus size={18} /> Add Category</button>
+        <PageContainer padding="0">
+            <div style={{ padding: 'var(--space-4)' }}>
+                <PageHero eyebrow="Categories" title="Organize your menu." description="Group items into logical categories to help customers find what they want faster." compact action={<Button onClick={openCreate} variant="primary" icon={Plus} disabled={!selected}>Add Category</Button>} />
             </div>
 
+            <div style={{ padding: '0 var(--space-4) var(--space-4) var(--space-4)' }}>
             {restaurants.length > 1 && (
-                <div className="chip-row" style={{ marginBottom: 20 }}>
+                <div style={{ display: 'flex', gap: 'var(--space-2)', overflowX: 'auto', marginBottom: 'var(--space-5)' }}>
                     {restaurants.map(r => (
                         <button key={r.id} onClick={() => { setSelected(r); fetchCategories(r.id); }}
-                            className={`btn btn-sm ${selected?.id === r.id ? 'btn-primary' : 'btn-secondary'}`}>{r.name}</button>
+                            style={{ 
+                                padding: '6px 16px', borderRadius: '100px', fontSize: 'var(--text-caption)', fontWeight: 600, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
+                                backgroundColor: selected?.id === r.id ? 'var(--brand-restaurant)' : 'var(--color-bg-card)', 
+                                color: selected?.id === r.id ? '#fff' : 'var(--color-text-secondary)',
+                                boxShadow: selected?.id === r.id ? 'var(--shadow-sm)' : 'none'
+                            }}>{r.name}</button>
                     ))}
                 </div>
             )}
 
             {loading ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>{[1, 2, 3, 4].map(i => <div key={i} className="skeleton" style={{ height: 64 }} />)}</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>{[1, 2, 3, 4].map(i => <Skeleton key={i} height={80} radius="var(--radius-md)" />)}</div>
             ) : categories.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                     {categories.map((cat, i) => (
-                        <motion.div key={cat.id} className="card category-card" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                <GripVertical size={16} style={{ color: 'var(--text-muted)' }} />
-                                <div>
-                                    <p style={{ fontWeight: 600 }}>{cat.name}</p>
-                                    {cat.description && <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{cat.description}</p>}
-                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>{cat.item_count || 0} items</p>
+                        <motion.article key={cat.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
+                            <GlassCard padding="var(--space-3)" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-4)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                                    <div style={{ cursor: 'grab', color: 'var(--color-text-tertiary)' }}><GripVertical size={20} /></div>
+                                    <div>
+                                        <h3 style={{ fontWeight: 700, fontSize: 'var(--text-body)', color: 'var(--color-text-primary)' }}>{cat.name}</h3>
+                                        {cat.description && <p style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', marginTop: 2 }}>{cat.description}</p>}
+                                        <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-tertiary)', marginTop: 4, textTransform: 'uppercase' }}>{cat.item_count || 0} items</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="category-card-actions">
-                                <button onClick={() => openEdit(cat)} className="btn btn-secondary btn-sm"><Edit size={14} /></button>
-                                <button onClick={() => handleDelete(cat.id)} className="btn btn-danger btn-sm"><Trash2 size={14} /></button>
-                            </div>
-                        </motion.div>
+                                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                                    <Button onClick={() => openEdit(cat)} variant="secondary" size="small" icon={Edit} />
+                                    <Button onClick={() => handleDelete(cat.id)} variant="ghost" size="small" style={{ color: 'var(--color-danger)' }} icon={Trash2} />
+                                </div>
+                            </GlassCard>
+                        </motion.article>
                     ))}
                 </div>
             ) : (
-                <div className="card"><div className="empty-state"><Tags /><h3>No Categories</h3><p>Create categories to organize your menu items</p></div></div>
+                <GlassCard padding="0">
+                    <EmptyState icon={Tags} title="No Categories" description="Create categories to organize your menu items" />
+                </GlassCard>
             )}
+            </div>
 
-            {}
             <AnimatePresence>
                 {modal && (
-                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
-                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="card" style={{ width: '100%', maxWidth: 440 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                                <h2 style={{ fontWeight: 700 }}>{modal.mode === 'create' ? 'New Category' : 'Edit Category'}</h2>
-                                <button onClick={() => setModal(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={20} /></button>
+                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+                        <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 16 }} className="card" style={{ width: '100%', maxWidth: 440, padding: 'var(--space-5)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+                                <div>
+                                    <h2 style={{ fontSize: 'var(--text-h3)', fontWeight: 800 }}>{modal.mode === 'create' ? 'New Category' : 'Edit Category'}</h2>
+                                </div>
+                                <Button onClick={() => setModal(null)} variant="ghost" size="small"><X size={20} /></Button>
                             </div>
-                            <form onSubmit={handleSave}>
-                                <div style={{ marginBottom: 16 }}>
-                                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 4 }}>Name</label>
-                                    <input className="input" value={formName} onChange={e => setFormName(e.target.value)} placeholder="e.g. Starters, Main Course" required />
-                                </div>
-                                <div style={{ marginBottom: 20 }}>
-                                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 4 }}>Description (optional)</label>
-                                    <input className="input" value={formDesc} onChange={e => setFormDesc(e.target.value)} placeholder="Brief description" />
-                                </div>
-                                <div className="responsive-actions">
-                                    <button type="button" onClick={() => setModal(null)} className="btn btn-secondary" style={{ flex: 1 }}>Cancel</button>
-                                    <button type="submit" className="btn btn-primary" disabled={saving} style={{ flex: 1 }}>{saving ? 'Saving...' : modal.mode === 'create' ? 'Create' : 'Update'}</button>
+                            <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                                <FloatingInput id="cat-name" label="Category Name" value={formName} onChange={e => setFormName(e.target.value)} required />
+                                <FloatingInput id="cat-desc" label="Description (optional)" value={formDesc} onChange={e => setFormDesc(e.target.value)} />
+                                
+                                <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-2)' }}>
+                                    <Button type="button" onClick={() => setModal(null)} variant="ghost" style={{ flex: 1 }}>Cancel</Button>
+                                    <Button type="submit" variant="primary" disabled={saving} style={{ flex: 1 }}>{saving ? 'Saving...' : modal.mode === 'create' ? 'Create' : 'Update'}</Button>
                                 </div>
                             </form>
                         </motion.div>
                     </div>
                 )}
             </AnimatePresence>
-        </div>
+        </PageContainer>
     );
 };
 export default CategoriesPage;

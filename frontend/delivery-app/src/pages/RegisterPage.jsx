@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../App';
 import { deliveryAPI } from '../services/api';
-import { AuthProgress, PremiumAuthLayout } from '../../../shared-ui/PremiumUI';
+import { AuthProgress, PremiumAuthLayout, GlassCard, FloatingInput, PasswordInput, Button } from '../../../shared-ui/PremiumUI';
 
 export default function RegisterPage() {
     const { register } = useAuth();
@@ -121,13 +121,13 @@ export default function RegisterPage() {
     const ch = (e) => setFd({ ...fd, [e.target.name]: e.target.value });
 
     const FileField = ({ label, name }) => (
-        <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6, fontWeight: 700 }}>{label}</label>
-            <label className="input" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, cursor: 'pointer' }}>
-                <span style={{ color: docs[name] ? 'var(--text-primary)' : 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <div style={{ marginBottom: 'var(--space-3)' }}>
+            <label style={{ display: 'block', fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-1)', fontWeight: 600 }}>{label}</label>
+            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-3)', cursor: 'pointer', padding: '12px 16px', background: 'var(--color-bg-base)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
+                <span style={{ color: docs[name] ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: 'var(--text-body)' }}>
                     {docs[name]?.name || 'Choose file'}
                 </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent)' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--brand-delivery)', fontWeight: 600, fontSize: 'var(--text-caption)' }}>
                     <Upload size={16} /> Upload
                 </span>
                 <input
@@ -153,21 +153,21 @@ export default function RegisterPage() {
                 { icon: ShieldCheck, title: 'Simple verification', copy: 'Documents stay grouped and visible.' },
             ]}
         >
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="auth-card">
+            <GlassCard padding="var(--space-5)">
                 <AuthProgress steps={['Account', 'Vehicle', 'Verify']} current={2} />
-                <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                    <div style={{ width: 64, height: 64, margin: '0 auto 16px', background: 'var(--gradient-primary)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 800, color: 'white', boxShadow: 'var(--shadow-accent)' }}>GO</div>
-                    <h1 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: 8, color: 'var(--text)' }}>Join as Partner</h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Create your account and upload your verification documents</p>
+                <div style={{ textAlign: 'center', marginBottom: 'var(--space-5)' }}>
+                    <div style={{ width: 64, height: 64, margin: '0 auto var(--space-4)', background: 'var(--brand-delivery)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 800, color: 'white', boxShadow: '0 8px 16px rgba(16, 185, 129, 0.25)' }}>GO</div>
+                    <h1 style={{ fontSize: 'var(--text-h3)', fontWeight: 800, marginBottom: 'var(--space-2)', color: 'var(--color-text-primary)' }}>Join as Partner</h1>
+                    <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-body)' }}>Create your account and upload your verification documents</p>
                 </div>
                 
                 {accountExists ? (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: 'center', padding: '24px', background: '#F5F5F7', borderRadius: '16px' }}>
-                        <div style={{ marginBottom: 16 }}>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: 'center', padding: 'var(--space-5)', background: 'var(--color-bg-base)', borderRadius: 'var(--radius-lg)' }}>
+                        <div style={{ marginBottom: 'var(--space-3)' }}>
                             <User size={32} color="var(--brand-delivery)" style={{ margin: '0 auto' }} />
                         </div>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 8, color: '#111' }}>Account Found!</h3>
-                        <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: 24, lineHeight: 1.5 }}>
+                        <h3 style={{ fontSize: 'var(--text-h4)', fontWeight: 700, marginBottom: 'var(--space-2)', color: 'var(--color-text-primary)' }}>Account Found!</h3>
+                        <p style={{ fontSize: 'var(--text-body)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-5)', lineHeight: 1.5 }}>
                             We found an existing Pecafoo account associated with this email. You can use your existing account to become a Delivery Partner.
                         </p>
                         <Link 
@@ -179,7 +179,7 @@ export default function RegisterPage() {
                                 background: 'var(--brand-delivery)',
                                 color: 'white',
                                 fontWeight: 600,
-                                borderRadius: 'var(--radius-button)',
+                                borderRadius: '100px',
                                 textDecoration: 'none',
                                 textAlign: 'center'
                             }}
@@ -188,43 +188,47 @@ export default function RegisterPage() {
                         </Link>
                     </motion.div>
                 ) : (
-                    <form onSubmit={handle}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-                        <input className="input" name="first_name" placeholder="First Name" value={fd.first_name} onChange={ch} required />
-                        <input className="input" name="last_name" placeholder="Last Name" value={fd.last_name} onChange={ch} required />
-                    </div>
-                    <input className="input" type="email" name="email" placeholder="Email Address" value={fd.email} onChange={ch} required style={{ marginBottom: 12 }} />
-                    <input className="input" type="tel" name="phone_number" placeholder="Mobile Number (e.g., 9876543210)" value={fd.phone_number} onChange={handlePhoneChange} style={{ marginBottom: 12 }} />
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-                        <select className="input" name="vehicle_type" value={fd.vehicle_type} onChange={ch}>
-                            <option value="bicycle">Bicycle</option>
-                            <option value="motorcycle">Motorcycle</option>
-                            <option value="scooter">Scooter</option>
-                            <option value="car">Car</option>
-                        </select>
-                        <input className="input" name="vehicle_number" placeholder="Vehicle Number" value={fd.vehicle_number} onChange={ch} />
-                    </div>
-                    <input className="input" name="license_number" placeholder="License Number" value={fd.license_number} onChange={ch} style={{ marginBottom: 12 }} />
-                    <input className="input" type="password" name="password" placeholder="Password (min 8 chars)" value={fd.password} onChange={ch} required minLength={8} style={{ marginBottom: 12 }} />
-                    <input className="input" type="password" name="password_confirm" placeholder="Confirm Password" value={fd.password_confirm} onChange={ch} required minLength={8} style={{ marginBottom: 16 }} />
-
-                    <div className="card" style={{ padding: 16, marginBottom: 20 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                            <FileText size={18} color="var(--accent)" />
-                            <strong>Verification Documents</strong>
+                    <form onSubmit={handle} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+                            <FloatingInput id="first_name" name="first_name" label="First Name" value={fd.first_name} onChange={ch} required />
+                            <FloatingInput id="last_name" name="last_name" label="Last Name" value={fd.last_name} onChange={ch} required />
                         </div>
-                        <FileField label="ID Proof" name="id_proof" />
-                        <FileField label="Driving License / Vehicle Permit" name="license_image" />
-                    </div>
-                    <button type="submit" className="btn" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, fontSize: '1rem', fontWeight: 700 }}>
-                        {loading ? 'Creating...' : 'Create Account'} <ArrowRight size={20} />
-                    </button>
+                        <FloatingInput id="email" type="email" name="email" label="Email Address" value={fd.email} onChange={ch} required />
+                        <FloatingInput id="phone_number" type="tel" name="phone_number" label="Mobile Number (e.g., +919876543210)" value={fd.phone_number} onChange={handlePhoneChange} required />
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <select className="input" name="vehicle_type" value={fd.vehicle_type} onChange={ch} style={{ height: '48px', background: 'var(--color-bg-base)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '0 12px', fontSize: 'var(--text-body)', color: 'var(--color-text-primary)' }}>
+                                    <option value="bicycle">Bicycle</option>
+                                    <option value="motorcycle">Motorcycle</option>
+                                    <option value="scooter">Scooter</option>
+                                    <option value="car">Car</option>
+                                </select>
+                            </div>
+                            <FloatingInput id="vehicle_number" name="vehicle_number" label="Vehicle Number" value={fd.vehicle_number} onChange={ch} />
+                        </div>
+                        <FloatingInput id="license_number" name="license_number" label="License Number" value={fd.license_number} onChange={ch} />
+                        
+                        <PasswordInput id="password" name="password" label="Password (min 8 chars)" value={fd.password} onChange={ch} required minLength={8} />
+                        <PasswordInput id="password_confirm" name="password_confirm" label="Confirm Password" value={fd.password_confirm} onChange={ch} required minLength={8} />
+
+                        <div style={{ background: 'var(--color-bg-base)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-4)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
+                                <FileText size={18} color="var(--brand-delivery)" />
+                                <strong style={{ color: 'var(--color-text-primary)', fontSize: 'var(--text-body)' }}>Verification Documents</strong>
+                            </div>
+                            <FileField label="ID Proof" name="id_proof" />
+                            <FileField label="Driving License / Vehicle Permit" name="license_image" />
+                        </div>
+                        <Button type="submit" variant="primary" size="large" disabled={loading} style={{ width: '100%', marginTop: 'var(--space-2)' }}>
+                            {loading ? 'Creating...' : 'Create Account'}
+                        </Button>
                     </form>
                 )}
-                <p style={{ textAlign: 'center', marginTop: 24, color: 'var(--text-secondary)' }}>
-                    Already have an account? <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 700, textDecoration: 'none' }}>Sign In</Link>
+                <p style={{ textAlign: 'center', marginTop: 'var(--space-5)', color: 'var(--color-text-secondary)', fontSize: 'var(--text-caption)' }}>
+                    Already have an account? <Link to="/login" style={{ color: 'var(--brand-delivery)', fontWeight: 700, textDecoration: 'none' }}>Sign In</Link>
                 </p>
-            </motion.div>
+            </GlassCard>
         </PremiumAuthLayout>
     );
 }

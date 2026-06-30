@@ -249,9 +249,9 @@ const CartPage = () => {
                     {cartItems.map((item) => (
                         <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', paddingBottom: 'var(--space-4)', borderBottom: '1px solid var(--color-divider)' }}>
                             {item.image ? (
-                                <img src={item.image} alt={item.name} style={{ width: 64, height: 64, borderRadius: '12px', objectFit: 'cover' }} />
+                                <img src={item.image} alt={item.name} style={{ width: 64, height: 64, borderRadius: 'var(--radius-md)', objectFit: 'cover' }} />
                             ) : (
-                                <div style={{ width: 64, height: 64, borderRadius: '12px', background: 'var(--color-divider)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🍽️</div>
+                                <div style={{ width: 64, height: 64, borderRadius: 'var(--radius-md)', background: 'var(--color-divider)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🍽️</div>
                             )}
                             
                             <div style={{ flex: 1, minWidth: 0 }}>
@@ -294,8 +294,8 @@ const CartPage = () => {
                                 if (ad) handleSelectAddress(ad);
                             }}
                             style={{
-                                width: '100%', padding: '12px', borderRadius: '12px',
-                                border: '1px solid var(--color-border)', background: 'var(--color-bg-card)',
+                                width: '100%', padding: '12px', borderRadius: 'var(--radius-input)',
+                                border: '1px solid var(--color-border)', background: 'var(--color-bg-base)',
                                 fontSize: 'var(--text-body)', color: 'var(--color-text-primary)',
                                 outline: 'none', fontFamily: 'inherit'
                             }}
@@ -345,8 +345,8 @@ const CartPage = () => {
                         placeholder="Enter full delivery address manually..."
                         rows={3}
                         style={{
-                            width: '100%', padding: '12px', borderRadius: '12px',
-                            border: '1px solid var(--color-border)', background: 'var(--color-bg-card)',
+                            width: '100%', padding: '12px', borderRadius: 'var(--radius-input)',
+                            border: '1px solid var(--color-border)', background: 'var(--color-bg-base)',
                             fontSize: 'var(--text-body)', color: 'var(--color-text-primary)',
                             outline: 'none', fontFamily: 'inherit', resize: 'none'
                         }}

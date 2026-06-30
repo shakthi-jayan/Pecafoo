@@ -40,13 +40,13 @@ export const Button = React.forwardRef(({
     primary: {
       backgroundColor: brandColor,
       color: '#FFFFFF',
-      boxShadow: `0 4px 12px ${brandColor}40`
+      boxShadow: `0 4px 12px ${brandColor}30`,
     },
     secondary: {
       backgroundColor: 'var(--color-bg-base)',
       color: 'var(--color-text-primary)',
-      border: '1px solid var(--color-border)',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+      border: 'none',
+      boxShadow: 'none',
     },
     ghost: {
       backgroundColor: 'transparent',
@@ -55,6 +55,7 @@ export const Button = React.forwardRef(({
     danger: {
       backgroundColor: 'var(--color-error)',
       color: '#FFFFFF',
+      boxShadow: `0 4px 12px rgba(255, 59, 48, 0.2)`,
     }
   };
 
@@ -65,9 +66,9 @@ export const Button = React.forwardRef(({
       ref={ref}
       className={`premium-btn premium-btn-${variant} ${className}`}
       style={combinedStyle}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.15, ease: "easeOut" }}
+      whileHover={{ scale: variant === 'ghost' ? 1.05 : 1.01 }}
+      whileTap={{ scale: 0.96 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       {...props}
     >
       {Icon && iconPosition === 'left' && <Icon size={size === 'small' ? 16 : 20} />}

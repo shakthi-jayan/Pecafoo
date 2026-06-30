@@ -14,7 +14,8 @@ import {
     Button,
     GlassCard,
     EmptyState,
-    FloatingInput
+    FloatingInput,
+    Skeleton
 } from '../../../shared-ui/PremiumUI';
 
 const typeIcons = { home: Home, work: Briefcase, other: Heart };
@@ -156,7 +157,7 @@ const AddressesPage = () => {
             <div style={{ padding: 'var(--space-4)' }}>
                 {loading ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                        {[1, 2, 3].map(i => <div key={i} style={{ height: 120, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />)}
+                        {[1, 2, 3].map(i => <Skeleton key={i} width="100%" height={120} borderRadius="var(--radius-card)" />)}
                     </div>
                 ) : addresses.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>

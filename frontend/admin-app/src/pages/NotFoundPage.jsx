@@ -1,16 +1,18 @@
 import { Link } from 'react-router-dom';
+import { GlassCard, EmptyState, Button } from '../../../shared-ui/PremiumUI';
+import { AlertTriangle } from 'lucide-react';
 
 export default function NotFoundPage() {
   return (
     <div className="page-shell">
-      <div className="card" style={{ textAlign: 'center', padding: 24 }}>
-        <div style={{ fontSize: '3rem', marginBottom: 12 }}>404</div>
-        <h1 style={{ fontSize: '1.5rem', marginBottom: 10 }}>Page not found</h1>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: 18 }}>
-          The admin console couldn’t find that route.
-        </p>
-        <Link to="/" className="btn btn-primary">Back to Dashboard</Link>
-      </div>
+      <GlassCard padding="var(--space-5)" style={{ textAlign: 'center' }}>
+        <EmptyState icon={AlertTriangle} title="404 - Page not found" description="The admin console couldn’t find that route." />
+        <div style={{ marginTop: 'var(--space-4)', display: 'flex', justifyContent: 'center' }}>
+          <Link to="/">
+            <Button variant="primary">Back to Dashboard</Button>
+          </Link>
+        </div>
+      </GlassCard>
     </div>
   );
 }

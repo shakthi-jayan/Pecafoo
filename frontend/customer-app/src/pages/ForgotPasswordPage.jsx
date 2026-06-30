@@ -3,8 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Mail } from 'lucide-react';
 import { authAPI } from '../services/api';
-import AuthLayout from '../components/shared/AuthLayout';
-import { Button, FloatingInput } from '../../../shared-ui/PremiumUI';
+import { PremiumAuthLayout, Button, FloatingInput } from '../../../shared-ui/PremiumUI';
 
 export default function ForgotPasswordPage() {
     const navigate = useNavigate();
@@ -28,13 +27,20 @@ export default function ForgotPasswordPage() {
         }
     };
 
+    const authFeatures = [
+        { icon: Mail, title: 'Check Your Inbox', copy: 'We will send a secure 6-digit OTP to your email.' }
+    ];
+
     return (
-        <AuthLayout 
+        <PremiumAuthLayout 
+            eyebrow="Account Recovery"
             title="Reset your password"
-            subtitle="Don't worry, it happens to the best of us. Let's get you back into your account."
+            description="Don't worry, it happens to the best of us. Let's get you back into your account."
+            features={authFeatures}
+            tone="customer"
         >
-            <div style={{ textAlign: 'center', marginBottom: 'var(--space-5)' }}>
-                <h2 style={{ fontSize: 'var(--text-h2)', marginBottom: 'var(--space-2)' }}>Forgot Password</h2>
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
+                <h2 style={{ fontSize: 'var(--text-h2)', marginBottom: 'var(--space-2)', fontWeight: 700, letterSpacing: '-0.03em' }}>Forgot Password</h2>
                 <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-body)' }}>Enter your email to receive a password reset OTP.</p>
             </div>
 
@@ -53,7 +59,7 @@ export default function ForgotPasswordPage() {
                     type="submit" 
                     variant="primary" 
                     fullWidth 
-                    size="medium" 
+                    size="large" 
                     disabled={loading || sent}
                     style={{ marginTop: 'var(--space-2)' }}
                 >
@@ -61,11 +67,11 @@ export default function ForgotPasswordPage() {
                 </Button>
                 
                 <Link to="/login" style={{ textDecoration: 'none' }}>
-                    <Button type="button" variant="ghost" fullWidth size="medium">
+                    <Button type="button" variant="ghost" fullWidth size="large">
                         Back to Login
                     </Button>
                 </Link>
             </form>
-        </AuthLayout>
+        </PremiumAuthLayout>
     );
 }

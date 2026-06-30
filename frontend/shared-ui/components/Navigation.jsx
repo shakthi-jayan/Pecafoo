@@ -99,18 +99,20 @@ export function BottomNavigation({ items, activeItem, onChange, brandColor = 'va
   return (
     <div style={{
       position: 'fixed',
-      bottom: 0,
-      left: 0,
-      right: 0,
+      bottom: 'var(--space-4)',
+      left: 'var(--space-4)',
+      right: 'var(--space-4)',
       backgroundColor: 'rgba(255, 255, 255, 0.85)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      borderTop: '1px solid var(--color-border)',
+      backdropFilter: 'blur(24px)',
+      WebkitBackdropFilter: 'blur(24px)',
+      border: '1px solid var(--color-border)',
+      borderRadius: 'var(--radius-dialog)',
       display: 'flex',
       justifyContent: 'space-around',
-      paddingBottom: 'env(safe-area-inset-bottom)',
+      padding: 'var(--space-2) var(--space-2)',
+      paddingBottom: 'calc(var(--space-2) + env(safe-area-inset-bottom))',
       zIndex: 100,
-      boxShadow: '0 -4px 20px rgba(0,0,0,0.03)'
+      boxShadow: 'var(--shadow-floating)'
     }}>
       {items.map((item) => {
         const isSelected = activeItem === item.id;
@@ -174,16 +176,20 @@ export function Sidebar({ children, isOpen, onClose, brandColor = 'var(--brand-c
             transition={{ type: 'spring', stiffness: 350, damping: 35 }}
             style={{
               position: 'fixed',
-              top: 0,
-              left: 0,
-              bottom: 0,
+              top: 'var(--space-4)',
+              left: 'var(--space-4)',
+              bottom: 'var(--space-4)',
               width: '280px',
-              backgroundColor: 'var(--color-bg-base)',
+              backgroundColor: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+              borderRadius: 'var(--radius-dialog)',
               boxShadow: 'var(--shadow-floating)',
               zIndex: 901,
-              borderRight: '1px solid var(--color-border)',
+              border: '1px solid var(--color-border)',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              overflow: 'hidden'
             }}
           >
             {children}

@@ -4,7 +4,7 @@ import { ArrowLeft, Truck, Shield, Save, Camera, FileText, Upload, ExternalLink 
 import { useNavigate } from 'react-router-dom';
 import { deliveryAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { ProfileHero } from '../../../shared-ui/PremiumUI';
+import { ProfileHero, GlassCard, Button, FloatingInput } from '../../../shared-ui/PremiumUI';
 
 const ProfilePage = ({ user, onLogout }) => {
     const navigate = useNavigate();
@@ -66,12 +66,12 @@ const ProfilePage = ({ user, onLogout }) => {
 
     const DocField = ({ label, name, currentUrl }) => (
         <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6, fontWeight: 700 }}>{label}</label>
-            <label className="input" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, cursor: 'pointer' }}>
-                <span style={{ color: files[name] || currentUrl ? 'var(--text-primary)' : 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <label style={{ display: 'block', fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', marginBottom: 6, fontWeight: 700 }}>{label}</label>
+            <label className="input" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, cursor: 'pointer', background: 'var(--color-bg-base)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '12px 16px' }}>
+                <span style={{ color: files[name] || currentUrl ? 'var(--color-text-primary)' : 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {files[name]?.name || currentUrl?.split('/').pop() || 'Choose file'}
                 </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent)' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--brand-delivery)' }}>
                     <Upload size={16} /> Upload
                 </span>
                 <input
@@ -83,7 +83,7 @@ const ProfilePage = ({ user, onLogout }) => {
                 />
             </label>
             {currentUrl && (
-                <a href={currentUrl} target="_blank" rel="noreferrer" style={{ marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--accent)', fontSize: '0.8rem', fontWeight: 700 }}>
+                <a href={currentUrl} target="_blank" rel="noreferrer" style={{ marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--brand-delivery)', fontSize: 'var(--text-caption)', fontWeight: 700 }}>
                     <ExternalLink size={14} /> View current document
                 </a>
             )}
@@ -99,64 +99,75 @@ const ProfilePage = ({ user, onLogout }) => {
                 </ProfileHero>
             </motion.div>
 
-            <motion.div className="card profile-form-section" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={{ marginBottom: 16 }}>
-                <h3 style={{ fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Truck size={18} /> Vehicle Information</h3>
-                {loading ? [1, 2, 3].map(i => <div key={i} className="skeleton" style={{ height: 44, marginBottom: 12 }} />) : (
-                    <>
-                        <div style={{ marginBottom: 12 }}>
-                            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 4 }}>Vehicle Type</label>
-                            <select className="input" value={form.vehicle_type} onChange={e => setForm({ ...form, vehicle_type: e.target.value })}>
-                                <option value="">Select type</option>
-                                <option value="bicycle">Bicycle</option>
-                                <option value="motorcycle">Motorcycle</option>
-                                <option value="scooter">Scooter</option>
-                                <option value="car">Car</option>
-                            </select>
-                        </div>
-                        <div style={{ marginBottom: 12 }}>
-                            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 4 }}>Vehicle Number</label>
-                            <input className="input" value={form.vehicle_number} onChange={e => setForm({ ...form, vehicle_number: e.target.value })} placeholder="e.g. MH 01 AB 1234" />
-                        </div>
-                        <div style={{ marginBottom: 12 }}>
-                            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 4 }}>License Number</label>
-                            <input className="input" value={form.license_number} onChange={e => setForm({ ...form, license_number: e.target.value })} placeholder="e.g. DLXXXXXXXXXXXXXXXX" />
-                        </div>
-                    </>
-                )}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={{ marginBottom: 16 }}>
+                <GlassCard padding="var(--space-5)">
+                    <h3 style={{ fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-primary)' }}><Truck size={18} /> Vehicle Information</h3>
+                    {loading ? [1, 2, 3].map(i => <div key={i} className="skeleton" style={{ height: 44, marginBottom: 12 }} />) : (
+                        <>
+                            <div style={{ marginBottom: 'var(--space-3)' }}>
+                                <label style={{ display: 'block', fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', marginBottom: 4, fontWeight: 700 }}>Vehicle Type</label>
+                                <select className="input" value={form.vehicle_type} onChange={e => setForm({ ...form, vehicle_type: e.target.value })} style={{ width: '100%', padding: '12px 16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', background: 'var(--color-bg-base)', color: 'var(--color-text-primary)' }}>
+                                    <option value="">Select type</option>
+                                    <option value="bicycle">Bicycle</option>
+                                    <option value="motorcycle">Motorcycle</option>
+                                    <option value="scooter">Scooter</option>
+                                    <option value="car">Car</option>
+                                </select>
+                            </div>
+                            <FloatingInput
+                                label="Vehicle Number"
+                                value={form.vehicle_number}
+                                onChange={e => setForm({ ...form, vehicle_number: e.target.value })}
+                                placeholder="e.g. MH 01 AB 1234"
+                            />
+                            <div style={{ height: 'var(--space-3)' }} />
+                            <FloatingInput
+                                label="License Number"
+                                value={form.license_number}
+                                onChange={e => setForm({ ...form, license_number: e.target.value })}
+                                placeholder="e.g. DLXXXXXXXXXXXXXXXX"
+                            />
+                        </>
+                    )}
+                </GlassCard>
             </motion.div>
 
-            <motion.div className="card profile-form-section" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} style={{ marginBottom: 16 }}>
-                <h3 style={{ fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><FileText size={18} /> Uploaded Documents</h3>
-                <DocField label="ID Proof" name="id_proof" currentUrl={profile?.id_proof} />
-                <DocField label="Driving License / Vehicle Permit" name="license_image" currentUrl={profile?.license_image} />
-                <div style={{ marginTop: 8, fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                    Verification status: <strong style={{ color: profile?.is_verified ? 'var(--success)' : 'var(--warning)' }}>{profile?.is_verified ? 'Verified' : 'Pending review'}</strong>
-                </div>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} style={{ marginBottom: 16 }}>
+                <GlassCard padding="var(--space-5)">
+                    <h3 style={{ fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-primary)' }}><FileText size={18} /> Uploaded Documents</h3>
+                    <DocField label="ID Proof" name="id_proof" currentUrl={profile?.id_proof} />
+                    <DocField label="Driving License / Vehicle Permit" name="license_image" currentUrl={profile?.license_image} />
+                    <div style={{ marginTop: 8, fontSize: '0.82rem', color: 'var(--color-text-secondary)' }}>
+                        Verification status: <strong style={{ color: profile?.is_verified ? 'var(--color-success)' : 'var(--color-warning)' }}>{profile?.is_verified ? 'Verified' : 'Pending review'}</strong>
+                    </div>
+                </GlassCard>
             </motion.div>
 
             {profile && (
-                <motion.div className="card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} style={{ marginBottom: 16 }}>
-                    <h3 style={{ fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Shield size={18} /> Performance</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                        <div style={{ textAlign: 'center', padding: 12, borderRadius: 12, background: 'var(--bg-elevated)' }}>
-                            <p style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--accent)' }}>{profile.total_deliveries || 0}</p>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Deliveries</p>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} style={{ marginBottom: 16 }}>
+                    <GlassCard padding="var(--space-5)">
+                        <h3 style={{ fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-primary)' }}><Shield size={18} /> Performance</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                            <div style={{ textAlign: 'center', padding: 12, borderRadius: 12, background: 'var(--color-bg-elevated)' }}>
+                                <p style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--brand-delivery)' }}>{profile.total_deliveries || 0}</p>
+                                <p style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)' }}>Deliveries</p>
+                            </div>
+                            <div style={{ textAlign: 'center', padding: 12, borderRadius: 12, background: 'var(--color-bg-elevated)' }}>
+                                <p style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fbbf24' }}>{profile.average_rating || '-'}</p>
+                                <p style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)' }}>Rating</p>
+                            </div>
                         </div>
-                        <div style={{ textAlign: 'center', padding: 12, borderRadius: 12, background: 'var(--bg-elevated)' }}>
-                            <p style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fbbf24' }}>{profile.average_rating || '-'}</p>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Rating</p>
-                        </div>
-                    </div>
+                    </GlassCard>
                 </motion.div>
             )}
 
-            <button onClick={handleSave} className="btn btn-primary btn-full btn-lg" disabled={saving} style={{ marginBottom: 12 }}>
+            <Button onClick={handleSave} variant="primary" size="large" disabled={saving} style={{ width: '100%', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <Save size={18} /> {saving ? 'Saving...' : 'Save Profile'}
-            </button>
+            </Button>
 
-            <button onClick={onLogout} className="btn btn-full" style={{ background: 'var(--danger-bg, rgba(239,68,68,0.1))', color: 'var(--danger, #ef4444)', padding: 14, borderRadius: 12, fontWeight: 600 }}>
+            <Button onClick={onLogout} variant="ghost" size="large" style={{ width: '100%', color: 'var(--color-danger)' }}>
                 Sign Out
-            </button>
+            </Button>
         </div>
     );
 };

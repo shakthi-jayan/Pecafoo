@@ -3,8 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Mail, Lock } from 'lucide-react';
 import { authAPI } from '../services/api';
-import AuthLayout from '../components/shared/AuthLayout';
-import { Button, FloatingInput, PasswordInput, OTPInput } from '../../../shared-ui/PremiumUI';
+import { PremiumAuthLayout, Button, FloatingInput, PasswordInput } from '../../../shared-ui/PremiumUI';
 
 export default function ResetPasswordPage() {
     const navigate = useNavigate();
@@ -54,13 +53,20 @@ export default function ResetPasswordPage() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const authFeatures = [
+        { icon: Lock, title: 'Secure Access', copy: 'Your new password is encrypted and stored securely.' }
+    ];
+
     return (
-        <AuthLayout
+        <PremiumAuthLayout
+            eyebrow="Account Recovery"
             title="Create a new password"
-            subtitle="Secure your account with a strong new password."
+            description="Secure your account with a strong new password."
+            features={authFeatures}
+            tone="customer"
         >
-            <div style={{ textAlign: 'center', marginBottom: 'var(--space-5)' }}>
-                <h2 style={{ fontSize: 'var(--text-h2)', marginBottom: 'var(--space-2)' }}>Reset Password</h2>
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
+                <h2 style={{ fontSize: 'var(--text-h2)', marginBottom: 'var(--space-2)', fontWeight: 700, letterSpacing: '-0.03em' }}>Reset Password</h2>
                 <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-body)' }}>Enter the OTP sent to your email and your new password.</p>
             </div>
 
@@ -106,10 +112,23 @@ export default function ResetPasswordPage() {
                     minLength={8}
                 />
                 
-                <Button type="submit" variant="primary" fullWidth size="medium" disabled={loading} style={{ marginTop: 'var(--space-2)' }}>
+                <Button 
+                    type="submit" 
+                    variant="primary" 
+                    fullWidth 
+                    size="large" 
+                    disabled={loading}
+                    style={{ marginTop: 'var(--space-2)' }}
+                >
                     {loading ? 'Resetting...' : 'Reset Password'}
                 </Button>
+                
+                <Link to="/login" style={{ textDecoration: 'none' }}>
+                    <Button type="button" variant="ghost" fullWidth size="large">
+                        Back to Login
+                    </Button>
+                </Link>
             </form>
-        </AuthLayout>
+        </PremiumAuthLayout>
     );
 }

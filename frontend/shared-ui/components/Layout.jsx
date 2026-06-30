@@ -96,7 +96,7 @@ export function HeroBanner({ eyebrow, title, description, actions, children, ali
       borderRadius: 'var(--radius-card)',
       backgroundColor: 'var(--color-bg-card)',
       border: '1px solid var(--color-border)',
-      boxShadow: 'var(--shadow-softer)',
+      boxShadow: 'var(--shadow-lg)',
       textAlign: align
     }}>
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: align === 'center' ? 'center' : 'flex-start' }}>

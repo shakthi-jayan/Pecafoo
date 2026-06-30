@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { IndianRupee, ShoppingBag, TrendingUp, Clock } from 'lucide-react';
 import { ordersAPI, restaurantsAPI } from '../services/api';
-import { MetricCard, PageHero, SectionHeader } from '../../../shared-ui/PremiumUI';
+import { MetricCard, PageHero, SectionHeader, PageContainer, GlassCard, EmptyState } from '../../../shared-ui/PremiumUI';
 
 const DashboardPage = () => {
     const [stats, setStats] = useState({ orders: 0, revenue: 0, pending: 0 });
@@ -34,41 +34,59 @@ const DashboardPage = () => {
     ];
 
     return (
-        <div className="page-shell">
-            <PageHero eyebrow="Restaurant overview" title="Service, at a glance." description="Stay on top of today's orders, kitchen flow, and restaurant performance.">
-                <div className="restaurant-service-status"><span /><div><small>Kitchen status</small><strong>{stats.pending > 0 ? `${stats.pending} orders moving` : 'Ready for orders'}</strong></div></div>
-            </PageHero>
-            <SectionHeader eyebrow="Performance" title="Today’s essentials" description="The numbers your team needs before the next order arrives." />
-            <div className="stat-grid">
+        <PageContainer padding="0">
+            <div style={{ padding: 'var(--space-4)' }}>
+                <PageHero eyebrow="Restaurant overview" title="Service, at a glance." description="Stay on top of today's orders, kitchen flow, and restaurant performance.">
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'var(--color-bg-card)', borderRadius: '100px', border: '1px solid var(--color-border)', fontSize: 'var(--text-caption)' }}>
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: stats.pending > 0 ? 'var(--color-warning)' : 'var(--color-success)', animation: stats.pending > 0 ? 'pulse 2s infinite' : 'none' }} />
+                        <span style={{ color: 'var(--color-text-secondary)' }}>Kitchen status:</span>
+                        <strong style={{ fontWeight: 700 }}>{stats.pending > 0 ? `${stats.pending} orders moving` : 'Ready for orders'}</strong>
+                    </div>
+                </PageHero>
+            </div>
+            
+            <div style={{ padding: '0 var(--space-4) var(--space-4) var(--space-4)' }}>
+                <SectionHeader eyebrow="Performance" title="Today’s essentials" description="The numbers your team needs before the next order arrives." />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
                 {statCards.map(({ icon: Icon, label, value, color }, i) => (
                     <motion.div key={label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
                         <MetricCard icon={Icon} label={label} value={value} tone={color} detail="Today" />
                     </motion.div>
                 ))}
-            </div>
-            <SectionHeader eyebrow="Live queue" title="Recent orders" description="The latest tickets entering your restaurant workflow." />
-            <div className="card stack-safe">
-                {recentOrders.length > 0 ? (
-                    <div className="table-wrapper">
+                </div>
+                
+                <SectionHeader eyebrow="Live queue" title="Recent orders" description="The latest tickets entering your restaurant workflow." />
+                <GlassCard padding="0">
+                    {recentOrders.length > 0 ? (
+                        <div style={{ overflowX: 'auto' }}>
                         <table>
                             <thead><tr><th>Order #</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
                             <tbody>
                                 {recentOrders.map(o => (
                                     <tr key={o.id}>
-                                        <td style={{ fontWeight: 600 }}>#{o.order_number}</td>
-                                        <td>{o.customer_name || 'Customer'}</td>
-                                        <td>₹{o.total}</td>
-                                        <td><span className={`badge badge-${['placed', 'confirmed', 'preparing'].includes(o.status) ? 'warning' : o.status === 'delivered' ? 'success' : 'accent'}`}>{o.status.replace(/_/g, ' ')}</span></td>
+                                            <td style={{ padding: '16px', fontWeight: 600, borderBottom: '1px solid var(--color-border)' }}>#{o.order_number}</td>
+                                            <td style={{ padding: '16px', borderBottom: '1px solid var(--color-border)' }}>{o.customer_name || 'Customer'}</td>
+                                            <td style={{ padding: '16px', borderBottom: '1px solid var(--color-border)', fontWeight: 700 }}>₹{o.total}</td>
+                                            <td style={{ padding: '16px', borderBottom: '1px solid var(--color-border)' }}>
+                                                <div style={{ 
+                                                    display: 'inline-flex', padding: '4px 10px', borderRadius: '100px', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase',
+                                                    backgroundColor: ['placed', 'confirmed', 'preparing'].includes(o.status) ? 'rgba(245, 158, 11, 0.1)' : o.status === 'delivered' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(139, 92, 246, 0.1)',
+                                                    color: ['placed', 'confirmed', 'preparing'].includes(o.status) ? '#f59e0b' : o.status === 'delivered' ? '#22c55e' : '#8b5cf6'
+                                                }}>
+                                                    {o.status.replace(/_/g, ' ')}
+                                                </div>
+                                            </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
-                    </div>
-                ) : (
-                    <div className="empty-state"><ShoppingBag /><h3>No orders yet</h3><p>Orders will appear here when customers place them</p></div>
-                )}
+                        </div>
+                    ) : (
+                        <EmptyState icon={ShoppingBag} title="No orders yet" description="Orders will appear here when customers place them" />
+                    )}
+                </GlassCard>
             </div>
-        </div>
+        </PageContainer>
     );
 };
 export default DashboardPage;

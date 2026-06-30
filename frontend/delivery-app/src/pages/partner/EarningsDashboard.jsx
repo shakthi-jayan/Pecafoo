@@ -19,6 +19,7 @@ import {
     YAxis,
 } from 'recharts';
 import { deliveryAPI } from '../../services/api';
+import { GlassCard, PageHero } from '../../../../shared-ui/PremiumUI';
 
 const chartGradient = ['#FF5A1F', '#FF7B47', '#FF9A70', '#FFC2AE'];
 
@@ -112,77 +113,74 @@ export default function EarningsDashboard() {
     ];
 
     return (
-        <div className="page earnings-page" style={{ paddingBottom: 152 }}>
-            <div className="page-header earnings-header" style={{ marginBottom: 20 }}>
-                <h1 className="page-title">Earnings Dashboard</h1>
-                <p className="earnings-header-copy" style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: 4 }}>
-                    Track payout components, slab progress, and weekly delivery trends.
-                </p>
-            </div>
+        <div className="page earnings-page stack-safe" style={{ paddingBottom: 152 }}>
+            <PageHero eyebrow="Earnings" title="Earnings Dashboard" description="Track payout components, slab progress, and weekly delivery trends." compact />
 
             <motion.div
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="card"
-                id="earnings-hero-card"
-                style={{
-                    padding: 24,
-                    borderRadius: 24,
-                    marginBottom: 18,
-                    background: 'linear-gradient(135deg, #ff6f3d 0%, #ff5a1f 55%, #ff8f68 100%)',
-                    color: 'white',
-                }}
             >
-                <div className="earnings-hero-label" style={{ opacity: 0.85, textTransform: 'uppercase', letterSpacing: 1.2, fontSize: '0.74rem', fontWeight: 700, marginBottom: 8 }}>
-                    Today&apos;s partner payout
-                </div>
-                <div className="earnings-hero-value" style={{ fontSize: '2.6rem', fontWeight: 900, lineHeight: 1 }}>
-                    Rs {Number(today?.total_earned || 0).toFixed(2)}
-                </div>
-                <div className="earnings-hero-chips" style={{ marginTop: 14, display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-                    <SummaryChip label="Deliveries" value={today?.orders_completed || 0} />
-                    <SummaryChip label="Total lifetime" value={`Rs ${Number(summary.total_earnings || 0).toFixed(2)}`} />
-                </div>
+                <GlassCard
+                    id="earnings-hero-card"
+                    padding="var(--space-6)"
+                    style={{
+                        marginBottom: 'var(--space-4)',
+                        background: 'linear-gradient(135deg, #ff6f3d 0%, #ff5a1f 55%, #ff8f68 100%)',
+                        color: 'white',
+                        border: 'none',
+                    }}
+                >
+                    <div className="earnings-hero-label" style={{ opacity: 0.85, textTransform: 'uppercase', letterSpacing: 1.2, fontSize: '0.74rem', fontWeight: 700, marginBottom: 8 }}>
+                        Today&apos;s partner payout
+                    </div>
+                    <div className="earnings-hero-value" style={{ fontSize: 'var(--text-h1)', fontWeight: 900, lineHeight: 1 }}>
+                        Rs {Number(today?.total_earned || 0).toFixed(2)}
+                    </div>
+                    <div className="earnings-hero-chips" style={{ marginTop: 'var(--space-4)', display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
+                        <SummaryChip label="Deliveries" value={today?.orders_completed || 0} />
+                        <SummaryChip label="Total lifetime" value={`Rs ${Number(summary.total_earnings || 0).toFixed(2)}`} />
+                    </div>
+                </GlassCard>
             </motion.div>
 
-            <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', marginBottom: 18 }}>
+            <div style={{ display: 'grid', gap: 'var(--space-3)', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', marginBottom: 'var(--space-4)' }}>
                 {statCards.map(({ label, value, icon: Icon, tone }, index) => (
                     <motion.div
                         key={label}
-                        className="card"
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.06 }}
-                        style={{ padding: 18, borderRadius: 20 }}
                     >
-                        <div style={{ width: 42, height: 42, borderRadius: 14, background: `${tone}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-                            <Icon size={20} color={tone} />
-                        </div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginBottom: 4 }}>{label}</div>
-                        <div style={{ fontSize: '1.35rem', fontWeight: 900 }}>{value}</div>
+                        <GlassCard padding="var(--space-4)" style={{ height: '100%' }}>
+                            <div style={{ width: 42, height: 42, borderRadius: 14, background: `${tone}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                                <Icon size={20} color={tone} />
+                            </div>
+                            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.82rem', marginBottom: 4 }}>{label}</div>
+                            <div style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--color-text-primary)' }}>{value}</div>
+                        </GlassCard>
                     </motion.div>
                 ))}
             </div>
 
-            <div className="card" style={{ padding: 20, borderRadius: 22, marginBottom: 18 }}>
+            <GlassCard padding="var(--space-5)" style={{ marginBottom: 'var(--space-4)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                    <Sparkles size={18} color="var(--accent)" />
-                    <h2 style={{ fontWeight: 800, fontSize: '1rem' }}>Payout Breakdown</h2>
+                    <Sparkles size={18} color="var(--brand-delivery)" />
+                    <h2 style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--color-text-primary)' }}>Payout Breakdown</h2>
                 </div>
                 <div style={{ display: 'grid', gap: 12 }}>
                     {payoutBreakdown.map((item) => (
-                        <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderRadius: 14, background: 'var(--bg-elevated)' }}>
-                            <span style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
-                            <span style={{ fontWeight: 800 }}>Rs {Number(item.value || 0).toFixed(2)}</span>
+                        <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderRadius: 14, background: 'var(--color-bg-elevated)' }}>
+                            <span style={{ color: 'var(--color-text-secondary)' }}>{item.label}</span>
+                            <span style={{ fontWeight: 800, color: 'var(--color-text-primary)' }}>Rs {Number(item.value || 0).toFixed(2)}</span>
                         </div>
                     ))}
                 </div>
-            </div>
+            </GlassCard>
 
-            <div className="card" style={{ padding: 20, borderRadius: 22, marginBottom: 18 }}>
+            <GlassCard padding="var(--space-5)" style={{ marginBottom: 'var(--space-4)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                    <Target size={18} color="var(--accent)" />
-                    <h2 style={{ fontWeight: 800, fontSize: '1rem' }}>Daily Incentive Slabs</h2>
+                    <Target size={18} color="var(--brand-delivery)" />
+                    <h2 style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--color-text-primary)' }}>Daily Incentive Slabs</h2>
                 </div>
                 {today?.slab_progress?.length ? (
                     <div style={{ display: 'grid', gap: 14 }}>
@@ -193,16 +191,16 @@ export default function EarningsDashboard() {
                                 <div key={`${slab.orders_required}-${slab.bonus_amount}`}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
                                         <div>
-                                            <div style={{ fontWeight: 800 }}>{slab.orders_required} orders</div>
-                                            <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                                            <div style={{ fontWeight: 800, color: 'var(--color-text-primary)' }}>{slab.orders_required} orders</div>
+                                            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>
                                                 Bonus Rs {Number(slab.bonus_amount || 0).toFixed(2)}
                                             </div>
                                         </div>
-                                        <div style={{ textAlign: 'right', fontSize: '0.82rem', color: slab.achieved ? 'var(--accent)' : 'var(--text-muted)', fontWeight: 700 }}>
+                                        <div style={{ textAlign: 'right', fontSize: '0.82rem', color: slab.achieved ? 'var(--brand-delivery)' : 'var(--color-text-secondary)', fontWeight: 700 }}>
                                             {slab.achieved ? 'Achieved' : `${slab.orders_remaining} to go`}
                                         </div>
                                     </div>
-                                    <div style={{ height: 10, borderRadius: 999, background: 'var(--bg-elevated)', overflow: 'hidden' }}>
+                                    <div style={{ height: 10, borderRadius: 999, background: 'var(--color-bg-elevated)', overflow: 'hidden' }}>
                                         <div style={{
                                             width: `${percent}%`,
                                             height: '100%',
@@ -215,16 +213,16 @@ export default function EarningsDashboard() {
                         })}
                     </div>
                 ) : (
-                    <div style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                    <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.88rem' }}>
                         No active daily slabs yet.
                     </div>
                 )}
-            </div>
+            </GlassCard>
 
-            <div className="card earnings-weekly-card" style={{ padding: 20, borderRadius: 22 }}>
+            <GlassCard padding="var(--space-5)" style={{ marginBottom: 'var(--space-4)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                    <BarChart3 size={18} color="var(--accent)" />
-                    <h2 style={{ fontWeight: 800, fontSize: '1rem' }}>Weekly Summary</h2>
+                    <BarChart3 size={18} color="var(--brand-delivery)" />
+                    <h2 style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--color-text-primary)' }}>Weekly Summary</h2>
                 </div>
                 <div className="earnings-chart-wrap" style={{ height: 240, minHeight: 240, minWidth: 0 }}>
                     <ResponsiveContainer width="100%" height={240}>
@@ -258,7 +256,7 @@ export default function EarningsDashboard() {
                         Weekly bars will populate as completed deliveries are credited.
                     </div>
                 ) : null}
-            </div>
+            </GlassCard>
         </div>
     );
 }

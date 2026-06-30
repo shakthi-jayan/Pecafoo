@@ -44,7 +44,7 @@ export function Modal({ isOpen, onClose, title, children, actions, width = '460p
               width: '100%',
               maxWidth: width,
               backgroundColor: 'var(--color-bg-card)',
-              borderRadius: 'var(--radius-card)',
+              borderRadius: 'var(--radius-dialog)',
               boxShadow: 'var(--shadow-floating)',
               display: 'flex',
               flexDirection: 'column',
@@ -240,15 +240,16 @@ export function EmptyState({ icon: Icon, title, description, action }) {
       {Icon && (
         <div style={{
           width: '80px', height: '80px',
-          borderRadius: '50%',
-          backgroundColor: 'var(--color-divider)',
+          borderRadius: '40px',
+          backgroundColor: 'var(--color-bg-card)',
+          boxShadow: 'var(--shadow-md)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           color: 'var(--color-text-tertiary)',
           marginBottom: 'var(--space-4)'
         }}>
-          <Icon size={40} />
+          <Icon size={32} />
         </div>
       )}
       <h3 style={{ fontSize: 'var(--text-h3)', fontWeight: 700, marginBottom: 'var(--space-2)' }}>{title}</h3>

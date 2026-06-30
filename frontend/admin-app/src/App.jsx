@@ -28,7 +28,7 @@ import UsersPage from './pages/UsersPage';
 import OrdersPage from './pages/OrdersPage';
 import PricingPanel from './pages/PricingPanel';
 import NotFoundPage from './pages/NotFoundPage';
-import { AuthProgress, MetricCard, PageHero, PremiumAuthLayout, SectionHeader } from '../../shared-ui/PremiumUI';
+import { AuthProgress, MetricCard, PageHero, PremiumAuthLayout, SectionHeader, GlassCard, EmptyState, Button, FloatingInput } from '../../shared-ui/PremiumUI';
 
 const AuthContext = createContext(null);
 const useAuth = () => useContext(AuthContext);
@@ -116,11 +116,13 @@ function LoginPage() {
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Pecafoo Management Console</p>
         </div>
         <form onSubmit={handle}>
-          <input className="input" type="email" placeholder="Admin email" value={email} onChange={(event) => setEmail(event.target.value)} required style={{ marginBottom: 12 }} />
-          <input className="input" type="password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} required style={{ marginBottom: 20 }} />
-          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', padding: 14, fontSize: '1rem' }}>
+          <FloatingInput type="email" label="Admin email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+          <div style={{ height: 'var(--space-3)' }} />
+          <FloatingInput type="password" label="Password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+          <div style={{ height: 'var(--space-4)' }} />
+          <Button type="submit" variant="primary" size="large" disabled={loading} style={{ width: '100%' }}>
             {loading ? 'Signing in...' : 'Sign In'} <ArrowRight size={18} />
-          </button>
+          </Button>
         </form>
         <p style={{ textAlign: 'center', marginTop: 20, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
           Need the first admin account? <Link to="/register" style={{ color: 'var(--accent)', fontWeight: 600 }}>Bootstrap Admin</Link>
@@ -182,17 +184,21 @@ function RegisterPage() {
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Only the first admin or an existing admin can create this account.</p>
         </div>
         <form onSubmit={handle}>
-          <div className="auth-split-row">
-            <input className="input" name="first_name" placeholder="First Name" value={formData.first_name} onChange={handleChange} required />
-            <input className="input" name="last_name" placeholder="Last Name" value={formData.last_name} onChange={handleChange} required />
+          <div className="auth-split-row" style={{ gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
+            <FloatingInput name="first_name" label="First Name" value={formData.first_name} onChange={handleChange} required />
+            <FloatingInput name="last_name" label="Last Name" value={formData.last_name} onChange={handleChange} required />
           </div>
-          <input className="input" type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required style={{ marginBottom: 12 }} />
-          <input className="input" type="tel" name="phone_number" placeholder="Phone (optional)" value={formData.phone_number} onChange={handleChange} style={{ marginBottom: 12 }} />
-          <input className="input" type="password" name="password" placeholder="Password (min 8 chars)" value={formData.password} onChange={handleChange} required minLength={8} style={{ marginBottom: 12 }} />
-          <input className="input" type="password" name="password_confirm" placeholder="Confirm Password" value={formData.password_confirm} onChange={handleChange} required minLength={8} style={{ marginBottom: 20 }} />
-          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', padding: 14, fontSize: '1rem' }}>
+          <FloatingInput type="email" name="email" label="Email" value={formData.email} onChange={handleChange} required />
+          <div style={{ height: 'var(--space-3)' }} />
+          <FloatingInput type="tel" name="phone_number" label="Phone (optional)" value={formData.phone_number} onChange={handleChange} />
+          <div style={{ height: 'var(--space-3)' }} />
+          <FloatingInput type="password" name="password" label="Password (min 8 chars)" value={formData.password} onChange={handleChange} required minLength={8} />
+          <div style={{ height: 'var(--space-3)' }} />
+          <FloatingInput type="password" name="password_confirm" label="Confirm Password" value={formData.password_confirm} onChange={handleChange} required minLength={8} />
+          <div style={{ height: 'var(--space-4)' }} />
+          <Button type="submit" variant="primary" size="large" disabled={loading} style={{ width: '100%' }}>
             {loading ? 'Creating...' : 'Create Account'} <ArrowRight size={18} />
-          </button>
+          </Button>
         </form>
         <p style={{ textAlign: 'center', marginTop: 20, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
           Already have an account? <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 600 }}>Sign In</Link>
@@ -237,32 +243,28 @@ function DashboardPage() {
         ))}
       </div>
       <SectionHeader eyebrow="Operations" title="Today's flow" description="Delivery outcomes and revenue context for the current day." />
-      <div className="card page-shell" style={{ marginBottom: 16 }}>
+      <GlassCard padding="var(--space-5)" style={{ marginBottom: 16 }}>
         <h3 style={{ fontWeight: 700, marginBottom: 16 }}>Today's Breakdown</h3>
         {loading ? (
           [1, 2, 3].map((item) => <div key={item} className="skeleton" style={{ height: 18, marginBottom: 10 }} />)
         ) : stats ? (
           <div className="content-grid stack-safe" style={{ gap: 10 }}>
-            <DashboardMetric label="Delivered" value={stats.today?.delivered ?? 0} color="var(--success)" />
-            <DashboardMetric label="Pending" value={stats.today?.pending ?? 0} color="var(--warning)" />
-            <DashboardMetric label="Cancelled" value={stats.today?.cancelled ?? 0} color="var(--danger)" />
-            <DashboardMetric label="Yesterday Revenue" value={`₹${Number(stats.yesterday?.revenue || 0).toFixed(2)}`} color="var(--text-primary)" />
+            <DashboardMetric label="Delivered" value={stats.today?.delivered ?? 0} color="var(--color-success)" />
+            <DashboardMetric label="Pending" value={stats.today?.pending ?? 0} color="var(--color-warning)" />
+            <DashboardMetric label="Cancelled" value={stats.today?.cancelled ?? 0} color="var(--color-danger)" />
+            <DashboardMetric label="Yesterday Revenue" value={`₹${Number(stats.yesterday?.revenue || 0).toFixed(2)}`} color="var(--color-text-primary)" />
           </div>
         ) : (
-          <div className="empty-state" style={{ minHeight: 'unset', padding: '1rem 0' }}>
-            <Clock3 style={{ width: 42, height: 42, color: 'var(--text-muted)', opacity: 0.35 }} />
-            <h3>Analytics unavailable</h3>
-            <p>We couldn’t load today’s dashboard data.</p>
-          </div>
+          <EmptyState icon={Clock3} title="Analytics unavailable" description="We couldn't load today's dashboard data." />
         )}
-      </div>
-      <div className="card">
+      </GlassCard>
+      <GlassCard padding="var(--space-5)">
         <h3 style={{ fontWeight: 700, marginBottom: 16 }}>Platform Overview</h3>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+        <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>
           Connect to the Django admin panel at <a href="https://api.pecafoo.com/admin/" target="_blank" rel="noopener">api.pecafoo.com/admin/</a> for full management capabilities.
           This dashboard now reads live analytics from the backend and shows a quick snapshot of platform health.
         </p>
-      </div>
+      </GlassCard>
     </div>
   );
 }
@@ -285,9 +287,9 @@ function RestaurantsPage() {
   }, []);
 
   return (
-    <div>
-      <div className="page-header"><h1 className="page-title">Restaurants</h1></div>
-      <div className="card">
+    <div className="page-shell">
+      <PageHero eyebrow="Directory" title="Restaurants" description="Manage all active and inactive restaurants on the platform." compact />
+      <GlassCard padding="var(--space-5)">
         {loading ? [1, 2, 3].map((item) => <div key={item} className="skeleton" style={{ height: 50, marginBottom: 8 }} />) : restaurants.length > 0 ? (
           <div style={{ overflowX: 'auto' }}>
             <table>
@@ -298,8 +300,8 @@ function RestaurantsPage() {
               ))}</tbody>
             </table>
           </div>
-        ) : <div className="empty-state"><Store style={{ width: 64, height: 64, color: 'var(--text-muted)', opacity: 0.4, marginBottom: 16 }} /><h3>No restaurants</h3></div>}
-      </div>
+        ) : <EmptyState icon={Store} title="No restaurants" description="No restaurants found on the platform." />}
+      </GlassCard>
     </div>
   );
 }
@@ -359,18 +361,18 @@ function VerificationsPage() {
   ) : <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{label}: Not uploaded</span>;
 
   return (
-    <div>
-      <div className="page-header"><h1 className="page-title">Verifications</h1></div>
+    <div className="page-shell">
+      <PageHero eyebrow="Approvals" title="Verifications" description="Review and approve restaurant and delivery applications." compact />
 
-      <div className="card" style={{ marginBottom: 16 }}>
-        <h3 style={{ fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Store size={18} /> Restaurant Applications</h3>
+      <GlassCard padding="var(--space-5)" style={{ marginBottom: 16 }}>
+        <h3 style={{ fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-primary)' }}><Store size={18} /> Restaurant Applications</h3>
         {loading ? [1, 2].map((item) => <div key={item} className="skeleton" style={{ height: 64, marginBottom: 12 }} />) : restaurants.length > 0 ? restaurants.map((restaurant) => (
-          <div key={restaurant.id} style={{ padding: 16, border: '1px solid var(--border)', borderRadius: 18, marginBottom: 12 }}>
+          <div key={restaurant.id} style={{ padding: 16, border: '1px solid var(--color-border)', borderRadius: 18, marginBottom: 12, background: 'var(--color-bg-elevated)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 10 }}>
               <div>
-                <div style={{ fontWeight: 800 }}>{restaurant.name}</div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.86rem' }}>{restaurant.owner_name} • {restaurant.owner_email || 'No email'} • {restaurant.owner_phone_number || 'No phone'}</div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: 4 }}>{restaurant.city}, {restaurant.state} • {restaurant.cuisine_type || 'Cuisine not set'}</div>
+                <div style={{ fontWeight: 800, color: 'var(--color-text-primary)' }}>{restaurant.name}</div>
+                <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.86rem' }}>{restaurant.owner_name} • {restaurant.owner_email || 'No email'} • {restaurant.owner_phone_number || 'No phone'}</div>
+                <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.82rem', marginTop: 4 }}>{restaurant.city}, {restaurant.state} • {restaurant.cuisine_type || 'Cuisine not set'}</div>
               </div>
               <span className={`badge ${restaurant.approval_status === 'approved' ? 'badge-success' : restaurant.approval_status === 'rejected' ? 'badge-danger' : 'badge-warning'}`}>{restaurant.approval_status || 'pending'}</span>
             </div>
@@ -380,23 +382,23 @@ function VerificationsPage() {
               <DocLink url={restaurant.owner_id_proof} label="Owner ID Proof" />
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button className="btn btn-primary" disabled={savingId === restaurant.id} onClick={() => updateRestaurantStatus(restaurant.id, 'approved')}>Approve</button>
-              <button className="btn btn-secondary" disabled={savingId === restaurant.id} onClick={() => updateRestaurantStatus(restaurant.id, 'pending')}>Mark Pending</button>
-              <button className="btn" disabled={savingId === restaurant.id} onClick={() => updateRestaurantStatus(restaurant.id, 'rejected')} style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>Reject</button>
+              <Button variant="primary" disabled={savingId === restaurant.id} onClick={() => updateRestaurantStatus(restaurant.id, 'approved')}>Approve</Button>
+              <Button variant="secondary" disabled={savingId === restaurant.id} onClick={() => updateRestaurantStatus(restaurant.id, 'pending')}>Mark Pending</Button>
+              <Button disabled={savingId === restaurant.id} onClick={() => updateRestaurantStatus(restaurant.id, 'rejected')} style={{ background: 'var(--color-danger)', color: 'white' }}>Reject</Button>
             </div>
           </div>
-        )) : <div className="empty-state"><ShieldCheck style={{ width: 64, height: 64, color: 'var(--text-muted)', opacity: 0.4, marginBottom: 16 }} /><h3>No restaurant applications</h3></div>}
-      </div>
+        )) : <EmptyState icon={ShieldCheck} title="No restaurant applications" description="There are no pending applications for restaurants." />}
+      </GlassCard>
 
-      <div className="card">
-        <h3 style={{ fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Truck size={18} /> Delivery Applications</h3>
+      <GlassCard padding="var(--space-5)">
+        <h3 style={{ fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-primary)' }}><Truck size={18} /> Delivery Applications</h3>
         {loading ? [1, 2].map((item) => <div key={item} className="skeleton" style={{ height: 64, marginBottom: 12 }} />) : partners.length > 0 ? partners.map((partner) => (
-          <div key={partner.id} style={{ padding: 16, border: '1px solid var(--border)', borderRadius: 18, marginBottom: 12 }}>
+          <div key={partner.id} style={{ padding: 16, border: '1px solid var(--color-border)', borderRadius: 18, marginBottom: 12, background: 'var(--color-bg-elevated)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 10 }}>
               <div>
-                <div style={{ fontWeight: 800 }}>{partner.full_name}</div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.86rem' }}>{partner.email} • {partner.phone_number || 'No phone'}</div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: 4 }}>{partner.vehicle_type || 'Vehicle not set'} • {partner.vehicle_number || 'No vehicle number'} • {partner.license_number || 'No license number'}</div>
+                <div style={{ fontWeight: 800, color: 'var(--color-text-primary)' }}>{partner.full_name}</div>
+                <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.86rem' }}>{partner.email} • {partner.phone_number || 'No phone'}</div>
+                <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.82rem', marginTop: 4 }}>{partner.vehicle_type || 'Vehicle not set'} • {partner.vehicle_number || 'No vehicle number'} • {partner.license_number || 'No license number'}</div>
               </div>
               <span className={`badge ${partner.is_verified ? 'badge-success' : 'badge-warning'}`}>{partner.is_verified ? 'verified' : 'pending'}</span>
             </div>
@@ -405,12 +407,12 @@ function VerificationsPage() {
               <DocLink url={partner.license_image} label="License / RC / PCC" />
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button className="btn btn-primary" disabled={savingId === partner.id} onClick={() => updateDeliveryStatus(partner.id, true)}>Verify</button>
-              <button className="btn btn-secondary" disabled={savingId === partner.id} onClick={() => updateDeliveryStatus(partner.id, false)}>Mark Pending</button>
+              <Button variant="primary" disabled={savingId === partner.id} onClick={() => updateDeliveryStatus(partner.id, true)}>Verify</Button>
+              <Button variant="secondary" disabled={savingId === partner.id} onClick={() => updateDeliveryStatus(partner.id, false)}>Mark Pending</Button>
             </div>
           </div>
-        )) : <div className="empty-state"><ShieldCheck style={{ width: 64, height: 64, color: 'var(--text-muted)', opacity: 0.4, marginBottom: 16 }} /><h3>No delivery applications</h3></div>}
-      </div>
+        )) : <EmptyState icon={ShieldCheck} title="No delivery applications" description="There are no pending applications for delivery partners." />}
+      </GlassCard>
     </div>
   );
 }

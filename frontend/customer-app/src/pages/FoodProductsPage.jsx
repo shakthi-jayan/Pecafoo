@@ -16,7 +16,8 @@ import {
     Button,
     FoodCard,
     EmptyState,
-    GlassCard
+    GlassCard,
+    Skeleton
 } from '../../../shared-ui/PremiumUI';
 
 const foodTypeFilters = [
@@ -195,7 +196,7 @@ const FoodProductsPage = () => {
                                     style={{
                                         padding: '6px 14px',
                                         borderRadius: '100px',
-                                        background: isActive ? 'rgba(217, 70, 239, 0.1)' : 'var(--color-bg-card)',
+                                        background: isActive ? 'var(--color-bg-elevated)' : 'var(--color-bg-card)',
                                         color: isActive ? 'var(--brand-customer)' : 'var(--color-text-secondary)',
                                         border: `1px solid ${isActive ? 'var(--brand-customer)' : 'var(--color-border)'}`,
                                         fontSize: '11px',
@@ -252,7 +253,7 @@ const FoodProductsPage = () => {
                 {loading ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                         {[1, 2, 3, 4, 5, 6].map(i => (
-                            <div key={i} style={{ height: 160, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />
+                            <Skeleton key={i} width="100%" height={160} borderRadius="var(--radius-card)" />
                         ))}
                     </div>
                 ) : items.length > 0 ? (

@@ -22,7 +22,8 @@ import {
     EmptyState,
     Button,
     Chip,
-    GlassCard
+    GlassCard,
+    Skeleton
 } from '../../../shared-ui/PremiumUI';
 
 const fallbackCategories = [
@@ -207,7 +208,7 @@ const HomePage = () => {
 
                     {loading ? (
                         <div style={{ display: 'grid', gap: 'var(--space-5)', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
-                            {[1, 2, 3, 4].map(i => <div key={i} style={{ height: 260, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />)}
+                            {[1, 2, 3, 4].map(i => <Skeleton key={i} width="100%" height={260} borderRadius="var(--radius-card)" />)}
                         </div>
                     ) : restaurants.length > 0 ? (
                         <div style={{ display: 'grid', gap: 'var(--space-5)', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>

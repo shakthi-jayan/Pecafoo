@@ -5,6 +5,7 @@ import { ordersAPI, locationsAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import MapView from '../components/shared/MapView';
 import LiveOrderTracker from '../components/shared/LiveOrderTracker';
+import { GlassCard, PageHero, EmptyState, Button } from '../../../shared-ui/PremiumUI';
 
 const amount = (value) => `Rs ${Number(value || 0).toFixed(2)}`;
 
@@ -196,38 +197,29 @@ export default function DeliveriesPage() {
 
     return (
         <div className="page page-shell stack-safe" style={{ paddingBottom: 132 }}>
-            <div className="page-header deliveries-header" style={{ marginBottom: 16 }}>
-                <h1 className="page-title">Deliveries</h1>
-                <p className="deliveries-header-meta" style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4 }}>
-                    {activeOrders.length} active • {completedOrders.length} completed
-                </p>
-            </div>
+            <PageHero eyebrow="Deliveries" title="Your Orders" description={`${activeOrders.length} active • ${completedOrders.length} completed`} compact />
 
-            <div
-                className="card"
-                id="deliveries-hero-card"
-                style={{
-                    padding: 18,
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.98), rgba(241,246,255,0.94))',
-                    display: 'grid',
-                    gap: 14,
-                }}
-            >
+            <GlassCard padding="var(--space-4)" style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.98), rgba(241,246,255,0.94))',
+                display: 'grid',
+                gap: 14,
+                marginBottom: 'var(--space-4)'
+            }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start', flexWrap: 'wrap' }}>
                     <div style={{ minWidth: 0, flex: 1 }}>
-                        <p style={{ fontSize: '0.76rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#3b82f6', fontWeight: 800 }}>
+                        <p style={{ fontSize: '0.76rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--brand-delivery)', fontWeight: 800 }}>
                             Shift Snapshot
                         </p>
                         <h2 style={{ marginTop: 6, fontSize: '1.32rem', lineHeight: 1.12, fontWeight: 800 }}>
                             Stay on top of active drop-offs and route actions
                         </h2>
                     </div>
-                    <div style={{ width: 42, height: 42, borderRadius: 16, background: 'rgba(59, 130, 246, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', flexShrink: 0 }}>
+                    <div style={{ width: 42, height: 42, borderRadius: 16, background: 'rgba(16, 185, 129, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand-delivery)', flexShrink: 0 }}>
                         <Navigation size={20} />
                     </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(92px, 1fr))', gap: 10 }}>
-                    <div style={{ padding: 12, borderRadius: 16, background: 'rgba(59, 130, 246, 0.08)' }}>
+                    <div style={{ padding: 12, borderRadius: 16, background: 'rgba(16, 185, 129, 0.08)' }}>
                         <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 700 }}>Active</div>
                         <div style={{ marginTop: 4, fontSize: '1.15rem', fontWeight: 800 }}>{activeOrders.length}</div>
                     </div>
@@ -244,7 +236,7 @@ export default function DeliveriesPage() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </GlassCard>
 
             {}
             <div className="deliveries-tabs" style={{
@@ -279,7 +271,7 @@ export default function DeliveriesPage() {
                         exit={{ opacity: 0, height: 0 }}
                         style={{ marginBottom: 20, overflow: 'hidden' }}
                     >
-                        <div className="card" style={{ padding: 0, borderRadius: 20, overflow: 'hidden' }}>
+                        <GlassCard padding="0" style={{ overflow: 'hidden' }}>
                             {}
                             {(() => {
                                 const mapData = getMapData(selectedOrder);
@@ -452,7 +444,7 @@ export default function DeliveriesPage() {
                                     Close Details
                                 </button>
                             </div>
-                        </div>
+                        </GlassCard>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -541,11 +533,9 @@ export default function DeliveriesPage() {
                                 </motion.div>
                             ))
                         ) : (
-                            <div className="empty-state" style={{ padding: 48 }}>
-                                <Navigation size={56} style={{ color: 'var(--text-muted)', opacity: 0.15, marginBottom: 16 }} />
-                                <h3 style={{ fontWeight: 700, marginBottom: 4 }}>No active deliveries</h3>
-                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>New orders will appear here when assigned</p>
-                            </div>
+                            <GlassCard padding="0">
+                                <EmptyState icon={Navigation} title="No active deliveries" description="New orders will appear here when assigned" />
+                            </GlassCard>
                         )
                     )}
 
@@ -581,11 +571,9 @@ export default function DeliveriesPage() {
                                 </motion.div>
                             ))
                         ) : (
-                            <div className="empty-state" style={{ padding: 48 }}>
-                                <ClipboardList size={56} style={{ color: 'var(--text-muted)', opacity: 0.15, marginBottom: 16 }} />
-                                <h3 style={{ fontWeight: 700, marginBottom: 4 }}>No completed deliveries</h3>
-                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Your delivery history will appear here</p>
-                            </div>
+                            <GlassCard padding="0">
+                                <EmptyState icon={ClipboardList} title="No completed deliveries" description="Your delivery history will appear here" />
+                            </GlassCard>
                         )
                     )}
                 </>

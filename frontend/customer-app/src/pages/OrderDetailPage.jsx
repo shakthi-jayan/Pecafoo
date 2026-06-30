@@ -18,7 +18,8 @@ import {
     IconButton,
     SectionHeader,
     GlassCard,
-    EmptyState
+    EmptyState,
+    Skeleton
 } from '../../../shared-ui/PremiumUI';
 
 const statusColors = {
@@ -178,9 +179,9 @@ const OrderDetailPage = () => {
                     <div style={{ flex: 1 }} />
                 </div>
                 <div style={{ padding: '0 var(--space-4)' }}>
-                    <div style={{ height: 200, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)', marginBottom: 'var(--space-4)' }} />
-                    <div style={{ height: 120, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)', marginBottom: 'var(--space-3)' }} />
-                    <div style={{ height: 160, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />
+                    <Skeleton width="100%" height={200} borderRadius="var(--radius-card)" style={{ marginBottom: 'var(--space-4)' }} />
+                    <Skeleton width="100%" height={120} borderRadius="var(--radius-card)" style={{ marginBottom: 'var(--space-3)' }} />
+                    <Skeleton width="100%" height={160} borderRadius="var(--radius-card)" />
                 </div>
             </PageContainer>
         );
@@ -246,7 +247,7 @@ const OrderDetailPage = () => {
                             </p>
                         </div>
                         <div style={{
-                            padding: '8px 12px', borderRadius: '12px', background: 'rgba(217, 70, 239, 0.1)',
+                            padding: '8px 12px', borderRadius: '12px', background: 'var(--color-bg-elevated)',
                             color: 'var(--brand-customer)', fontWeight: 800, fontSize: 'var(--text-body)',
                         }}>
                             {currency(order.total)}

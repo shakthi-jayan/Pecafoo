@@ -4,7 +4,7 @@ import { ArrowRight, Navigation, ShieldCheck, TrendingUp } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../App';
-import { PremiumAuthLayout } from '../../../shared-ui/PremiumUI';
+import { PremiumAuthLayout, GlassCard, FloatingInput, PasswordInput, Button } from '../../../shared-ui/PremiumUI';
 
 export default function LoginPage() {
     const { login } = useAuth();
@@ -58,29 +58,36 @@ export default function LoginPage() {
                 { icon: ShieldCheck, title: 'Partner support', copy: 'Verified details and dependable account access.' },
             ]}
         >
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="auth-card">
-                <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                    <div style={{ width: 64, height: 64, margin: '0 auto 16px', background: 'var(--gradient-primary)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 800, color: 'white', boxShadow: 'var(--shadow-accent)' }}>GO</div>
-                    <h1 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: 8, color: 'var(--text)' }}>Partner Login</h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Sign in to start delivering</p>
+            <GlassCard padding="var(--space-5)">
+                <div style={{ textAlign: 'center', marginBottom: 'var(--space-5)' }}>
+                    <div style={{ width: 64, height: 64, margin: '0 auto var(--space-4)', background: 'var(--brand-delivery)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 800, color: 'white', boxShadow: '0 8px 16px rgba(16, 185, 129, 0.25)' }}>GO</div>
+                    <h1 style={{ fontSize: 'var(--text-h3)', fontWeight: 800, marginBottom: 'var(--space-2)', color: 'var(--color-text-primary)' }}>Partner Login</h1>
+                    <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-body)' }}>Sign in to start delivering</p>
                 </div>
-                <form onSubmit={handle}>
-                    <div style={{ marginBottom: 16 }}>
-                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 700 }}>Email Address</label>
-                        <input className="input" type="email" placeholder="partner@pecafoo.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                    </div>
-                    <div style={{ marginBottom: 24 }}>
-                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 700 }}>Password</label>
-                        <input className="input" type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                    </div>
-                    <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading} style={{ justifyContent: 'center', height: 50, borderRadius: 16 }}>
-                        {loading ? 'Signing in...' : 'Sign In'} <ArrowRight size={18} />
-                    </button>
+                <form onSubmit={handle} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                    <FloatingInput 
+                        id="email"
+                        label="Email Address" 
+                        type="email" 
+                        value={email} 
+                        onChange={(e) => setEmail(e.target.value)} 
+                        required 
+                    />
+                    <PasswordInput 
+                        id="password"
+                        label="Password" 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)} 
+                        required 
+                    />
+                    <Button type="submit" variant="primary" size="large" disabled={loading} style={{ width: '100%', marginTop: 'var(--space-2)' }}>
+                        {loading ? 'Signing in...' : 'Sign In'}
+                    </Button>
                 </form>
-                <p style={{ textAlign: 'center', marginTop: 24, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                    Don&apos;t have an account? <Link to="/register" style={{ color: 'var(--accent)', fontWeight: 800 }}>Sign Up</Link>
+                <p style={{ textAlign: 'center', marginTop: 'var(--space-5)', color: 'var(--color-text-secondary)', fontSize: 'var(--text-caption)' }}>
+                    Don&apos;t have an account? <Link to="/register" style={{ color: 'var(--brand-delivery)', fontWeight: 700 }}>Sign Up</Link>
                 </p>
-            </motion.div>
+            </GlassCard>
         </PremiumAuthLayout>
     );
 }

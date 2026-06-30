@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Clock3, Percent, Settings2, Sparkles, Target, Truck } from 'lucide-react';
 import { deliveryAPI } from '../services/api';
+import { PageHero, GlassCard, Button, MetricCard } from '../../../shared-ui/PremiumUI';
 
 const defaultPricing = {
     base_fee: '35.00',
@@ -156,8 +157,8 @@ export default function PricingPanel() {
 
     if (loading) {
         return (
-            <div>
-                <div className="page-header"><h1 className="page-title">Pricing Panel</h1></div>
+            <div className="page-shell">
+                <PageHero eyebrow="Operations" title="Pricing Panel" description="Manage delivery pricing, partner payouts, surge rules, and incentive slabs." compact />
                 {[1, 2, 3].map((item) => (
                     <div key={item} className="skeleton" style={{ height: 120, marginBottom: 16, borderRadius: 20 }} />
                 ))}
@@ -166,27 +167,20 @@ export default function PricingPanel() {
     }
 
     return (
-        <div>
-            <div className="page-header">
-                <div>
-                    <h1 className="page-title">Pricing Panel</h1>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginTop: 4 }}>
-                        Manage delivery pricing, partner payouts, surge rules, and incentive slabs.
-                    </p>
-                </div>
-            </div>
+        <div className="page-shell">
+            <PageHero eyebrow="Operations" title="Pricing Panel" description="Manage delivery pricing, partner payouts, surge rules, and incentive slabs." compact />
 
             <div className="stat-grid" style={{ marginBottom: 16 }}>
-                <MetricCard icon={Truck} label="Base fee" value={`Rs ${pricingForm.base_fee}`} />
-                <MetricCard icon={Percent} label="Margin %" value={pricingForm.platform_margin_percent} />
-                <MetricCard icon={Sparkles} label="Active surges" value={activeSurgeCount} />
-                <MetricCard icon={Target} label="Active slabs" value={slabs.filter((slab) => slab.is_active).length} />
+                <MetricCard icon={Truck} label="Base fee" value={`Rs ${pricingForm.base_fee}`} tone="#3b82f6" />
+                <MetricCard icon={Percent} label="Margin %" value={pricingForm.platform_margin_percent} tone="#10b981" />
+                <MetricCard icon={Sparkles} label="Active surges" value={activeSurgeCount} tone="#f59e0b" />
+                <MetricCard icon={Target} label="Active slabs" value={slabs.filter((slab) => slab.is_active).length} tone="#8b5cf6" />
             </div>
 
-            <div className="card" style={{ marginBottom: 16 }}>
+            <GlassCard padding="var(--space-5)" style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                    <Settings2 size={18} color="var(--accent)" />
-                    <h2 style={{ fontWeight: 800, fontSize: '1rem' }}>Customer Pricing + Partner Payout</h2>
+                    <Settings2 size={18} color="var(--brand-primary, #3b82f6)" />
+                    <h2 style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--color-text-primary)' }}>Customer Pricing + Partner Payout</h2>
                 </div>
 
                 <div style={{ display: 'grid', gap: 20, gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
@@ -219,21 +213,21 @@ export default function PricingPanel() {
                 </div>
 
                 <div style={{ marginTop: 18 }}>
-                    <button className="btn btn-primary" onClick={saveConfigs} disabled={saving}>
+                    <Button variant="primary" onClick={saveConfigs} disabled={saving}>
                         {saving ? 'Saving...' : 'Save Pricing Config'}
-                    </button>
+                    </Button>
                 </div>
-            </div>
+            </GlassCard>
 
-            <div className="card" style={{ marginBottom: 16 }}>
+            <GlassCard padding="var(--space-5)" style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                    <Sparkles size={18} color="var(--accent)" />
-                    <h2 style={{ fontWeight: 800, fontSize: '1rem' }}>Surge Rules</h2>
+                    <Sparkles size={18} color="var(--brand-primary, #3b82f6)" />
+                    <h2 style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--color-text-primary)' }}>Surge Rules</h2>
                 </div>
 
                 <div style={{ display: 'grid', gap: 20, gridTemplateColumns: 'minmax(260px, 340px) minmax(0, 1fr)' }}>
-                    <div style={{ padding: 16, borderRadius: 18, background: 'var(--bg-elevated)' }}>
-                        <div style={{ fontWeight: 700, marginBottom: 12 }}>Create Surge</div>
+                    <div style={{ padding: 16, borderRadius: 18, background: 'var(--color-bg-elevated)' }}>
+                        <div style={{ fontWeight: 700, marginBottom: 12, color: 'var(--color-text-primary)' }}>Create Surge</div>
                         <StackField label="Label">
                             <input className="input" value={manualSurge.name} onChange={(event) => setManualSurge((prev) => ({ ...prev, name: event.target.value }))} />
                         </StackField>
@@ -261,13 +255,13 @@ export default function PricingPanel() {
                         <StackField label="Priority">
                             <input className="input" type="number" value={manualSurge.priority} onChange={(event) => setManualSurge((prev) => ({ ...prev, priority: event.target.value }))} />
                         </StackField>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.9rem', marginBottom: 14 }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.9rem', marginBottom: 14, color: 'var(--color-text-secondary)' }}>
                             <input type="checkbox" checked={manualSurge.is_active} onChange={(event) => setManualSurge((prev) => ({ ...prev, is_active: event.target.checked }))} />
                             Activate immediately
                         </label>
-                        <button className="btn btn-primary" onClick={createSurge} disabled={saving || !manualSurge.name.trim()}>
+                        <Button variant="primary" onClick={createSurge} disabled={saving || !manualSurge.name.trim()}>
                             Create Surge
-                        </button>
+                        </Button>
                     </div>
 
                     <div style={{ overflowX: 'auto' }}>
@@ -295,9 +289,9 @@ export default function PricingPanel() {
                                             </span>
                                         </td>
                                         <td>
-                                            <button className="btn btn-secondary" onClick={() => toggleSurge(surge)}>
+                                            <Button variant="secondary" onClick={() => toggleSurge(surge)}>
                                                 {surge.is_active ? 'Deactivate' : 'Activate'}
-                                            </button>
+                                            </Button>
                                         </td>
                                     </tr>
                                 ))}
@@ -305,17 +299,17 @@ export default function PricingPanel() {
                         </table>
                     </div>
                 </div>
-            </div>
+            </GlassCard>
 
-            <div className="card">
+            <GlassCard padding="var(--space-5)">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                    <Clock3 size={18} color="var(--accent)" />
-                    <h2 style={{ fontWeight: 800, fontSize: '1rem' }}>Incentive Slabs</h2>
+                    <Clock3 size={18} color="var(--brand-primary, #3b82f6)" />
+                    <h2 style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--color-text-primary)' }}>Incentive Slabs</h2>
                 </div>
 
                 <div style={{ display: 'grid', gap: 20, gridTemplateColumns: 'minmax(260px, 320px) minmax(0, 1fr)' }}>
-                    <div style={{ padding: 16, borderRadius: 18, background: 'var(--bg-elevated)' }}>
-                        <div style={{ fontWeight: 700, marginBottom: 12 }}>
+                    <div style={{ padding: 16, borderRadius: 18, background: 'var(--color-bg-elevated)' }}>
+                        <div style={{ fontWeight: 700, marginBottom: 12, color: 'var(--color-text-primary)' }}>
                             {editingSlabId ? 'Edit Slab' : 'Add Slab'}
                         </div>
                         <StackField label="Period">
@@ -330,18 +324,18 @@ export default function PricingPanel() {
                         <StackField label="Bonus amount">
                             <input className="input" value={slabForm.bonus_amount} onChange={(event) => setSlabForm((prev) => ({ ...prev, bonus_amount: event.target.value }))} />
                         </StackField>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.9rem', marginBottom: 14 }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.9rem', marginBottom: 14, color: 'var(--color-text-secondary)' }}>
                             <input type="checkbox" checked={slabForm.is_active} onChange={(event) => setSlabForm((prev) => ({ ...prev, is_active: event.target.checked }))} />
                             Active slab
                         </label>
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                            <button className="btn btn-primary" onClick={saveSlab} disabled={saving}>
+                            <Button variant="primary" onClick={saveSlab} disabled={saving}>
                                 {editingSlabId ? 'Update Slab' : 'Create Slab'}
-                            </button>
+                            </Button>
                             {editingSlabId ? (
-                                <button className="btn btn-secondary" onClick={() => { setEditingSlabId(null); setSlabForm(defaultSlab); }}>
+                                <Button variant="secondary" onClick={() => { setEditingSlabId(null); setSlabForm(defaultSlab); }}>
                                     Cancel
-                                </button>
+                                </Button>
                             ) : null}
                         </div>
                     </div>
@@ -370,12 +364,12 @@ export default function PricingPanel() {
                                         </td>
                                         <td>
                                             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                                                <button className="btn btn-secondary" onClick={() => { setEditingSlabId(slab.id); setSlabForm(toStringForm(slab, defaultSlab)); }}>
+                                                <Button variant="secondary" onClick={() => { setEditingSlabId(slab.id); setSlabForm(toStringForm(slab, defaultSlab)); }}>
                                                     Edit
-                                                </button>
-                                                <button className="btn" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }} onClick={() => removeSlab(slab.id)}>
+                                                </Button>
+                                                <Button style={{ background: 'var(--color-danger)', color: 'white' }} onClick={() => removeSlab(slab.id)}>
                                                     Delete
-                                                </button>
+                                                </Button>
                                             </div>
                                         </td>
                                     </tr>
@@ -384,23 +378,7 @@ export default function PricingPanel() {
                         </table>
                     </div>
                 </div>
-            </div>
-        </div>
-    );
-}
-
-function MetricCard({ icon: Icon, label, value }) {
-    return (
-        <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                    <p className="stat-label">{label}</p>
-                    <p className="stat-value">{value}</p>
-                </div>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255, 90, 31, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon size={20} color="var(--accent)" />
-                </div>
-            </div>
+            </GlassCard>
         </div>
     );
 }

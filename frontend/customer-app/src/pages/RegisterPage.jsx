@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Phone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import AuthLayout from '../components/shared/AuthLayout';
-import { Button, FloatingInput, PasswordInput } from '../../../shared-ui/PremiumUI';
+import { PremiumAuthLayout, Button, FloatingInput, PasswordInput } from '../../../shared-ui/PremiumUI';
 
 const RegisterPage = () => {
     const navigate = useNavigate();
@@ -47,13 +46,22 @@ const RegisterPage = () => {
         }
     };
 
+    const authFeatures = [
+        { icon: User, title: 'Personalized Profile', copy: 'Save your favorite spots and past orders.' },
+        { icon: Phone, title: 'Easy Contact', copy: 'Seamless communication with restaurants and drivers.' },
+        { icon: Lock, title: 'Secure Wallet', copy: 'Save payment methods securely.' }
+    ];
+
     return (
-        <AuthLayout 
+        <PremiumAuthLayout 
+            eyebrow="Join Us"
             title="Your next favorite meal starts here." 
-            subtitle="Create one account for effortless ordering, saved favorites, flexible addresses, and real-time delivery updates."
+            description="Create one account for effortless ordering, saved favorites, flexible addresses, and real-time delivery updates."
+            features={authFeatures}
+            tone="customer"
         >
-            <div style={{ textAlign: 'center', marginBottom: 'var(--space-5)' }}>
-                <h2 style={{ fontSize: 'var(--text-h2)', marginBottom: 'var(--space-2)' }}>Join Pecafoo today</h2>
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
+                <h2 style={{ fontSize: 'var(--text-h2)', marginBottom: 'var(--space-2)', fontWeight: 700, letterSpacing: '-0.03em' }}>Join Pecafoo today</h2>
                 <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-body)' }}>Sign up in seconds and start ordering.</p>
             </div>
 
@@ -127,7 +135,7 @@ const RegisterPage = () => {
                 <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
             </div>
 
-            <Button type="button" variant="secondary" fullWidth size="medium" onClick={handleGoogleLogin} disabled={loading}>
+            <Button type="button" variant="secondary" fullWidth size="large" onClick={handleGoogleLogin} disabled={loading}>
                 <svg width="20" height="20" viewBox="0 0 24 24" style={{ marginRight: '8px' }}>
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -137,13 +145,10 @@ const RegisterPage = () => {
                 Continue with Google
             </Button>
 
-            <p style={{ textAlign: 'center', marginTop: 'var(--space-5)', fontSize: 'var(--text-body)', color: 'var(--color-text-secondary)' }}>
-                Already have an account?{' '}
-                <Link to="/login" style={{ color: 'var(--brand-customer)', fontWeight: 600, textDecoration: 'none' }}>
-                    Log in
-                </Link>
+            <p style={{ textAlign: 'center', marginTop: 'var(--space-5)', color: 'var(--color-text-secondary)', fontSize: 'var(--text-body)' }}>
+                Already have an account? <Link to="/login" style={{ color: 'var(--brand-customer)', fontWeight: 600, textDecoration: 'none' }}>Log in</Link>
             </p>
-        </AuthLayout>
+        </PremiumAuthLayout>
     );
 };
 

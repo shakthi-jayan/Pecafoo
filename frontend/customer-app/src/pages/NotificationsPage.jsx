@@ -10,7 +10,8 @@ import {
     IconButton,
     Button,
     GlassCard,
-    EmptyState
+    EmptyState,
+    Skeleton
 } from '../../../shared-ui/PremiumUI';
 
 const typeIcons = { order: Package, info: Info, promo: Gift, rating: Star, system: Bell };
@@ -75,7 +76,7 @@ const NotificationsPage = () => {
             <div style={{ padding: 'var(--space-4)', paddingBottom: '120px' }}>
                 <GlassCard padding="var(--space-4)" style={{ marginBottom: 'var(--space-5)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-                        <div style={{ width: 48, height: 48, borderRadius: '16px', backgroundColor: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: 48, height: 48, borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <Bell size={24} color="#3b82f6" />
                         </div>
                         <div>
@@ -87,7 +88,7 @@ const NotificationsPage = () => {
 
                 {loading ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                        {[1, 2, 3, 4].map((i) => <div key={i} style={{ height: 80, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />)}
+                        {[1, 2, 3, 4].map((i) => <Skeleton key={i} width="100%" height={80} borderRadius="var(--radius-card)" />)}
                     </div>
                 ) : notifications.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, ChefHat, Clock3, BarChart3 } from 'lucide-react';
 import { useAuth } from '../App';
 import toast from 'react-hot-toast';
-import { PremiumAuthLayout } from '../../../shared-ui/PremiumUI';
+import { PremiumAuthLayout, FloatingInput, PasswordInput, Button } from '../../../shared-ui/PremiumUI';
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -63,18 +63,25 @@ const LoginPage = () => {
                     <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 4 }}>Restaurant Dashboard</h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Sign in to manage your restaurant</p>
                 </div>
-                <form onSubmit={handleLogin}>
-                    <div style={{ marginBottom: 16 }}>
-                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: 4, fontWeight: 700 }}>Email</label>
-                        <input className="input" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                    </div>
-                    <div style={{ marginBottom: 24 }}>
-                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: 4, fontWeight: 700 }}>Password</label>
-                        <input className="input" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                    </div>
-                    <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', padding: '14px', fontSize: '1rem' }}>
-                        {loading ? 'Signing in...' : 'Sign In'} {!loading && <ArrowRight size={18} />}
-                    </button>
+                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                    <FloatingInput 
+                        label="Email Address"
+                        type="email" 
+                        value={email} 
+                        onChange={(e) => setEmail(e.target.value)} 
+                        required 
+                    />
+                    
+                    <PasswordInput 
+                        label="Password"
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)} 
+                        required 
+                    />
+                    
+                    <Button type="submit" variant="primary" fullWidth size="large" disabled={loading} style={{ marginTop: 'var(--space-2)' }}>
+                        {loading ? 'Signing in...' : 'Sign In'}
+                    </Button>
                 </form>
                 <p style={{ textAlign: 'center', marginTop: 20, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
                     Don&apos;t have an account? <Link to="/register" style={{ color: 'var(--accent)', fontWeight: 700 }}>Sign Up</Link>

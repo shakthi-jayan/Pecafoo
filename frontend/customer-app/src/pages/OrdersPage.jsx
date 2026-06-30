@@ -12,7 +12,8 @@ import {
     SegmentedControl,
     EmptyState,
     Button,
-    GlassCard
+    GlassCard,
+    Skeleton
 } from '../../../shared-ui/PremiumUI';
 
 const statusColors = {
@@ -125,7 +126,7 @@ const OrdersPage = () => {
 
                 {loading ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                        {[1, 2, 3].map(i => <div key={i} style={{ height: 160, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />)}
+                        {[1, 2, 3].map(i => <Skeleton key={i} width="100%" height={160} borderRadius="var(--radius-card)" />)}
                     </div>
                 ) : currentOrders.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>

@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, Smartphone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import AuthLayout from '../components/shared/AuthLayout';
-import { Button, SegmentedControl, FloatingInput, PasswordInput } from '../../../shared-ui/PremiumUI';
+import { PremiumAuthLayout, Button, SegmentedControl, FloatingInput, PasswordInput } from '../../../shared-ui/PremiumUI';
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -76,14 +75,23 @@ const LoginPage = () => {
         }
     };
 
+    const authFeatures = [
+        { icon: Smartphone, title: 'Live Order Tracking', copy: 'Clear ETAs from the kitchen to your door.' },
+        { icon: Mail, title: 'Personalized Offers', copy: 'Discounts and deals curated for you.' },
+        { icon: Lock, title: 'Secure Sign-In', copy: 'Dependable support and safe payments.' }
+    ];
+
     return (
-        <AuthLayout 
-            title="Welcome Back" 
-            subtitle="Continue where you left off and get your cravings delivered fast."
+        <PremiumAuthLayout 
+            eyebrow="Welcome Back"
+            title="Log in to Pecafoo" 
+            description="Continue where you left off and get your cravings delivered fast."
+            features={authFeatures}
+            tone="customer"
         >
-            <div style={{ textAlign: 'center', marginBottom: 'var(--space-5)' }}>
-                <h2 style={{ fontSize: 'var(--text-h2)', marginBottom: 'var(--space-2)' }}>Log in to Pecafoo</h2>
-                <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-body)' }}>Enter your details below</p>
+            <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
+                <h2 style={{ fontSize: 'var(--text-h2)', marginBottom: 'var(--space-2)', fontWeight: 700, letterSpacing: '-0.03em' }}>Welcome back</h2>
+                <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-body)' }}>Log in to access your account</p>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-5)' }}>
@@ -98,69 +106,69 @@ const LoginPage = () => {
                 />
             </div>
 
-            {loginMode === 'password' ? (
-                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                    <FloatingInput 
-                        label="Email Address"
-                        icon={Mail}
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        autoComplete="username"
-                    />
-                    
-                    <PasswordInput 
-                        label="Password"
-                        icon={Lock}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        autoComplete="current-password"
-                    />
-
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-8px' }}>
-                        <Link to="/forgot-password" style={{ fontSize: 'var(--text-caption)', color: 'var(--brand-customer)', fontWeight: 600, textDecoration: 'none' }}>
-                            Forgot password?
-                        </Link>
-                    </div>
-
-                    <Button type="submit" variant="primary" fullWidth size="medium" disabled={loading} style={{ marginTop: 'var(--space-2)' }}>
-                        {loading ? 'Signing in...' : 'Log In'}
-                    </Button>
-                </form>
-            ) : (
-                <form onSubmit={handlePhoneOtpLogin} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                    <FloatingInput 
-                        label="Phone Number"
-                        icon={Smartphone}
-                        type="tel"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        required
-                        disabled={otpRequested}
-                    />
-
-                    {otpRequested ? (
+            <form onSubmit={loginMode === 'password' ? handleLogin : handlePhoneOtpLogin}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', marginBottom: 'var(--space-5)' }}>
+                    {loginMode === 'password' ? (
                         <>
-                            <FloatingInput 
-                                label="Enter OTP"
-                                type="text"
-                                value={phoneOtp}
-                                onChange={(e) => setPhoneOtp(e.target.value)}
+                            <FloatingInput
+                                label="Email Address"
+                                type="email"
+                                icon={Mail}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
-                            <Button type="submit" variant="primary" fullWidth size="medium" disabled={loading}>
-                                {loading ? 'Verifying...' : 'Verify & Log In'}
-                            </Button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                                <PasswordInput
+                                    label="Password"
+                                    icon={Lock}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+                                <div style={{ textAlign: 'right' }}>
+                                    <Link to="/forgot-password" style={{ color: 'var(--brand-customer)', fontSize: 'var(--text-caption)', fontWeight: 600, textDecoration: 'none' }}>
+                                        Forgot Password?
+                                    </Link>
+                                </div>
+                            </div>
                         </>
                     ) : (
-                        <Button type="button" onClick={handleRequestOtp} variant="primary" fullWidth size="medium" disabled={loading || !phoneNumber}>
-                            {loading ? 'Sending OTP...' : 'Get OTP'}
-                        </Button>
+                        <>
+                            <FloatingInput
+                                label="Phone Number"
+                                type="tel"
+                                icon={Smartphone}
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                required
+                                disabled={otpRequested}
+                            />
+                            {otpRequested && (
+                                <FloatingInput
+                                    label="6-Digit OTP"
+                                    type="text"
+                                    icon={Lock}
+                                    value={phoneOtp}
+                                    onChange={(e) => setPhoneOtp(e.target.value)}
+                                    required
+                                />
+                            )}
+                        </>
                     )}
-                </form>
-            )}
+                </div>
+
+                <Button 
+                    type={loginMode === 'otp' && !otpRequested ? 'button' : 'submit'} 
+                    variant="primary" 
+                    fullWidth 
+                    size="large"
+                    onClick={loginMode === 'otp' && !otpRequested ? handleRequestOtp : undefined}
+                    disabled={loading}
+                >
+                    {loading ? 'Processing...' : (loginMode === 'password' ? 'Log In' : (otpRequested ? 'Verify & Log In' : 'Send OTP'))}
+                </Button>
+            </form>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', margin: 'var(--space-5) 0' }}>
                 <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--color-border)' }} />
@@ -184,7 +192,7 @@ const LoginPage = () => {
                     Sign up
                 </Link>
             </p>
-        </AuthLayout>
+        </PremiumAuthLayout>
     );
 };
 

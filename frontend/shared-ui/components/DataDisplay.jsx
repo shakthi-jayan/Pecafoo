@@ -35,12 +35,12 @@ export function ProfileHeader({ name, subtitle, avatarSrc, avatarInitials }) {
       padding: 'var(--space-5)',
       backgroundColor: 'var(--color-bg-card)',
       borderRadius: 'var(--radius-card)',
-      boxShadow: 'var(--shadow-softer)'
+      boxShadow: 'var(--shadow-md)'
     }}>
       <Avatar src={avatarSrc} initials={avatarInitials} size={72} />
       <div>
-        <h2 style={{ fontSize: 'var(--text-h2)', fontWeight: 700, margin: '0 0 var(--space-1) 0' }}>{name}</h2>
-        {subtitle && <p style={{ color: 'var(--color-text-secondary)', margin: 0 }}>{subtitle}</p>}
+        <h2 style={{ fontSize: 'var(--text-h2)', fontWeight: 700, margin: '0 0 var(--space-1) 0', letterSpacing: '-0.03em' }}>{name}</h2>
+        {subtitle && <p style={{ color: 'var(--color-text-secondary)', margin: 0, fontSize: 'var(--text-body)' }}>{subtitle}</p>}
       </div>
     </div>
   );
@@ -55,13 +55,13 @@ export function MetricCard({ label, value, detail, icon: Icon, brandColor = 'var
         backgroundColor: 'var(--color-bg-card)',
         padding: 'var(--space-5)',
         borderRadius: 'var(--radius-card)',
-        boxShadow: 'var(--shadow-softer)',
+        boxShadow: 'var(--shadow-md)',
         border: '1px solid var(--color-border)',
         display: 'flex',
         flexDirection: 'column'
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-4)' }}>
         <div style={{
           width: '40px', height: '40px',
           borderRadius: '12px',
@@ -90,13 +90,13 @@ export function RestaurantCard({ image, name, subtitle, rating, time, className 
   return (
     <motion.div 
       className={`premium-restaurant-card ${className}`}
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.2 }}
+      whileHover={{ scale: 1.02, y: -4, boxShadow: 'var(--shadow-lg)' }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       style={{
         backgroundColor: 'var(--color-bg-card)',
         borderRadius: 'var(--radius-card)',
         overflow: 'hidden',
-        boxShadow: 'var(--shadow-soft)',
+        boxShadow: 'var(--shadow-md)',
         cursor: 'pointer',
         display: 'flex',
         flexDirection: 'column'

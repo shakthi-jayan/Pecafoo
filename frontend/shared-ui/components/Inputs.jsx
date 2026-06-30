@@ -7,6 +7,8 @@ export const FloatingInput = React.forwardRef(({
   type = 'text',
   className = '',
   brandColor = 'var(--brand-customer)',
+  error = false,
+  helperText = '',
   ...props
 }, ref) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -29,37 +31,41 @@ export const FloatingInput = React.forwardRef(({
   };
 
   const active = isFocused || hasValue;
+  const borderColor = error ? 'var(--color-error)' : (isFocused ? brandColor : 'transparent');
+  const labelColor = error ? 'var(--color-error)' : (isFocused ? brandColor : 'var(--color-text-secondary)');
 
   return (
-    <div className={`premium-floating-input ${className}`} style={{
-      position: 'relative',
-      width: '100%',
-      backgroundColor: 'var(--color-bg-card)',
-      borderRadius: 'var(--radius-input)',
-      border: `1px solid ${isFocused ? brandColor : 'var(--color-border)'}`,
-      transition: 'border-color var(--motion-duration-fast) ease',
-      display: 'flex',
-      alignItems: 'center',
-      padding: '0 var(--space-4)',
-      height: '56px'
-    }}>
-      {Icon && (
-        <span style={{ 
-          marginRight: 'var(--space-3)', 
-          color: isFocused ? brandColor : 'var(--color-text-tertiary)',
-          transition: 'color var(--motion-duration-fast) ease',
-          display: 'flex'
-        }}>
-          <Icon size={20} />
-        </span>
-      )}
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '4px' }}>
+      <div className={`premium-floating-input ${className}`} style={{
+        position: 'relative',
+        width: '100%',
+        backgroundColor: isFocused ? 'var(--color-bg-card)' : 'var(--color-bg-base)',
+        borderRadius: 'var(--radius-input)',
+        border: `1px solid ${borderColor}`,
+        boxShadow: isFocused && !error ? `0 0 0 3px ${brandColor}20` : (error && isFocused ? `0 0 0 3px rgba(255, 59, 48, 0.2)` : 'none'),
+        transition: 'all var(--motion-duration-fast) ease',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 var(--space-4)',
+        height: '56px'
+      }}>
+        {Icon && (
+          <span style={{ 
+            marginRight: 'var(--space-3)', 
+            color: error ? 'var(--color-error)' : (isFocused ? brandColor : 'var(--color-text-tertiary)'),
+            transition: 'color var(--motion-duration-fast) ease',
+            display: 'flex'
+          }}>
+            <Icon size={20} />
+          </span>
+        )}
       <div style={{ position: 'relative', flex: 1, height: '100%' }}>
         <motion.label
           initial={false}
           animate={{
             y: active ? -12 : 0,
             scale: active ? 0.75 : 1,
-            color: isFocused ? brandColor : 'var(--color-text-secondary)'
+            color: labelColor
           }}
           transition={{ duration: 0.15 }}
           style={{
@@ -67,7 +73,8 @@ export const FloatingInput = React.forwardRef(({
             left: 0,
             top: '18px',
             pointerEvents: 'none',
-            transformOrigin: 'left top'
+            transformOrigin: 'left top',
+            fontWeight: active ? 500 : 400,
           }}
         >
           {label}
@@ -92,6 +99,17 @@ export const FloatingInput = React.forwardRef(({
         />
       </div>
     </div>
+    {helperText && (
+      <div style={{
+        paddingLeft: 'var(--space-2)',
+        fontSize: 'var(--text-caption)',
+        color: error ? 'var(--color-error)' : 'var(--color-text-secondary)',
+        marginTop: '2px'
+      }}>
+        {helperText}
+      </div>
+    )}
+  </div>
   );
 });
 
@@ -142,7 +160,7 @@ export const SearchBar = React.forwardRef(({
 });
 
 // A simplified PasswordInput building on FloatingInput
-export const PasswordInput = React.forwardRef(({ label, icon: Icon, brandColor, ...props }, ref) => {
+export const PasswordInput = React.forwardRef(({ label, icon: Icon, brandColor, error, helperText, ...props }, ref) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -153,6 +171,8 @@ export const PasswordInput = React.forwardRef(({ label, icon: Icon, brandColor, 
         icon={Icon}
         type={showPassword ? 'text' : 'password'}
         brandColor={brandColor}
+        error={error}
+        helperText={helperText}
         {...props}
       />
       <button 
@@ -161,7 +181,7 @@ export const PasswordInput = React.forwardRef(({ label, icon: Icon, brandColor, 
         style={{
           position: 'absolute',
           right: 'var(--space-4)',
-          top: '50%',
+          top: '28px', // Center relative to the 56px input, not the whole container
           transform: 'translateY(-50%)',
           background: 'none',
           border: 'none',

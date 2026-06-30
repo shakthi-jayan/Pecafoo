@@ -5,7 +5,7 @@ import { ArrowRight, FileText, Upload, MapPin, Loader2, AlertCircle, ExternalLin
 import { useAuth } from '../App';
 import { restaurantsAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { AuthProgress, PremiumAuthLayout } from '../../../shared-ui/PremiumUI';
+import { AuthProgress, PremiumAuthLayout, FloatingInput, PasswordInput, Button, GlassCard } from '../../../shared-ui/PremiumUI';
 
 const RegisterPage = () => {
     const navigate = useNavigate();
@@ -479,122 +479,116 @@ const RegisterPage = () => {
                         </button>
                     </div>
                 ) : (
-                <form onSubmit={handleRegister}>
-                    <div className="auth-split-row">
-                        <input
-                            className="input"
+                <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+                        <FloatingInput
                             name="first_name"
-                            placeholder="First Name *"
+                            label="First Name"
                             value={formData.first_name}
                             onChange={handleChange}
                             required
+                            style={{ flex: 1 }}
                         />
-                        <input
-                            className="input"
+                        <FloatingInput
                             name="last_name"
-                            placeholder="Last Name *"
+                            label="Last Name"
                             value={formData.last_name}
                             onChange={handleChange}
                             required
+                            style={{ flex: 1 }}
                         />
                     </div>
 
-                    <input
-                        className="input"
+                    <FloatingInput
                         type="email"
                         name="email"
-                        placeholder="Email *"
+                        label="Email Address"
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        style={{ marginBottom: 12 }}
                     />
                     
-                    <input 
-                        className="input" 
+                    <FloatingInput 
                         type="tel" 
                         name="phone_number" 
-                        placeholder="Owner Phone *" 
+                        label="Owner Phone" 
                         value={formData.phone_number} 
                         onChange={handlePhoneChange} 
                         required 
-                        style={{ marginBottom: 12 }} 
                     />
 
-                    <input
-                        className="input"
+                    <FloatingInput
                         name="restaurant_name"
-                        placeholder="Restaurant Name *"
+                        label="Restaurant Name"
                         value={formData.restaurant_name}
                         onChange={handleChange}
                         required
-                        style={{ marginBottom: 12 }}
                     />
 
                     <textarea
-                        className="input"
                         name="description"
                         placeholder="Restaurant Description"
                         value={formData.description}
                         onChange={handleChange}
                         rows="3"
-                        style={{ marginBottom: 12, resize: 'vertical' }}
+                        style={{ 
+                            width: '100%', padding: '16px', borderRadius: 'var(--radius-input)',
+                            border: '1px solid var(--color-border)', background: 'var(--color-bg-base)',
+                            fontSize: 'var(--text-body)', color: 'var(--color-text-primary)',
+                            outline: 'none', fontFamily: 'inherit', resize: 'vertical'
+                        }}
                     />
 
-                    <input
-                        className="input"
+                    <FloatingInput
                         name="cuisine_type"
-                        placeholder="Cuisine Type * (e.g., Italian, Chinese, Indian)"
+                        label="Cuisine Type (e.g., Italian, Chinese)"
                         value={formData.cuisine_type}
                         onChange={handleChange}
                         required
-                        style={{ marginBottom: 12 }}
                     />
 
-                    <input
-                        className="input"
+                    <FloatingInput
                         name="address"
-                        placeholder="Full Address *"
+                        label="Full Address"
                         value={formData.address}
                         onChange={handleChange}
                         required
-                        style={{ marginBottom: 12 }}
                     />
 
-                    <div className="auth-split-row">
-                        <input
-                            className="input"
+                    <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+                        <FloatingInput
                             name="city"
-                            placeholder="City *"
+                            label="City"
                             value={formData.city}
                             onChange={handleChange}
                             required
+                            style={{ flex: 1 }}
                         />
-                        <input
-                            className="input"
+                        <FloatingInput
                             name="state"
-                            placeholder="State *"
+                            label="State"
                             value={formData.state}
                             onChange={handleChange}
                             required
+                            style={{ flex: 1 }}
                         />
                     </div>
 
-                    <div className="auth-split-row" style={{ marginTop: 12 }}>
-                        <input
-                            className="input"
+                    <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+                        <FloatingInput
                             name="pincode"
-                            placeholder="Pincode *"
+                            label="Pincode"
                             value={formData.pincode}
                             onChange={handleChange}
                             required
+                            style={{ flex: 1 }}
                         />
-                        <input 
-                            className="input" 
+                        <FloatingInput 
                             name="restaurant_phone" 
-                            placeholder="Restaurant Phone (Optional)" 
+                            label="Restaurant Phone (Optional)" 
                             value={formData.restaurant_phone} 
                             onChange={handlePhoneChange} 
+                            style={{ flex: 1 }}
                         />
                     </div>
 
@@ -685,34 +679,28 @@ const RegisterPage = () => {
                         )}
                     </div>
 
-                    <input
-                        className="input"
-                        type="password"
+                    <PasswordInput
                         name="password"
-                        placeholder="Password * (min 8 characters)"
+                        label="Password (min 8 characters)"
                         value={formData.password}
                         onChange={handleChange}
                         required
                         minLength={8}
-                        style={{ marginBottom: 12 }}
                     />
 
-                    <input
-                        className="input"
-                        type="password"
+                    <PasswordInput
                         name="password_confirm"
-                        placeholder="Confirm Password *"
+                        label="Confirm Password"
                         value={formData.password_confirm}
                         onChange={handleChange}
                         required
                         minLength={8}
-                        style={{ marginBottom: 20 }}
                     />
 
                     {/* Documents Section */}
-                    <div className="card" style={{ padding: 16, marginBottom: 20 }}>
+                    <GlassCard padding="var(--space-4)" style={{ marginBottom: 'var(--space-5)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                            <FileText size={18} color="var(--accent)" />
+                            <FileText size={18} color="var(--brand-restaurant)" />
                             <strong style={{ fontSize: '0.9rem' }}>Verification Documents</strong>
                             <span style={{ fontSize: '0.7rem', color: '#ef4444', marginLeft: 'auto' }}>
                                 All files required
@@ -721,37 +709,20 @@ const RegisterPage = () => {
                         <FileField label="Business License" name="business_license" />
                         <FileField label="Food Safety Certificate" name="food_safety_certificate" />
                         <FileField label="Owner ID Proof" name="owner_id_proof" />
-                        <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 8, textAlign: 'center' }}>
+                        <p style={{ fontSize: '0.7rem', color: 'var(--color-text-tertiary)', marginTop: 8, textAlign: 'center' }}>
                             Supported formats: Images (JPG, PNG) and PDF files (Max 5MB each)
                         </p>
-                    </div>
+                    </GlassCard>
 
-                    <button
+                    <Button
                         type="submit"
-                        className="btn btn-primary"
+                        variant="primary"
+                        fullWidth
+                        size="large"
                         disabled={loading}
-                        style={{
-                            width: '100%',
-                            padding: 14,
-                            fontSize: '1rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 8
-                        }}
                     >
-                        {loading ? (
-                            <>
-                                <Loader2 size={18} className="spin" />
-                                Creating Account...
-                            </>
-                        ) : (
-                            <>
-                                Create Account
-                                <ArrowRight size={18} />
-                            </>
-                        )}
-                    </button>
+                        {loading ? 'Creating Account...' : 'Create Account'}
+                    </Button>
                 </form>
                 )}
 

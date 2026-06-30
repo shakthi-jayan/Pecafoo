@@ -19,7 +19,8 @@ import {
     Chip,
     HorizontalScroller,
     EmptyState,
-    GlassCard
+    GlassCard,
+    Skeleton
 } from '../../../shared-ui/PremiumUI';
 
 const RestaurantDetailPage = () => {
@@ -162,11 +163,11 @@ const RestaurantDetailPage = () => {
     if (loading) {
         return (
             <PageContainer padding="0">
-                <div style={{ height: 300, backgroundColor: 'var(--color-divider)' }} />
+                <Skeleton width="100%" height={300} borderRadius="0" />
                 <div style={{ padding: 'var(--space-4)' }}>
-                    <div style={{ height: 120, backgroundColor: 'var(--color-bg-card)', borderRadius: 'var(--radius-card)', marginTop: -40, marginBottom: 'var(--space-4)' }} />
-                    <div style={{ height: 60, backgroundColor: 'var(--color-divider)', borderRadius: '100px', marginBottom: 'var(--space-5)' }} />
-                    {[1, 2, 3].map(i => <div key={i} style={{ height: 140, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)', marginBottom: 'var(--space-4)' }} />)}
+                    <div style={{ height: 120, backgroundColor: 'var(--color-bg-card)', borderRadius: 'var(--radius-card)', marginTop: -40, marginBottom: 'var(--space-4)', position: 'relative', zIndex: 2 }} />
+                    <Skeleton width="100%" height={60} borderRadius="100px" style={{ marginBottom: 'var(--space-5)' }} />
+                    {[1, 2, 3].map(i => <Skeleton key={i} width="100%" height={140} borderRadius="var(--radius-card)" style={{ marginBottom: 'var(--space-4)' }} />)}
                 </div>
             </PageContainer>
         );
@@ -236,7 +237,7 @@ const RestaurantDetailPage = () => {
                     <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--color-border)' }} />
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: 'rgba(217, 70, 239, 0.1)', color: 'var(--brand-customer)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: 'var(--color-divider)', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <MessageSquare size={20} />
                         </div>
                         <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => navigate(`/restaurant/${slug}/reviews`)}>

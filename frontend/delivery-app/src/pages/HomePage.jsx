@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import MapView from '../components/shared/MapView';
 import SurgeBadge from '../components/shared/SurgeBadge';
 import { useAuth } from '../App';
-import { MetricCard, PageHero, SectionHeader } from '../../../shared-ui/PremiumUI';
+import { MetricCard, PageHero, SectionHeader, GlassCard } from '../../../shared-ui/PremiumUI';
 
 const INCOMING_POLL_INTERVAL = 8000; 
 const ACCEPT_TIMEOUT = 15; 
@@ -167,35 +167,33 @@ export default function HomePage() {
                 <div className={`delivery-status-orbit ${available ? 'is-online' : ''}`}><span /><strong>{available ? 'Live' : 'Paused'}</strong><small>Partner status</small></div>
             </PageHero>
             <SectionHeader eyebrow="Your area" title="Live delivery map" description="Your position, nearby demand, and suggested zones in one view." />
-            <div className="delivery-map-card">
+            <GlassCard padding="0" style={{ position: 'relative', overflow: 'hidden', marginBottom: 'var(--space-4)' }}>
                 {currentLocation ? (
                     <MapView center={currentLocation} markers={markers} zone={hotspotZone} style={{ height: 300, width: '100%' }} />
                 ) : (
-                    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <div className="skeleton" style={{ width: '100%', height: '100%', borderRadius: 0 }} />
                     </div>
                 )}
 
-                {}
                 <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 1000, display: 'flex', gap: 8 }}>
                     {surgeMultiplier > 1 && <SurgeBadge multiplier={surgeMultiplier} />}
                 </div>
 
-                {}
                 <div style={{ position: 'absolute', bottom: 20, left: 20, right: 20, zIndex: 1000 }}>
                     <motion.button
                         onClick={toggle}
                         whileTap={{ scale: 0.95 }}
                         style={{
-                            width: '100%', padding: 16, borderRadius: 16, border: 'none',
+                            width: '100%', padding: '16px', borderRadius: 'var(--radius-lg)', border: 'none',
                             background: available
-                                ? 'linear-gradient(135deg, #00c853, #00e676)'
-                                : 'var(--bg-card)',
-                            color: available ? 'white' : 'var(--text)',
+                                ? 'var(--color-success)'
+                                : 'var(--color-bg-elevated)',
+                            color: available ? 'white' : 'var(--color-text-primary)',
                             fontSize: '1.2rem', fontWeight: 800,
                             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
                             boxShadow: available
-                                ? '0 8px 32px rgba(0, 200, 83, 0.35)'
+                                ? '0 8px 32px rgba(16, 185, 129, 0.35)'
                                 : 'var(--shadow-elevation)',
                             cursor: 'pointer', transition: 'all 0.3s ease'
                         }}
@@ -203,7 +201,7 @@ export default function HomePage() {
                         <Power size={24} /> {available ? '🟢 You are Online' : '⭕ You are Offline'}
                     </motion.button>
                 </div>
-            </div>
+            </GlassCard>
 
             {}
             <AnimatePresence>
@@ -213,120 +211,118 @@ export default function HomePage() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -30, scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                        style={{
-                            background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.08))',
-                            border: '2px solid var(--warning)',
-                            borderRadius: 20, padding: 20, marginBottom: 20,
-                            boxShadow: '0 8px 32px rgba(251, 191, 36, 0.2)'
-                        }}
+                        style={{ marginBottom: 'var(--space-4)' }}
                     >
-                        {}
-                        <div style={{
-                            height: 4, background: 'rgba(251, 191, 36, 0.2)',
-                            borderRadius: 2, marginBottom: 16, overflow: 'hidden'
+                        <GlassCard padding="var(--space-4)" style={{
+                            background: 'var(--color-warning-bg)',
+                            border: '1px solid var(--color-warning)',
+                            boxShadow: '0 8px 32px rgba(245, 158, 11, 0.2)'
                         }}>
-                            <motion.div
-                                initial={{ width: '100%' }}
-                                animate={{ width: `${timerProgress}%` }}
-                                style={{
-                                    height: '100%', borderRadius: 2,
-                                    background: acceptTimer <= 5
-                                        ? 'var(--danger)'
-                                        : 'var(--warning)',
-                                    transition: 'background 0.3s ease'
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                            <div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                                    <AlertTriangle size={18} color="var(--warning)" />
-                                    <span style={{ fontWeight: 800, fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--warning)' }}>
-                                        New Order Request
-                                    </span>
-                                </div>
-                                <h3 style={{ fontWeight: 800, fontSize: '1.4rem' }}>#{incomingOrder.order_number}</h3>
-                            </div>
                             <div style={{
-                                width: 52, height: 52, borderRadius: '50%',
-                                background: acceptTimer <= 5 ? 'var(--danger)' : 'var(--warning)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                color: 'white', fontSize: '1.2rem', fontWeight: 800,
-                                boxShadow: `0 0 20px ${acceptTimer <= 5 ? 'rgba(239,68,68,0.5)' : 'rgba(251,191,36,0.5)'}`
+                                height: 4, background: 'rgba(245, 158, 11, 0.2)',
+                                borderRadius: 2, marginBottom: 'var(--space-3)', overflow: 'hidden'
                             }}>
-                                {acceptTimer}s
+                                <motion.div
+                                    initial={{ width: '100%' }}
+                                    animate={{ width: `${timerProgress}%` }}
+                                    style={{
+                                        height: '100%', borderRadius: 2,
+                                        background: acceptTimer <= 5
+                                            ? 'var(--color-danger)'
+                                            : 'var(--color-warning)',
+                                        transition: 'background 0.3s ease'
+                                    }}
+                                />
                             </div>
-                        </div>
 
-                        <div style={{ marginBottom: 16 }}>
-                            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: 4 }}>
-                                🏪 <strong>{incomingOrder.restaurant_name || 'Restaurant'}</strong>
-                            </p>
-                            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 4 }}>
-                                📍 {incomingOrder.delivery_address}
-                            </p>
-                            <p style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent)' }}>
-                                💰 ₹{incomingOrder.total}
-                            </p>
-                        </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-3)' }}>
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                        <AlertTriangle size={18} color="var(--color-warning)" />
+                                        <span style={{ fontWeight: 800, fontSize: 'var(--text-body)', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--color-warning)' }}>
+                                            New Order Request
+                                        </span>
+                                    </div>
+                                    <h3 style={{ fontWeight: 800, fontSize: 'var(--text-h3)' }}>#{incomingOrder.order_number}</h3>
+                                </div>
+                                <div style={{
+                                    width: 52, height: 52, borderRadius: '50%',
+                                    background: acceptTimer <= 5 ? 'var(--color-danger)' : 'var(--color-warning)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    color: 'white', fontSize: 'var(--text-body)', fontWeight: 800,
+                                    boxShadow: `0 0 20px ${acceptTimer <= 5 ? 'rgba(239,68,68,0.5)' : 'rgba(245,158,11,0.5)'}`
+                                }}>
+                                    {acceptTimer}s
+                                </div>
+                            </div>
 
-                        <div style={{ display: 'flex', gap: 12 }}>
-                            <motion.button
-                                whileTap={{ scale: 0.95 }}
-                                onClick={handleDecline}
-                                style={{
-                                    flex: 1, padding: '14px 0', borderRadius: 14, border: '2px solid var(--danger)',
-                                    background: 'transparent', color: 'var(--danger)',
-                                    fontWeight: 800, fontSize: '1rem', cursor: 'pointer'
-                                }}
-                            >
-                                ✕ Decline
-                            </motion.button>
-                            <motion.button
-                                whileTap={{ scale: 0.95 }}
-                                onClick={handleAccept}
-                                style={{
-                                    flex: 2, padding: '14px 0', borderRadius: 14, border: 'none',
-                                    background: 'linear-gradient(135deg, #00c853, #00e676)',
-                                    color: 'white', fontWeight: 800, fontSize: '1rem',
-                                    cursor: 'pointer', boxShadow: '0 6px 20px rgba(0, 200, 83, 0.3)'
-                                }}
-                            >
-                                <CheckCircle size={18} style={{ verticalAlign: 'middle', marginRight: 6 }} />
-                                Accept Order
-                            </motion.button>
-                        </div>
+                            <div style={{ marginBottom: 'var(--space-4)' }}>
+                                <p style={{ fontSize: 'var(--text-body)', color: 'var(--color-text-secondary)', marginBottom: 4 }}>
+                                    🏪 <strong style={{ color: 'var(--color-text-primary)' }}>{incomingOrder.restaurant_name || 'Restaurant'}</strong>
+                                </p>
+                                <p style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', marginBottom: 4 }}>
+                                    📍 {incomingOrder.delivery_address}
+                                </p>
+                                <p style={{ fontSize: 'var(--text-h4)', fontWeight: 800, color: 'var(--brand-delivery)' }}>
+                                    💰 ₹{incomingOrder.total}
+                                </p>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+                                <motion.button
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleDecline}
+                                    style={{
+                                        flex: 1, padding: '14px 0', borderRadius: 'var(--radius-md)', border: '2px solid var(--color-danger)',
+                                        background: 'transparent', color: 'var(--color-danger)',
+                                        fontWeight: 800, fontSize: 'var(--text-body)', cursor: 'pointer'
+                                    }}
+                                >
+                                    ✕ Decline
+                                </motion.button>
+                                <motion.button
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleAccept}
+                                    style={{
+                                        flex: 2, padding: '14px 0', borderRadius: 'var(--radius-md)', border: 'none',
+                                        background: 'var(--color-success)',
+                                        color: 'white', fontWeight: 800, fontSize: 'var(--text-body)',
+                                        cursor: 'pointer', boxShadow: '0 6px 20px rgba(16, 185, 129, 0.3)'
+                                    }}
+                                >
+                                    <CheckCircle size={18} style={{ verticalAlign: 'middle', marginRight: 6 }} />
+                                    Accept Order
+                                </motion.button>
+                            </div>
+                        </GlassCard>
                     </motion.div>
                 )}
             </AnimatePresence>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                {}
                 {available && suggestedZone && (
-                    <div className="card" style={{
-                        marginBottom: 16, background: 'linear-gradient(135deg, rgba(235, 87, 87, 0.08), rgba(235, 87, 87, 0.04))',
-                        border: '1px solid rgba(235, 87, 87, 0.2)', borderRadius: 20
+                    <GlassCard padding="var(--space-4)" style={{
+                        marginBottom: 'var(--space-4)', background: 'var(--color-danger-bg)',
+                        border: '1px solid rgba(239, 68, 68, 0.2)'
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                            <div style={{ background: 'rgba(235, 87, 87, 0.15)', color: 'var(--danger)', padding: 12, borderRadius: 14, flexShrink: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3)' }}>
+                            <div style={{ background: 'rgba(239, 68, 68, 0.15)', color: 'var(--color-danger)', padding: 12, borderRadius: 14, flexShrink: 0 }}>
                                 <Crosshair size={24} />
                             </div>
                             <div>
-                                <h4 style={{ fontWeight: 800, marginBottom: 4, fontSize: '1rem' }}>🔥 Demand Hotspot</h4>
-                                <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                                <h4 style={{ fontWeight: 800, marginBottom: 4, fontSize: 'var(--text-body)', color: 'var(--color-text-primary)' }}>🔥 Demand Hotspot</h4>
+                                <p style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
                                     Move towards the highlighted zone to get more orders!
                                     {suggestedZone.predicted_orders_next_hour &&
-                                        <strong> Est. {suggestedZone.predicted_orders_next_hour} orders</strong>
+                                        <strong style={{ color: 'var(--color-text-primary)' }}> Est. {suggestedZone.predicted_orders_next_hour} orders</strong>
                                     } coming soon.
                                 </p>
                             </div>
                         </div>
-                    </div>
+                    </GlassCard>
                 )}
 
-                {}
-                <SectionHeader eyebrow="Performance" title="Today at a glance" description="Earnings and delivery momentum, without the spreadsheet." action={<span className="badge badge-accent"><Clock size={14} /> Today</span>} />
+                <SectionHeader eyebrow="Performance" title="Today at a glance" description="Earnings and delivery momentum, without the spreadsheet." action={<span style={{ padding: '4px 8px', borderRadius: '100px', background: 'var(--color-bg-elevated)', fontSize: 'var(--text-caption)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> Today</span>} />
 
                 {}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
@@ -347,19 +343,18 @@ export default function HomePage() {
                     ))}
                 </div>
 
-                {}
                 {!available && (
-                    <div className="card" style={{
-                        textAlign: 'center', padding: 32, borderRadius: 20,
-                        background: 'linear-gradient(135deg, rgba(100,100,120,0.06), rgba(100,100,120,0.02))',
-                        border: '1px dashed var(--border)'
+                    <GlassCard padding="var(--space-6)" style={{
+                        textAlign: 'center',
+                        background: 'var(--color-bg-elevated)',
+                        border: '1px dashed var(--color-border)'
                     }}>
-                        <Power size={48} style={{ color: 'var(--text-muted)', opacity: 0.3, marginBottom: 12 }} />
-                        <h3 style={{ fontWeight: 700, marginBottom: 4, color: 'var(--text-secondary)' }}>You're Offline</h3>
-                        <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                        <Power size={48} style={{ color: 'var(--color-text-secondary)', opacity: 0.3, margin: '0 auto var(--space-3)' }} />
+                        <h3 style={{ fontWeight: 700, marginBottom: 'var(--space-1)', color: 'var(--color-text-primary)' }}>You're Offline</h3>
+                        <p style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)' }}>
                             Go online to start receiving delivery requests
                         </p>
-                    </div>
+                    </GlassCard>
                 )}
             </motion.div>
         </div>

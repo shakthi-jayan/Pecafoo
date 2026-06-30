@@ -13,7 +13,8 @@ import {
     EmptyState,
     Button,
     GlassCard,
-    RestaurantCard
+    RestaurantCard,
+    Skeleton
 } from '../../../shared-ui/PremiumUI';
 
 const WishlistPage = () => {
@@ -83,7 +84,7 @@ const WishlistPage = () => {
                             {restaurantLoading ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                                     {[1, 2, 3].map(i => (
-                                        <div key={i} style={{ height: 200, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />
+                                        <Skeleton key={i} width="100%" height={200} borderRadius="var(--radius-card)" />
                                     ))}
                                 </div>
                             ) : wishlist.length > 0 ? (
@@ -123,7 +124,7 @@ const WishlistPage = () => {
                             {foodLoading ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                                     {[1, 2, 3].map(i => (
-                                        <div key={i} style={{ height: 100, backgroundColor: 'var(--color-divider)', borderRadius: 'var(--radius-card)' }} />
+                                        <Skeleton key={i} width="100%" height={100} borderRadius="var(--radius-card)" />
                                     ))}
                                 </div>
                             ) : foodItems.length > 0 ? (
@@ -136,7 +137,7 @@ const WishlistPage = () => {
                                             transition={{ delay: i * 0.05 }}
                                         >
                                             <GlassCard padding="var(--space-3)" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                                                <div style={{ width: 64, height: 64, borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--color-divider)', flexShrink: 0 }}>
+                                                <div style={{ width: 64, height: 64, borderRadius: 'var(--radius-md)', overflow: 'hidden', backgroundColor: 'var(--color-divider)', flexShrink: 0 }}>
                                                     {item.menu_item_image ? (
                                                         <img src={item.menu_item_image} alt={item.menu_item_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                     ) : (

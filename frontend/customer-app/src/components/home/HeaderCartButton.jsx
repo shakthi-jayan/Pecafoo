@@ -15,7 +15,25 @@ export default function HeaderCartButton() {
     }, [itemCount]);
 
     return (
-        <button className="btn-icon" onClick={openCartDrawer} style={{ position: 'relative' }} aria-label="Open cart">
+        <button 
+            onClick={openCartDrawer} 
+            aria-label="Open cart"
+            style={{ 
+                position: 'relative',
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--color-bg-card)',
+                border: '1px solid var(--color-border)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: 'var(--color-text-primary)',
+                boxShadow: 'var(--shadow-sm)',
+                transition: 'all 0.2s ease'
+            }}
+        >
             <ShoppingCart size={20} />
             {itemCount > 0 ? (
                 <motion.span
