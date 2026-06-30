@@ -6,6 +6,17 @@ export default defineConfig({
   appType: 'spa',
 
   plugins: [react()],
+    resolve: {
+      alias: {
+        'react': '/node_modules/react',
+        'react-dom': '/node_modules/react-dom',
+        'react/jsx-runtime': '/node_modules/react/jsx-runtime',
+        'framer-motion': '/node_modules/framer-motion',
+        'lucide-react': '/node_modules/lucide-react',
+        'react-router-dom': '/node_modules/react-router-dom'
+      }
+    },
+    
 
   // These are build-time environment variables
   define: {

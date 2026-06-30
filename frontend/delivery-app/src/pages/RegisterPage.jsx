@@ -162,22 +162,31 @@ export default function RegisterPage() {
                 </div>
                 
                 {accountExists ? (
-                    <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                        <div style={{ width: 48, height: 48, background: 'rgba(0,0,0,0.05)', color: 'var(--text)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                            <User size={24} />
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: 'center', padding: '24px', background: '#F5F5F7', borderRadius: '16px' }}>
+                        <div style={{ marginBottom: 16 }}>
+                            <User size={32} color="var(--brand-delivery)" style={{ margin: '0 auto' }} />
                         </div>
-                        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: 8 }}>You already have an account</h2>
-                        <p style={{ color: 'var(--text-secondary)', marginBottom: 24, lineHeight: 1.5 }}>
-                            We found an existing Pecafoo account with this email.<br/>
-                            Log in to continue becoming a Delivery Partner.
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 8, color: '#111' }}>Account Found!</h3>
+                        <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: 24, lineHeight: 1.5 }}>
+                            We found an existing Pecafoo account associated with this email. You can use your existing account to become a Delivery Partner.
                         </p>
-                        <button className="btn" style={{ width: '100%', marginBottom: 16 }} onClick={() => navigate('/login', { state: { email: fd.email } })}>
-                            Log In
-                        </button>
-                        <button type="button" onClick={() => setAccountExists(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.875rem', cursor: 'pointer', fontWeight: 600 }}>
-                            Go back
-                        </button>
-                    </div>
+                        <Link 
+                            to={`/login?email=${encodeURIComponent(fd.email)}`}
+                            style={{
+                                display: 'block',
+                                width: '100%',
+                                padding: '14px',
+                                background: 'var(--brand-delivery)',
+                                color: 'white',
+                                fontWeight: 600,
+                                borderRadius: 'var(--radius-button)',
+                                textDecoration: 'none',
+                                textAlign: 'center'
+                            }}
+                        >
+                            Log In to Add Delivery Role
+                        </Link>
+                    </motion.div>
                 ) : (
                     <form onSubmit={handle}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>

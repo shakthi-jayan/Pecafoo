@@ -5,10 +5,10 @@
   /* ---------------------------------------------------------
      COLOR SYSTEM (Light Theme ONLY)
      --------------------------------------------------------- */
-  --color-bg-base: #FAFAFA;
+  --color-bg-base: #F5F5F7;
   --color-bg-card: #FFFFFF;
-  --color-border: #EAEAEA;
-  --color-divider: #F1F1F1;
+  --color-border: #E5E5EA;
+  --color-divider: #E5E5EA;
 
   --color-text-primary: #111111;
   --color-text-secondary: #6B7280;

@@ -8,8 +8,8 @@ export * from './components/Feedback';
 export * from './components/DataDisplay';
 
 // Legacy Wrappers (To prevent immediate crashes before Phase 1)
-import { HeroBanner, SectionHeader as NewSectionHeader, HorizontalScroller, MetricCard as NewMetricCard, ProfileHeader } from './components/Layout';
-import { MetricCard as DataMetricCard, Avatar } from './components/DataDisplay';
+import { HeroBanner, SectionHeader as NewSectionHeader } from './components/Layout';
+import { MetricCard as DataMetricCard, Avatar, HorizontalScroller, MetricCard as NewMetricCard, ProfileHeader } from './components/DataDisplay';
 
 export function PremiumAuthLayout({ children, ...props }) {
   return <div className="legacy-premium-auth-layout">{children}</div>;

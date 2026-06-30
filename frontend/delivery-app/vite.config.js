@@ -5,6 +5,17 @@ export default defineConfig({
   base: "/",
   appType: 'spa',
 
+  resolve: {
+    alias: {
+      'react': '/node_modules/react',
+      'react-dom': '/node_modules/react-dom',
+      'react/jsx-runtime': '/node_modules/react/jsx-runtime',
+      'framer-motion': '/node_modules/framer-motion',
+      'lucide-react': '/node_modules/lucide-react',
+      'react-router-dom': '/node_modules/react-router-dom'
+    }
+  },
+
   plugins: [
     react(),
     {
