@@ -144,7 +144,7 @@ def generate_login_ticket(user) -> str:
     signer = Signer()
     # Ticket expires in 5 minutes (300 seconds)
     return signer.sign_object({
-        "user_id": user.id,
+        "user_id": str(user.id),
         "exp": time.time() + 300
     })
 

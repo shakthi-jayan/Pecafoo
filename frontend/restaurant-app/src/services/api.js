@@ -31,7 +31,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Add JWT token if available
-    const tokens = JSON.parse(localStorage.getItem('tokens') || '{}');
+    const tokens = JSON.parse(localStorage.getItem('restaurant_tokens') || '{}');
     if (tokens.access) {
       config.headers.Authorization = `Bearer ${tokens.access}`;
     }
@@ -58,14 +58,14 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const tokens = JSON.parse(localStorage.getItem('tokens') || '{}');
+        const tokens = JSON.parse(localStorage.getItem('restaurant_tokens') || '{}');
         if (tokens.refresh) {
           const { data } = await axios.post(`${API_BASE_URL}/auth/token/refresh/`, {
             refresh: tokens.refresh,
           });
 
           const newTokens = { ...tokens, access: data.access };
-          localStorage.setItem('tokens', JSON.stringify(newTokens));
+          localStorage.setItem('restaurant_tokens', JSON.stringify(newTokens));
           originalRequest.headers.Authorization = `Bearer ${data.access}`;
           
           // Retry the original request
@@ -73,8 +73,8 @@ api.interceptors.response.use(
         }
       } catch (refreshError) {
         // Refresh failed - clear tokens and redirect to login
-        localStorage.removeItem('tokens');
-        localStorage.removeItem('user');
+        localStorage.removeItem('restaurant_tokens');
+        localStorage.removeItem('restaurant_user');
         window.location.href = '/login';
       }
     }
@@ -225,28 +225,28 @@ export const initializeCSRF = async () => {
 
 // Function to check if user is authenticated
 export const isAuthenticated = () => {
-  const tokens = JSON.parse(localStorage.getItem('tokens') || '{}');
+  const tokens = JSON.parse(localStorage.getItem('restaurant_tokens') || '{}');
   return !!tokens.access;
 };
 
 // Function to get current user
 export const getCurrentUser = () => {
-  const user = localStorage.getItem('user');
+  const user = localStorage.getItem('restaurant_user');
   return user ? JSON.parse(user) : null;
 };
 
 // Function to logout user
 export const logoutUser = async () => {
   try {
-    const tokens = JSON.parse(localStorage.getItem('tokens') || '{}');
+    const tokens = JSON.parse(localStorage.getItem('restaurant_tokens') || '{}');
     if (tokens.refresh) {
       await authAPI.logout({ refresh: tokens.refresh });
     }
   } catch (error) {
     console.error('Logout error:', error);
   } finally {
-    localStorage.removeItem('tokens');
-    localStorage.removeItem('user');
+    localStorage.removeItem('restaurant_tokens');
+    localStorage.removeItem('restaurant_user');
     window.location.href = '/login';
   }
 };
