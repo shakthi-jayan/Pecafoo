@@ -126,11 +126,11 @@ export const authAPI = {
 export const restaurantsAPI = {
   getMyRestaurants: () => api.get('/restaurants/my/'),
   createRestaurant: (data) => api.post('/restaurants/my/', data, {
-    headers: { 'Content-Type': 'multipart/form-data' }
+    headers: { 'Content-Type': undefined }
   }),
   getRestaurant: (id) => api.get(`/restaurants/my/${id}/`),
   updateRestaurant: (id, data) => api.patch(`/restaurants/my/${id}/`, data, {
-    headers: { 'Content-Type': 'multipart/form-data' }
+    headers: { 'Content-Type': undefined }
   }),
   getCategories: (id) => api.get(`/restaurants/my/${id}/categories/`),
   createCategory: (id, data) => api.post(`/restaurants/my/${id}/categories/`, data),
@@ -138,10 +138,10 @@ export const restaurantsAPI = {
   deleteCategory: (rId, cId) => api.delete(`/restaurants/my/${rId}/categories/${cId}/`),
   getMenuItems: (id) => api.get(`/restaurants/my/${id}/items/`),
   createMenuItem: (id, data) => api.post(`/restaurants/my/${id}/items/`, data, {
-    headers: { 'Content-Type': 'multipart/form-data' }
+    headers: { 'Content-Type': undefined }
   }),
   updateMenuItem: (rId, iId, data) => api.patch(`/restaurants/my/${rId}/items/${iId}/`, data, {
-    headers: { 'Content-Type': 'multipart/form-data' }
+    headers: { 'Content-Type': undefined }
   }),
   deleteMenuItem: (rId, iId) => api.delete(`/restaurants/my/${rId}/items/${iId}/`),
   getAll: (params) => api.get('/restaurants/', { params }),

@@ -12,7 +12,7 @@ const sendFormData = (method, url, data) => {
         method,
         url,
         data,
-        headers: isForm ? { 'Content-Type': 'multipart/form-data' } : undefined,
+        headers: isForm ? { 'Content-Type': undefined } : undefined,
     });
 };
 api.interceptors.request.use((c) => {
