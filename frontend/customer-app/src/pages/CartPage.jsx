@@ -24,10 +24,13 @@ import {
 const CartPage = () => {
     const navigate = useNavigate();
     const { cartItems, restaurant, subtotal, updateQuantity, clearCart } = useCart();
-    const { isAuthenticated } = useAuth();
+    const { user, isAuthenticated, updateProfile } = useAuth();
     const { coords: locationCoords, address: locationAddress } = useLocation();
     
     const [placing, setPlacing] = useState(false);
+    const [showPhoneModal, setShowPhoneModal] = useState(false);
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [savingPhone, setSavingPhone] = useState(false);
     const [fetchingLocation, setFetchingLocation] = useState(false);
     const [deliveryAddress, setDeliveryAddress] = useState('');
     const [deliveryCoords, setDeliveryCoords] = useState([19.0760, 72.8777]);
@@ -139,8 +142,31 @@ const CartPage = () => {
         });
     };
 
-    const handlePlaceOrder = async () => {
+    const handleSavePhone = async () => {
+        if (!phoneNumber || phoneNumber.length < 5) {
+            toast.error('Please enter a valid phone number');
+            return;
+        }
+        setSavingPhone(true);
+        try {
+            await updateProfile({ phone_number: phoneNumber });
+            setShowPhoneModal(false);
+            handlePlaceOrder(true);
+        } catch (err) {
+            toast.error(err.response?.data?.phone_number?.[0] || 'Failed to save phone number');
+        } finally {
+            setSavingPhone(false);
+        }
+    };
+
+    const handlePlaceOrder = async (skipPhoneCheck = false) => {
         if (!isAuthenticated) { navigate('/login', { state: { from: { pathname: '/cart' } } }); return; }
+        
+        if (skipPhoneCheck !== true && !user?.phone_number) {
+            setShowPhoneModal(true);
+            return;
+        }
+
         if (!deliveryAddress.trim()) { toast.error('Please enter a delivery address.'); return; }
         
         setPlacing(true);
@@ -403,6 +429,30 @@ const CartPage = () => {
                     </Button>
                 </div>
             </div>
+
+            {showPhoneModal && (
+                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-4)' }}>
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ backgroundColor: 'var(--color-bg-base)', borderRadius: 'var(--radius-card)', padding: 'var(--space-6)', width: '100%', maxWidth: '400px', boxShadow: 'var(--shadow-lg)' }}>
+                        <h2 style={{ margin: '0 0 var(--space-2) 0', fontSize: 'var(--text-h2)' }}>Phone Number Required</h2>
+                        <p style={{ margin: '0 0 var(--space-5) 0', color: 'var(--color-text-secondary)', fontSize: 'var(--text-body)' }}>We need your phone number to communicate regarding your orders.</p>
+                        
+                        <FloatingInput
+                            label="Phone Number"
+                            type="tel"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            placeholder="e.g. 9876543210"
+                        />
+                        
+                        <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-6)' }}>
+                            <Button variant="secondary" onClick={() => setShowPhoneModal(false)} fullWidth>Cancel</Button>
+                            <Button variant="primary" onClick={handleSavePhone} disabled={savingPhone} fullWidth>
+                                {savingPhone ? 'Saving...' : 'Save & Continue'}
+                            </Button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </PageContainer>
     );
 };
