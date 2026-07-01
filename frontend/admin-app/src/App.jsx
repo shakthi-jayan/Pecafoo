@@ -42,7 +42,7 @@ function AuthProvider({ children }) {
   const loading = false;
 
   const login = useCallback(async (email, password) => {
-    const { data } = await authAPI.login({ email, password });
+    const { data } = await authAPI.login({ email, password, requested_role: 'admin' });
     if (data.user.role !== 'admin' && !data.user.is_staff) {
       throw new Error('Admin access required');
     }
