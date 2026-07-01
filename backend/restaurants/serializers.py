@@ -44,6 +44,26 @@ class MenuItemSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class MenuItemCreateUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for restaurant owners to create/update menu items."""
+
+    class Meta:
+        model = MenuItem
+        fields = [
+            "category",
+            "name",
+            "description",
+            "image",
+            "food_type",
+            "price",
+            "discount_price",
+            "is_available",
+            "is_bestseller",
+            "calories",
+            "preparation_time",
+        ]
+
+
 class MenuCategorySerializer(serializers.ModelSerializer):
     """Serializer for menu categories with nested items."""
 

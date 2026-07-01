@@ -23,6 +23,7 @@ from restaurants.models import MenuCategory, MenuItem, Restaurant
 from restaurants.serializers import (
     MenuCategorySerializer,
     MenuItemSerializer,
+    MenuItemCreateUpdateSerializer,
     RestaurantCreateUpdateSerializer,
     RestaurantDetailSerializer,
     RestaurantListSerializer,
@@ -295,11 +296,15 @@ class MenuItemListCreateView(generics.ListCreateAPIView):
     POST /api/restaurants/my/<uuid:restaurant_id>/items/
     """
 
-    serializer_class = MenuItemSerializer
     permission_classes = [IsAuthenticated, IsRestaurantOwner]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ["name", "description"]
     filterset_fields = ["category", "food_type", "is_available", "is_bestseller"]
+
+    def get_serializer_class(self):
+        if self.request.method in ["POST", "PUT", "PATCH"]:
+            return MenuItemCreateUpdateSerializer
+        return MenuItemSerializer
 
     def get_queryset(self):
         return MenuItem.objects.filter(
@@ -320,8 +325,12 @@ class MenuItemDetailView(generics.RetrieveUpdateDestroyAPIView):
     GET/PATCH/DELETE /api/restaurants/my/<uuid:restaurant_id>/items/<uuid:pk>/
     """
 
-    serializer_class = MenuItemSerializer
     permission_classes = [IsAuthenticated, IsRestaurantOwner]
+
+    def get_serializer_class(self):
+        if self.request.method in ["POST", "PUT", "PATCH"]:
+            return MenuItemCreateUpdateSerializer
+        return MenuItemSerializer
 
     def get_queryset(self):
         return MenuItem.objects.filter(
