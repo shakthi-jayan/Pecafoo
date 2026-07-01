@@ -26,8 +26,7 @@ export const Button = React.forwardRef(({
     border: 'none',
     outline: 'none',
     transition: 'background-color var(--motion-duration-fast) ease, color var(--motion-duration-fast) ease, border-color var(--motion-duration-fast) ease',
-    width: fullWidth ? '100%' : 'auto',
-    ...style
+    width: fullWidth ? '100%' : 'auto'
   };
 
   const sizes = {
@@ -59,7 +58,7 @@ export const Button = React.forwardRef(({
     }
   };
 
-  const combinedStyle = { ...baseStyle, ...sizes[size], ...variants[variant] };
+  const combinedStyle = { ...baseStyle, ...sizes[size], ...variants[variant], ...style };
 
   return (
     <motion.button

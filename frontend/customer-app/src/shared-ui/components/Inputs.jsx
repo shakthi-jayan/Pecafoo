@@ -123,6 +123,7 @@ export const SearchBar = React.forwardRef(({
   placeholder = 'Search...',
   icon: Icon,
   className = '',
+  style = {},
   brandColor = 'var(--brand-customer)',
   ...props
 }, ref) => {
@@ -138,7 +139,8 @@ export const SearchBar = React.forwardRef(({
       height: '48px',
       border: `1px solid ${isFocused ? brandColor : 'transparent'}`,
       transition: 'all var(--motion-duration-fast) ease',
-      boxShadow: isFocused ? `0 0 0 3px ${brandColor}20` : 'none'
+      boxShadow: isFocused ? `0 0 0 3px ${brandColor}20` : 'none',
+      ...style
     }}>
       {Icon && (
         <span style={{ color: isFocused ? brandColor : 'var(--color-text-tertiary)', marginRight: 'var(--space-2)' }}>
