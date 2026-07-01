@@ -211,7 +211,7 @@ const OrderDetailPage = () => {
                 <IconButton icon={Copy} onClick={copyOrderNumber} variant="ghost" />
             </div>
 
-            <div style={{ padding: 'var(--space-4)', paddingBottom: '120px' }}>
+            <div style={{ padding: 'var(--space-4)', paddingBottom: '180px' }}>
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -469,7 +469,7 @@ const OrderDetailPage = () => {
             </div>
 
             {/* Sticky Actions */}
-            <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: 'var(--space-4)', background: 'linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.9) 70%, rgba(255,255,255,0) 100%)', zIndex: 100, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+            <div style={{ position: 'fixed', bottom: '85px', left: 0, right: 0, padding: 'var(--space-4)', background: 'linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.9) 70%, rgba(255,255,255,0) 100%)', zIndex: 100, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                 {['placed', 'confirmed'].includes(order.status) && (
                     <>
                         <AnimatePresence>
