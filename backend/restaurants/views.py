@@ -68,42 +68,20 @@ class PublicRestaurantListView(generics.ListAPIView):
         return queryset.distinct()
 
     def list(self, request, *args, **kwargs):
-        print('--- request.query_params ---')
-        print(request.query_params)
+        print("request.query_params", request.query_params)
         
-        queryset = self.get_queryset()
-        print('--- queryset.count() ---')
-        print(queryset.count())
+        qs = self.get_queryset()
+        print("COUNT AFTER get_queryset:", qs.count())
+        print(list(qs.values("id", "name", "approval_status", "is_active")))
         
-        print('--- queryset SQL ---')
-        print(str(queryset.query))
+        filtered = self.filter_queryset(qs)
+        print("COUNT AFTER filter_queryset:", filtered.count())
+        print(list(filtered.values("id", "name")))
         
-        print('--- IDs before filter_queryset ---')
-        print([r.id for r in queryset])
+        serializer = self.get_serializer(filtered, many=True)
+        print("SERIALIZED:", serializer.data)
         
-        queryset = self.filter_queryset(queryset)
-        print('--- IDs after filter_queryset ---')
-        print([r.id for r in queryset])
-        
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            print('--- IDs after pagination ---')
-            print([r.id for r in page])
-            serializer = self.get_serializer(page, many=True)
-            print('--- serialized IDs ---')
-            print([item.get('id') for item in serializer.data])
-            response = self.get_paginated_response(serializer.data)
-        else:
-            print('--- IDs after pagination ---')
-            print('No pagination applied')
-            serializer = self.get_serializer(queryset, many=True)
-            print('--- serialized IDs ---')
-            print([item.get('id') for item in serializer.data])
-            response = super().list(request, *args, **kwargs)
-            
-        print('--- response JSON ---')
-        print(response.data)
-        return response
+        return Response(serializer.data)
 
 
 
