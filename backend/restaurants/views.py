@@ -68,20 +68,7 @@ class PublicRestaurantListView(generics.ListAPIView):
         return queryset.distinct()
 
     def list(self, request, *args, **kwargs):
-        print("request.query_params", request.query_params)
-        
-        qs = self.get_queryset()
-        print("COUNT AFTER get_queryset:", qs.count())
-        print(list(qs.values("id", "name", "approval_status", "is_active")))
-        
-        filtered = self.filter_queryset(qs)
-        print("COUNT AFTER filter_queryset:", filtered.count())
-        print(list(filtered.values("id", "name")))
-        
-        serializer = self.get_serializer(filtered, many=True)
-        print("SERIALIZED:", serializer.data)
-        
-        return Response(serializer.data)
+        return Response({"version": "debug-2026-07-01"})
 
 
 
