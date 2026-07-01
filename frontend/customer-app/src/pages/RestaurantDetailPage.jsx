@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    ArrowLeft, Star, Clock, Heart, Search, X, Share2, MessageSquare, AlertCircle
+    ArrowLeft, Star, Clock, Heart, Search, X, Share2, MessageSquare, AlertCircle, ChevronRight
 } from 'lucide-react';
 import { restaurantsAPI, customersAPI } from '../services/api';
 import { useCart } from '../context/CartContext';
@@ -217,33 +217,38 @@ const RestaurantDetailPage = () => {
             <div style={{ padding: '0 var(--space-4)', marginTop: '60px' }}>
                 {/* Info Card */}
                 <GlassCard padding="var(--space-4)" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
                         <div 
                             onClick={() => navigate(`/restaurant/${slug}/reviews`)}
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(255, 204, 0, 0.15)', color: '#D97706', padding: '6px 12px', borderRadius: '100px', fontSize: 'var(--text-caption)', fontWeight: 800, cursor: 'pointer' }}
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)', padding: '8px 14px', borderRadius: '12px', fontSize: 'var(--text-caption)', fontWeight: 600, cursor: 'pointer', transition: 'background-color 0.2s' }}
                         >
-                            <Star size={14} fill="currentColor" />
-                            {restaurant.average_rating || 'New'} ({restaurant.total_ratings || 0})
+                            <Star size={16} color="#F59E0B" fill="#F59E0B" />
+                            <span style={{ fontWeight: 700 }}>{restaurant.average_rating || 'New'}</span>
+                            <span style={{ color: 'var(--color-text-secondary)' }}>({restaurant.total_ratings || 0})</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'var(--color-divider)', padding: '6px 12px', borderRadius: '100px', fontSize: 'var(--text-caption)', fontWeight: 800 }}>
-                            <Clock size={14} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', padding: '8px 14px', borderRadius: '12px', fontSize: 'var(--text-caption)', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                            <Clock size={16} color="var(--color-text-secondary)" />
                             {restaurant.average_delivery_time || 30} min
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: restaurant.currently_open ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 71, 111, 0.1)', color: restaurant.currently_open ? '#15803d' : '#be123c', padding: '6px 12px', borderRadius: '100px', fontSize: 'var(--text-caption)', fontWeight: 800 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: restaurant.currently_open ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 71, 111, 0.1)', border: `1px solid ${restaurant.currently_open ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 71, 111, 0.2)'}`, color: restaurant.currently_open ? '#15803d' : '#be123c', padding: '8px 14px', borderRadius: '12px', fontSize: 'var(--text-caption)', fontWeight: 700 }}>
                             {restaurant.currently_open ? 'Open now' : 'Closed'}
                         </div>
                     </div>
 
-                    <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--color-border)' }} />
+                    <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--color-border)', margin: 'var(--space-2) 0' }} />
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: 'var(--color-divider)', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <MessageSquare size={20} />
+                    <div 
+                        onClick={() => navigate(`/restaurant/${slug}/reviews`)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '8px 4px', cursor: 'pointer', borderRadius: '12px', transition: 'background-color 0.2s' }}
+                    >
+                        <div style={{ width: '44px', height: '44px', borderRadius: '14px', backgroundColor: 'rgba(217, 70, 239, 0.1)', color: 'var(--color-brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <MessageSquare size={22} strokeWidth={2.5} />
                         </div>
-                        <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => navigate(`/restaurant/${slug}/reviews`)}>
-                            <div style={{ fontWeight: 700, fontSize: 'var(--text-body)' }}>View all reviews</div>
-                            <div style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)' }}>See what customers are saying</div>
+                        <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--color-text-primary)', marginBottom: '2px' }}>View all reviews</div>
+                            <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>See what customers are saying</div>
                         </div>
+                        <ChevronRight size={20} color="var(--color-text-tertiary)" />
                     </div>
 
                     {restaurant.minimum_order_amount > 0 && (
