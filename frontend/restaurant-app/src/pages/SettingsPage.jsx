@@ -173,7 +173,7 @@ const SettingsPage = () => {
                 {helperText && <p style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', marginTop: '4px', maxWidth: '80%' }}>{helperText}</p>}
             </div>
             <button type="button" onClick={() => setFormData({ ...formData, [name]: !formData[name] })}
-                style={{ width: 48, height: 26, borderRadius: 13, background: formData[name] ? 'var(--color-success)' : 'var(--color-bg-elevated)', border: 'none', position: 'relative', cursor: 'pointer', transition: 'all 0.3s' }}>
+                style={{ flexShrink: 0, width: 48, height: 26, borderRadius: 13, background: formData[name] ? 'var(--color-success)' : 'var(--color-bg-elevated)', border: 'none', position: 'relative', cursor: 'pointer', transition: 'all 0.3s' }}>
                 <div style={{ width: 20, height: 20, borderRadius: 10, background: 'white', position: 'absolute', top: 3, left: formData[name] ? 25 : 3, transition: 'all 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} />
             </button>
         </div>
