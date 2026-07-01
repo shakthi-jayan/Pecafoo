@@ -229,8 +229,8 @@ const RestaurantDetailPage = () => {
                             <Clock size={14} />
                             {restaurant.average_delivery_time || 30} min
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: restaurant.is_open ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 71, 111, 0.1)', color: restaurant.is_open ? '#15803d' : '#be123c', padding: '6px 12px', borderRadius: '100px', fontSize: 'var(--text-caption)', fontWeight: 800 }}>
-                            {restaurant.is_open ? 'Open now' : 'Closed'}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: restaurant.currently_open ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 71, 111, 0.1)', color: restaurant.currently_open ? '#15803d' : '#be123c', padding: '6px 12px', borderRadius: '100px', fontSize: 'var(--text-caption)', fontWeight: 800 }}>
+                            {restaurant.currently_open ? 'Open now' : 'Closed'}
                         </div>
                     </div>
 

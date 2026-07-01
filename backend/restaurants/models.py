@@ -127,6 +127,25 @@ class Restaurant(models.Model):
             models.Index(fields=["-is_featured", "-average_rating"], name="idx_rest_featured_rating"),
         ]
 
+    @property
+    def currently_open(self):
+        if not self.is_active:
+            return False
+            
+        if not self.opening_time or not self.closing_time:
+            return self.is_open
+            
+        if not self.is_open:
+            return False
+            
+        from django.utils import timezone
+        now = timezone.localtime(timezone.now()).time()
+        
+        if self.closing_time >= self.opening_time:
+            return self.opening_time <= now <= self.closing_time
+        else:
+            return now >= self.opening_time or now <= self.closing_time
+
     def __str__(self):
         return self.name
 

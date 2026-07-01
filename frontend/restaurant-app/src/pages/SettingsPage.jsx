@@ -166,9 +166,12 @@ const SettingsPage = () => {
         </div>
     );
 
-    const Toggle = ({ label, name, formData, setFormData }) => (
+    const Toggle = ({ label, name, formData, setFormData, helperText }) => (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--space-3) 0', borderBottom: '1px solid var(--color-border)' }}>
-            <span style={{ fontWeight: 600, fontSize: 'var(--text-body)', color: 'var(--color-text-primary)' }}>{label}</span>
+            <div>
+                <span style={{ fontWeight: 600, fontSize: 'var(--text-body)', color: 'var(--color-text-primary)' }}>{label}</span>
+                {helperText && <p style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', marginTop: '4px', maxWidth: '80%' }}>{helperText}</p>}
+            </div>
             <button type="button" onClick={() => setFormData({ ...formData, [name]: !formData[name] })}
                 style={{ width: 48, height: 26, borderRadius: 13, background: formData[name] ? 'var(--color-success)' : 'var(--color-bg-elevated)', border: 'none', position: 'relative', cursor: 'pointer', transition: 'all 0.3s' }}>
                 <div style={{ width: 20, height: 20, borderRadius: 10, background: 'white', position: 'absolute', top: 3, left: formData[name] ? 25 : 3, transition: 'all 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} />
@@ -400,7 +403,7 @@ const SettingsPage = () => {
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.21 }}>
                         <GlassCard padding="var(--space-5)" style={{ marginBottom: 'var(--space-5)' }}>
                             <h3 style={{ fontSize: 'var(--text-h4)', fontWeight: 700, marginBottom: 'var(--space-3)' }}>Status</h3>
-                            <Toggle label="Currently Open" name="is_open" formData={form} setFormData={setForm} />
+                            <Toggle label="Enable restaurant (Allow orders)" name="is_open" formData={form} setFormData={setForm} helperText="Opening hours determine if customers see the restaurant as open." />
                             <Toggle label="Featured Restaurant" name="is_featured" formData={form} setFormData={setForm} />
                         </GlassCard>
                     </motion.div>

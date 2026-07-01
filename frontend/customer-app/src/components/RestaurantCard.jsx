@@ -27,7 +27,7 @@ const RestaurantCard = ({ restaurant, showDistance = false }) => {
                     <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "40px", color: "var(--color-text-tertiary)" }}><span>{restaurant.name?.charAt(0)}</span></div>
                 )}
                 <div style={{ display: "none" }} />
-                <span className={`restaurant-open-pill ${restaurant.is_open ? 'is-open' : ''}`}>{restaurant.is_open ? 'Open' : 'Closed'}</span>
+                <span className={`restaurant-open-pill ${restaurant.currently_open ? 'is-open' : ''}`}>{restaurant.currently_open ? 'Open' : 'Closed'}</span>
                 <button onClick={handleWishlistClick} style={{ position: "absolute", top: "var(--space-3)", right: "var(--space-3)", backgroundColor: "rgba(255,255,255,0.9)", backdropFilter: "blur(10px)", borderRadius: "50%", padding: "6px", display: "flex", border: "none", cursor: "pointer", zIndex: 2, boxShadow: "var(--shadow-sm)", color: wishlisted ? '#f43f5e' : 'var(--text-secondary)' }} aria-label={wishlisted ? `Remove ${restaurant.name} from favorites` : `Add ${restaurant.name} to favorites`}>
                     <Heart size={20} fill={wishlisted ? '#f43f5e' : 'transparent'} strokeWidth={wishlisted ? 0 : 2} />
                 </button>

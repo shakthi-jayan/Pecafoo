@@ -98,6 +98,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
     business_license = SmartFileField(read_only=True)
     food_safety_certificate = SmartFileField(read_only=True)
     owner_id_proof = SmartFileField(read_only=True)
+    currently_open = serializers.ReadOnlyField()
 
     class Meta:
         model = Restaurant
@@ -120,6 +121,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
             "minimum_order_amount",
             "delivery_fee",
             "is_open",
+            "currently_open",
             "is_featured",
             "owner_name",
         ]
@@ -135,6 +137,7 @@ class RestaurantDetailSerializer(serializers.ModelSerializer):
     business_license = SmartFileField(read_only=True)
     food_safety_certificate = SmartFileField(read_only=True)
     owner_id_proof = SmartFileField(read_only=True)
+    currently_open = serializers.ReadOnlyField()
 
     class Meta:
         model = Restaurant
@@ -164,6 +167,7 @@ class RestaurantDetailSerializer(serializers.ModelSerializer):
             "opening_time",
             "closing_time",
             "is_open",
+            "currently_open",
             "average_delivery_time",
             "minimum_order_amount",
             "delivery_fee",
@@ -191,6 +195,8 @@ class RestaurantDetailSerializer(serializers.ModelSerializer):
 class RestaurantCreateUpdateSerializer(serializers.ModelSerializer):
     """Serializer for restaurant owners to create/update their restaurant."""
 
+    currently_open = serializers.ReadOnlyField()
+
     class Meta:
         model = Restaurant
         fields = [
@@ -215,6 +221,7 @@ class RestaurantCreateUpdateSerializer(serializers.ModelSerializer):
             "opening_time",
             "closing_time",
             "is_open",
+            "currently_open",
             "average_delivery_time",
             "minimum_order_amount",
             "delivery_fee",
