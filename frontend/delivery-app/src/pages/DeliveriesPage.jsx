@@ -366,13 +366,21 @@ export default function DeliveriesPage() {
                                 {/* Action buttons */}
                                 <div className="delivery-detail-actions" style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
                                     <button
-                                        onClick={() => window.open(`tel:+91${selectedOrder.customer_phone || '0000000000'}`)}
+                                        onClick={() => {
+                                            let phone = selectedOrder.customer_phone || '0000000000';
+                                            if (!phone.startsWith('+')) phone = '+91' + phone;
+                                            window.open(`tel:${phone}`);
+                                        }}
                                         style={{ width: 48, height: 48, borderRadius: 14, border: '1px solid var(--border)', background: 'var(--bg-elevated)', color: 'var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                                     >
                                         <Phone size={20} />
                                     </button>
                                     <button
-                                        onClick={() => window.open(`sms:+91${selectedOrder.customer_phone || '0000000000'}`)}
+                                        onClick={() => {
+                                            let phone = selectedOrder.customer_phone || '0000000000';
+                                            if (!phone.startsWith('+')) phone = '+91' + phone;
+                                            window.open(`sms:${phone}`);
+                                        }}
                                         style={{ width: 48, height: 48, borderRadius: 14, border: '1px solid var(--border)', background: 'var(--bg-elevated)', color: 'var(--info)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                                     >
                                         <MessageSquare size={20} />

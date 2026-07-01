@@ -37,27 +37,13 @@ class OrderSerializer(serializers.ModelSerializer):
 
     items = OrderItemSerializer(many=True, read_only=True)
     customer_name = serializers.CharField(source="customer.full_name", read_only=True)
+    customer_phone = serializers.CharField(source="customer.phone_number", read_only=True)
     restaurant_name = serializers.CharField(source="restaurant.name", read_only=True)
     delivery_partner_name = serializers.CharField(
         source="delivery_partner.full_name", read_only=True, default=None
     )
     delivery_otp = serializers.SerializerMethodField()
     delivery_otp_verified = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Order
-        fields = [
-            "id",
-            "order_number",
-            "customer",
-            "customer_name",
-            "restaurant",
-            "restaurant_name",
-            "delivery_partner",
-            "delivery_partner_name",
-            "status",
-            "special_instructions",
-            "delivery_address",
             "delivery_latitude",
             "delivery_longitude",
             "subtotal",
