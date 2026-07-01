@@ -216,37 +216,43 @@ const RestaurantDetailPage = () => {
 
             <div style={{ padding: '0 var(--space-4)', marginTop: '60px' }}>
                 {/* Info Card */}
-                <GlassCard padding="var(--space-4)" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+                <GlassCard padding="var(--space-4)" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', marginBottom: 'var(--space-6)', maxWidth: '800px', margin: '0 auto var(--space-6)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 'var(--space-3)' }}>
                         <div 
                             onClick={() => navigate(`/restaurant/${slug}/reviews`)}
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)', padding: '8px 14px', borderRadius: '12px', fontSize: 'var(--text-caption)', fontWeight: 600, cursor: 'pointer', transition: 'background-color 0.2s' }}
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)', padding: '12px', borderRadius: '16px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', boxShadow: 'var(--shadow-soft)' }}
                         >
-                            <Star size={16} color="#F59E0B" fill="#F59E0B" />
-                            <span style={{ fontWeight: 700 }}>{restaurant.average_rating || 'New'}</span>
-                            <span style={{ color: 'var(--color-text-secondary)' }}>({restaurant.total_ratings || 0})</span>
+                            <Star size={18} color="#F59E0B" fill="#F59E0B" />
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                <span style={{ fontWeight: 800 }}>{restaurant.average_rating > 0 ? Number(restaurant.average_rating).toFixed(1) : 'New'}</span>
+                                {restaurant.total_ratings > 0 && <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>{restaurant.total_ratings} reviews</span>}
+                            </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', padding: '8px 14px', borderRadius: '12px', fontSize: 'var(--text-caption)', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-                            <Clock size={16} color="var(--color-text-secondary)" />
-                            {restaurant.average_delivery_time || 30} min
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', padding: '12px', borderRadius: '16px', fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)', boxShadow: 'var(--shadow-soft)' }}>
+                            <Clock size={18} color="var(--color-text-secondary)" />
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                <span style={{ fontWeight: 800 }}>{restaurant.average_delivery_time || 30} mins</span>
+                                <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Delivery</span>
+                            </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: restaurant.currently_open ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 71, 111, 0.1)', border: `1px solid ${restaurant.currently_open ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 71, 111, 0.2)'}`, color: restaurant.currently_open ? '#15803d' : '#be123c', padding: '8px 14px', borderRadius: '12px', fontSize: 'var(--text-caption)', fontWeight: 700 }}>
-                            {restaurant.currently_open ? 'Open now' : 'Closed'}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', backgroundColor: restaurant.currently_open ? 'rgba(34, 197, 94, 0.08)' : 'rgba(239, 71, 111, 0.08)', border: `1px solid ${restaurant.currently_open ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 71, 111, 0.2)'}`, color: restaurant.currently_open ? '#15803d' : '#be123c', padding: '12px', borderRadius: '16px', fontSize: '14px', fontWeight: 700, boxShadow: 'var(--shadow-soft)' }}>
+                            <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: restaurant.currently_open ? '#22c55e' : '#ef4444' }} />
+                            {restaurant.currently_open ? 'Open Now' : 'Closed'}
                         </div>
                     </div>
 
-                    <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--color-border)', margin: 'var(--space-2) 0' }} />
+                    <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--color-border)', margin: '4px 0' }} />
 
                     <div 
                         onClick={() => navigate(`/restaurant/${slug}/reviews`)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '8px 4px', cursor: 'pointer', borderRadius: '12px', transition: 'background-color 0.2s' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px', cursor: 'pointer', borderRadius: '16px', transition: 'background-color 0.2s', backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)' }}
                     >
-                        <div style={{ width: '44px', height: '44px', borderRadius: '14px', backgroundColor: 'rgba(217, 70, 239, 0.1)', color: 'var(--color-brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <MessageSquare size={22} strokeWidth={2.5} />
+                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: 'rgba(217, 70, 239, 0.1)', color: 'var(--brand-customer)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <MessageSquare size={24} strokeWidth={2.5} />
                         </div>
                         <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--color-text-primary)', marginBottom: '2px' }}>View all reviews</div>
-                            <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>See what customers are saying</div>
+                            <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--color-text-primary)', marginBottom: '2px' }}>Customer Reviews</div>
+                            <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>See what people are saying</div>
                         </div>
                         <ChevronRight size={20} color="var(--color-text-tertiary)" />
                     </div>
