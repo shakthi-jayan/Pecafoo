@@ -59,7 +59,7 @@ class PublicRestaurantListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Restaurant.objects.filter(
-            approval_status=Restaurant.ApprovalStatus.APPROVED,
+            approval_status__iexact=Restaurant.ApprovalStatus.APPROVED,
             is_active=True,
         ).select_related("owner")
 
@@ -120,7 +120,7 @@ class PublicRestaurantDetailView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return Restaurant.objects.filter(
-            approval_status=Restaurant.ApprovalStatus.APPROVED,
+            approval_status__iexact=Restaurant.ApprovalStatus.APPROVED,
             is_active=True,
         ).select_related("owner").prefetch_related(
             Prefetch(
@@ -145,7 +145,7 @@ class PublicRestaurantReviewsView(generics.GenericAPIView):
     def get(self, request, slug):
         restaurant = generics.get_object_or_404(
             Restaurant.objects.filter(
-                approval_status=Restaurant.ApprovalStatus.APPROVED,
+                approval_status__iexact=Restaurant.ApprovalStatus.APPROVED,
                 is_active=True,
             ),
             slug=slug,
@@ -185,7 +185,7 @@ class PublicFoodItemListView(generics.ListAPIView):
     def get_queryset(self):
         return MenuItem.objects.filter(
             is_available=True,
-            restaurant__approval_status=Restaurant.ApprovalStatus.APPROVED,
+            restaurant__approval_status__iexact=Restaurant.ApprovalStatus.APPROVED,
             restaurant__is_active=True,
         ).select_related("restaurant", "category")
 
@@ -375,7 +375,7 @@ class PlatformCategoriesView(APIView):
             MenuCategory.objects.filter(
                 is_active=True,
                 restaurant__is_active=True,
-                restaurant__approval_status=Restaurant.ApprovalStatus.APPROVED,
+                restaurant__approval_status__iexact=Restaurant.ApprovalStatus.APPROVED,
             )
             .values("name")
             .annotate(
@@ -415,7 +415,7 @@ class PlatformCuisinesView(APIView):
         cuisines_raw = (
             Restaurant.objects.filter(
                 is_active=True,
-                approval_status=Restaurant.ApprovalStatus.APPROVED,
+                approval_status__iexact=Restaurant.ApprovalStatus.APPROVED,
             )
             .exclude(cuisine_type="")
             .values_list("cuisine_type", flat=True)
