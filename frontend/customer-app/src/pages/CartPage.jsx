@@ -147,9 +147,15 @@ const CartPage = () => {
             toast.error('Please enter a valid phone number');
             return;
         }
+        
+        let formattedPhone = phoneNumber.trim();
+        if (!formattedPhone.startsWith('+')) {
+            formattedPhone = '+91' + formattedPhone;
+        }
+
         setSavingPhone(true);
         try {
-            await updateProfile({ phone_number: phoneNumber });
+            await updateProfile({ phone_number: formattedPhone });
             setShowPhoneModal(false);
             handlePlaceOrder(true);
         } catch (err) {
