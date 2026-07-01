@@ -110,7 +110,12 @@ const CategoriesPage = () => {
                 </div>
             ) : (
                 <GlassCard padding="0">
-                    <EmptyState icon={Tags} title="No Categories" description="Create categories to organize your menu items" />
+                    <EmptyState
+                        icon={Tags}
+                        title="No Categories"
+                        description="Create categories to organize your menu items"
+                        action={<Button onClick={openCreate} variant="primary" icon={Plus} disabled={!selected}>+ Add Category</Button>}
+                    />
                 </GlassCard>
             )}
             </div>

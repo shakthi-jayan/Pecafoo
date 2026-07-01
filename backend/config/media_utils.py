@@ -8,6 +8,7 @@ a file is stored locally or on Cloudinary.
 import logging
 import os
 import re
+from pathlib import Path
 
 from django.conf import settings
 from rest_framework import serializers
@@ -16,6 +17,19 @@ logger = logging.getLogger("pecafoo")
 
 # Pre-compiled pattern to detect absolute URLs.
 _ABS_URL_RE = re.compile(r"^https?://", re.IGNORECASE)
+_DOCUMENT_EXTENSIONS = {
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".xls",
+    ".xlsx",
+    ".ppt",
+    ".pptx",
+    ".txt",
+    ".csv",
+    ".rtf",
+    ".zip",
+}
 
 
 def normalize_media_url(value, request=None):
@@ -52,6 +66,24 @@ def normalize_media_url(value, request=None):
         return f"{settings.MEDIA_URL}{value}"
 
     return value
+
+
+def _cloudinary_raw_url(url, name=None):
+    """
+    Convert Cloudinary delivery URLs for documents to raw delivery URLs.
+
+    Cloudinary's media storage defaults to `image/upload`, which works for
+    images but can return inaccessible document URLs for PDFs and similar
+    files. Raw assets must be served from `raw/upload`.
+    """
+    if not url or "/image/upload/" not in url:
+        return url
+
+    suffix = Path(name or "").suffix.lower()
+    if suffix in _DOCUMENT_EXTENSIONS:
+        return url.replace("/image/upload/", "/raw/upload/", 1)
+
+    return url
 
 
 class SmartImageField(serializers.ImageField):
@@ -97,4 +129,5 @@ class SmartFileField(serializers.FileField):
                 return None
 
         request = self.context.get("request")
-        return normalize_media_url(url, request)
+        url = normalize_media_url(url, request)
+        return _cloudinary_raw_url(url, getattr(value, "name", None))
