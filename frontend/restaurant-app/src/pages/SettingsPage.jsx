@@ -27,7 +27,7 @@ const SettingsPage = () => {
     const [createForm, setCreateForm] = useState({
         name: '', description: '', cuisine_type: '', address: '', city: '', state: '', pincode: '', phone: '',
         opening_time: '09:00', closing_time: '22:00',
-        minimum_order_amount: '100', delivery_fee: '30', average_delivery_time: '30', latitude: null, longitude: null
+        minimum_order_amount: '100', delivery_fee: '30', average_delivery_time: '30', latitude: null, longitude: null, is_open: true
     });
     const [fetchingLocation, setFetchingLocation] = useState(false);
 
@@ -118,7 +118,7 @@ const SettingsPage = () => {
             await restaurantsAPI.createRestaurant(payload);
             toast.success('Restaurant created!');
             setShowCreate(false);
-            setCreateForm({ name: '', description: '', cuisine_type: '', address: '', city: '', state: '', pincode: '', phone: '', opening_time: '09:00', closing_time: '22:00', minimum_order_amount: '100', delivery_fee: '30', average_delivery_time: '30', latitude: null, longitude: null });
+            setCreateForm({ name: '', description: '', cuisine_type: '', address: '', city: '', state: '', pincode: '', phone: '', opening_time: '09:00', closing_time: '22:00', minimum_order_amount: '100', delivery_fee: '30', average_delivery_time: '30', latitude: null, longitude: null, is_open: true });
             fetchRestaurants();
         } catch (err) { toast.error(err.response?.data?.detail || err.response?.data?.name?.[0] || 'Failed to create'); }
         finally { setSaving(false); }
@@ -173,7 +173,7 @@ const SettingsPage = () => {
                 {helperText && <p style={{ fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', marginTop: '4px', maxWidth: '80%' }}>{helperText}</p>}
             </div>
             <button type="button" onClick={() => setFormData({ ...formData, [name]: !formData[name] })}
-                style={{ flexShrink: 0, width: 48, height: 26, borderRadius: 13, background: formData[name] ? 'var(--color-success)' : 'var(--color-bg-elevated)', border: 'none', position: 'relative', cursor: 'pointer', transition: 'all 0.3s' }}>
+                style={{ flexShrink: 0, width: 48, height: 26, borderRadius: 13, background: formData[name] ? 'var(--color-success)' : 'var(--color-border)', border: 'none', position: 'relative', cursor: 'pointer', transition: 'all 0.3s' }}>
                 <div style={{ width: 20, height: 20, borderRadius: 10, background: 'white', position: 'absolute', top: 3, left: formData[name] ? 25 : 3, transition: 'all 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} />
             </button>
         </div>
