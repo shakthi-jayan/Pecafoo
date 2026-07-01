@@ -67,6 +67,44 @@ class PublicRestaurantListView(generics.ListAPIView):
         queryset = super().filter_queryset(queryset)
         return queryset.distinct()
 
+    def list(self, request, *args, **kwargs):
+        print('--- request.query_params ---')
+        print(request.query_params)
+        
+        queryset = self.get_queryset()
+        print('--- queryset.count() ---')
+        print(queryset.count())
+        
+        print('--- queryset SQL ---')
+        print(str(queryset.query))
+        
+        print('--- IDs before filter_queryset ---')
+        print([r.id for r in queryset])
+        
+        queryset = self.filter_queryset(queryset)
+        print('--- IDs after filter_queryset ---')
+        print([r.id for r in queryset])
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            print('--- IDs after pagination ---')
+            print([r.id for r in page])
+            serializer = self.get_serializer(page, many=True)
+            print('--- serialized IDs ---')
+            print([item.get('id') for item in serializer.data])
+            response = self.get_paginated_response(serializer.data)
+        else:
+            print('--- IDs after pagination ---')
+            print('No pagination applied')
+            serializer = self.get_serializer(queryset, many=True)
+            print('--- serialized IDs ---')
+            print([item.get('id') for item in serializer.data])
+            response = super().list(request, *args, **kwargs)
+            
+        print('--- response JSON ---')
+        print(response.data)
+        return response
+
 
 
 
