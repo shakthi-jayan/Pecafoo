@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Truck, Shield, Save, Camera, FileText, Upload, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Truck, Shield, Save, Camera, FileText, Upload, ExternalLink, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { deliveryAPI } from '../services/api';
 import toast from 'react-hot-toast';

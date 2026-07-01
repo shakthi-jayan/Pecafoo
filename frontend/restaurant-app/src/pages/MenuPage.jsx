@@ -327,7 +327,7 @@ const MenuPage = () => {
                                                 </td>
                                                 <td style={{ padding: '16px', borderBottom: '1px solid var(--color-border)' }}>
                                                     <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                                                        <Button onClick={() => editItem(item)} variant="outline" size="small" icon={Edit} />
+                                                        <Button onClick={() => openEditForm(item)} variant="outline" size="small" icon={Edit} />
                                                         <Button onClick={() => deleteItem(item.id)} variant="ghost" size="small" style={{ color: 'var(--color-danger)' }}>
                                                             <Trash2 size={16} />
                                                         </Button>
