@@ -1012,6 +1012,7 @@ class PartnerOnboardView(APIView):
                 "message": f"Successfully onboarded as {role_id}.",
                 "tokens": tokens,
                 "user": user_data,
+                "next_action": "LOGIN_COMPLETE",
             },
             status=status.HTTP_200_OK,
         )

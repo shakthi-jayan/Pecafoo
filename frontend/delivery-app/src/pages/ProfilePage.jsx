@@ -64,31 +64,56 @@ const ProfilePage = ({ user, onLogout }) => {
         }
     };
 
-    const DocField = ({ label, name, currentUrl }) => (
-        <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', marginBottom: 6, fontWeight: 700 }}>{label}</label>
-            <label className="input" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, cursor: 'pointer', background: 'var(--color-bg-base)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '12px 16px' }}>
-                <span style={{ color: files[name] || currentUrl ? 'var(--color-text-primary)' : 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {files[name]?.name || currentUrl?.split('/').pop() || 'Choose file'}
-                </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--brand-delivery)' }}>
-                    <Upload size={16} /> Upload
-                </span>
-                <input
-                    type="file"
-                    name={name}
-                    accept="image/*,.pdf"
-                    style={visuallyHidden}
-                    onChange={(e) => setFiles({ ...files, [name]: e.target.files?.[0] || null })}
-                />
-            </label>
-            {currentUrl && (
-                <a href={currentUrl} target="_blank" rel="noreferrer" style={{ marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--brand-delivery)', fontSize: 'var(--text-caption)', fontWeight: 700 }}>
-                    <ExternalLink size={14} /> View current document
-                </a>
-            )}
-        </div>
-    );
+    const [replaceMode, setReplaceMode] = useState({});
+
+    const DocField = ({ label, name, currentUrl }) => {
+        const isReplacing = replaceMode[name];
+        const showUploadInput = !currentUrl || isReplacing;
+
+        return (
+            <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', fontSize: 'var(--text-caption)', color: 'var(--color-text-secondary)', marginBottom: 6, fontWeight: 700 }}>{label}</label>
+                
+                {showUploadInput ? (
+                    <label className="input" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, cursor: 'pointer', background: 'var(--color-bg-base)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '12px 16px' }}>
+                        <span style={{ color: files[name] ? 'var(--color-text-primary)' : 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {files[name]?.name || 'Choose file'}
+                        </span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--brand-delivery)' }}>
+                            <Upload size={16} /> Upload
+                        </span>
+                        <input
+                            type="file"
+                            name={name}
+                            accept="image/*,.pdf"
+                            style={visuallyHidden}
+                            onChange={(e) => {
+                                setFiles({ ...files, [name]: e.target.files?.[0] || null });
+                            }}
+                        />
+                    </label>
+                ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: 'var(--radius-md)' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--color-success)', fontWeight: 700 }}>
+                            <CheckCircle size={16} /> Uploaded
+                        </span>
+                        <div style={{ display: 'flex', gap: 12 }}>
+                            <a href={currentUrl} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--brand-delivery)', fontSize: 'var(--text-caption)', fontWeight: 700 }}>
+                                <ExternalLink size={14} /> View
+                            </a>
+                            <button 
+                                type="button" 
+                                onClick={() => setReplaceMode(prev => ({ ...prev, [name]: true }))}
+                                style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', fontSize: 'var(--text-caption)', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
+                            >
+                                Replace
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
 
     return (
         <div className="page" style={{ paddingBottom: 100 }}>

@@ -20,8 +20,8 @@ from delivery.models import (
 class DeliveryPartnerProfileSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source="user.email", read_only=True)
     full_name = serializers.CharField(source="user.full_name", read_only=True)
-    id_proof = SmartFileField(read_only=True)
-    license_image = SmartFileField(read_only=True)
+    id_proof = SmartFileField(required=False)
+    license_image = SmartFileField(required=False)
     class Meta:
         model = DeliveryPartnerProfile
         fields = [

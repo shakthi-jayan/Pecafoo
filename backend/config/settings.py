@@ -209,7 +209,7 @@ STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 # REDIS CACHE
 # ============================================================
 
-USE_REDIS_CACHE = True
+USE_REDIS_CACHE = env.bool("USE_REDIS_CACHE", default=True)
 CACHE_BACKEND = env(
     "CACHE_BACKEND",
     default="django.core.cache.backends.redis.RedisCache",
