@@ -211,11 +211,8 @@ const HomePage = () => {
                             {restaurants.map((restaurant, index) => (
                                 <motion.div key={restaurant.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
                                     <RestaurantCard 
-                                        name={restaurant.name}
-                                        subtitle={restaurant.cuisine_type || 'Restaurant'}
-                                        image={restaurant.image_url}
-                                        rating={restaurant.rating}
-                                        time={restaurant.estimated_delivery_time ? `${restaurant.estimated_delivery_time} min` : undefined}
+                                        restaurant={restaurant}
+                                        showDistance={!!coords}
                                     />
                                 </motion.div>
                             ))}
