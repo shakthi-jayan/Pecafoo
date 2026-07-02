@@ -92,6 +92,19 @@ const WishlistPage = () => {
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                                     {wishlist.map((item, i) => {
                                         const r = item.restaurant_detail || item;
+                                        
+                                        // Map wishlist API response to RestaurantCard expected format
+                                        const mappedRestaurant = {
+                                            id: r.restaurant,
+                                            name: r.restaurant_name,
+                                            slug: r.restaurant_slug,
+                                            cuisine_type: r.restaurant_cuisine,
+                                            average_rating: r.restaurant_rating,
+                                            average_delivery_time: r.restaurant_delivery_time,
+                                            cover_image: r.restaurant_image,
+                                            currently_open: r.restaurant_is_open,
+                                        };
+
                                         return (
                                             <motion.div
                                                 key={item.id || i}
@@ -100,12 +113,7 @@ const WishlistPage = () => {
                                                 transition={{ delay: i * 0.05 }}
                                             >
                                                 <RestaurantCard 
-                                                    image={r.cover_image || r.logo}
-                                                    name={r.name}
-                                                    subtitle={r.cuisine_type}
-                                                    rating={r.average_rating}
-                                                    time={`${r.average_delivery_time || 30} min`}
-                                                    onClick={() => navigate(`/restaurant/${r.slug}`)}
+                                                    restaurant={mappedRestaurant}
                                                 />
                                             </motion.div>
                                         );
