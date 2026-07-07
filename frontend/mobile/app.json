@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "096d5825-dc0a-4313-9c4a-9b44f080812b"
+      }
+    },
+    "owner": "shakthi-jayan",
+    "slug": "pecafoomobile",
+    "android": {
+      "package": "com.shakthijayan.pecafoomobile"
+    }
+  }
+}

@@ -1,5 +1,4 @@
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env.' + (process.env.APP_ENV || 'development')) });
+require('dotenv').config({ path: `.env.${process.env.APP_ENV || 'development'}` });
 
 module.exports = {
   expo: {
@@ -17,25 +16,30 @@ module.exports = {
       bundleIdentifier: 'com.pecafoo.delivery',
       config: { googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_KEY },
       infoPlist: {
-        NSCameraUsageDescription: 'Pecafoo Delivery needs access to your camera for delivery proof.',
         NSLocationAlwaysAndWhenInUseUsageDescription: 'Pecafoo needs your location to navigate deliveries.',
         NSLocationWhenInUseUsageDescription: 'Pecafoo needs your location for delivery navigation.',
         UIBackgroundModes: ['location', 'fetch', 'remote-notification']
-      }
+      },
+      googleServicesFile: process.env.GOOGLE_SERVICES_IOS || './GoogleService-Info.plist'
     },
     android: {
       adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#22C55E' },
       package: 'com.pecafoo.delivery',
       config: { googleMaps: { apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_KEY } },
-      permissions: ['CAMERA', 'ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION', 'ACCESS_BACKGROUND_LOCATION', 'FOREGROUND_SERVICE', 'FOREGROUND_SERVICE_LOCATION']
+      permissions: ['ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION', 'ACCESS_BACKGROUND_LOCATION', 'FOREGROUND_SERVICE', 'FOREGROUND_SERVICE_LOCATION', 'RECEIVE_BOOT_COMPLETED'],
+      googleServicesFile: process.env.GOOGLE_SERVICES_ANDROID || './google-services.json'
     },
     plugins: [
       ['expo-location', { locationAlwaysAndWhenInUsePermission: 'Pecafoo needs your location to navigate deliveries.' }],
       'expo-notifications',
       ['@sentry/react-native/expo', { url: 'https://sentry.io/', project: 'pecafoo-delivery', organization: 'pecafoo' }]
     ],
-    updates: { url: 'https://u.expo.dev/YOUR_EAS_PROJECT_ID' },
-    runtimeVersion: { policy: 'appVersion' },
-    extra: { eas: { projectId: 'YOUR_EAS_PROJECT_ID' } }
+    updates: {
+      url: 'https://u.expo.dev/YOUR_DELIVERY_PROJECT_ID'
+    },
+    runtimeVersion: '1.0.0',
+    extra: {
+      eas: { projectId: 'YOUR_DELIVERY_PROJECT_ID' }
+    }
   }
 };
