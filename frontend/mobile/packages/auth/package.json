@@ -1,0 +1,15 @@
+{
+  "name": "@pecafoo/auth",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.js",
+  "dependencies": {
+    "@pecafoo/api": "*",
+    "@pecafoo/storage": "*",
+    "expo-auth-session": "~6.0.3",
+    "expo-web-browser": "~14.0.2"
+  },
+  "peerDependencies": {
+    "react": "*"
+  }
+}

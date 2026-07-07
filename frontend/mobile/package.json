@@ -1,0 +1,8 @@
+{
+  "name": "@pecafoo/mobile",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
+}
