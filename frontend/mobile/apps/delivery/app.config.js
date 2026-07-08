@@ -20,26 +20,20 @@ module.exports = {
         NSLocationWhenInUseUsageDescription: 'Pecafoo needs your location for delivery navigation.',
         UIBackgroundModes: ['location', 'fetch', 'remote-notification']
       },
-      googleServicesFile: process.env.GOOGLE_SERVICES_IOS || './GoogleService-Info.plist'
+      googleServicesFile: process.env.GOOGLE_SERVICES_IOS
     },
     android: {
       adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#22C55E' },
       package: 'com.pecafoo.delivery',
       config: { googleMaps: { apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_KEY } },
       permissions: ['ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION', 'ACCESS_BACKGROUND_LOCATION', 'FOREGROUND_SERVICE', 'FOREGROUND_SERVICE_LOCATION', 'RECEIVE_BOOT_COMPLETED'],
-      googleServicesFile: process.env.GOOGLE_SERVICES_ANDROID || './google-services.json'
+      googleServicesFile: process.env.GOOGLE_SERVICES_ANDROID
     },
     plugins: [
       ['expo-location', { locationAlwaysAndWhenInUsePermission: 'Pecafoo needs your location to navigate deliveries.' }],
       'expo-notifications',
       ['@sentry/react-native/expo', { url: 'https://sentry.io/', project: 'pecafoo-delivery', organization: 'pecafoo' }]
     ],
-    updates: {
-      url: 'https://u.expo.dev/YOUR_DELIVERY_PROJECT_ID'
-    },
-    runtimeVersion: '1.0.0',
-    extra: {
-      eas: { projectId: 'YOUR_DELIVERY_PROJECT_ID' }
-    }
+    runtimeVersion: '1.0.0'
   }
 };

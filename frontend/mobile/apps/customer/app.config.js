@@ -11,6 +11,11 @@ module.exports = {
     userInterfaceStyle: 'light',
     newArchEnabled: true,
     splash: { image: './assets/splash.png', resizeMode: 'contain', backgroundColor: '#D946EF' },
+    extra: {
+  eas: {
+    projectId: "db7a2d0a-7121-4040-9a25-c949853d2e92"
+  }
+},
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.pecafoo.customer',
@@ -21,26 +26,20 @@ module.exports = {
         NSLocationWhenInUseUsageDescription: 'Pecafoo needs your location to find restaurants near you.',
         NSLocationAlwaysAndWhenInUseUsageDescription: 'Pecafoo needs your location to find restaurants near you.'
       },
-      googleServicesFile: process.env.GOOGLE_SERVICES_IOS || './GoogleService-Info.plist'
+      googleServicesFile: process.env.GOOGLE_SERVICES_IOS
     },
     android: {
       adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#D946EF' },
       package: 'com.pecafoo.customer',
       config: { googleMaps: { apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_KEY } },
       permissions: ['CAMERA', 'READ_EXTERNAL_STORAGE', 'WRITE_EXTERNAL_STORAGE', 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION', 'RECEIVE_BOOT_COMPLETED'],
-      googleServicesFile: process.env.GOOGLE_SERVICES_ANDROID || './google-services.json'
+      googleServicesFile: process.env.GOOGLE_SERVICES_ANDROID
     },
     plugins: [
       'expo-location',
       'expo-notifications',
       ['@sentry/react-native/expo', { url: 'https://sentry.io/', project: 'pecafoo-customer', organization: 'pecafoo' }]
     ],
-    updates: {
-      url: 'https://u.expo.dev/YOUR_CUSTOMER_PROJECT_ID'
-    },
-    runtimeVersion: '1.0.0',
-    extra: {
-      eas: { projectId: 'YOUR_CUSTOMER_PROJECT_ID' }
-    }
+    runtimeVersion: '1.0.0'
   }
 };
