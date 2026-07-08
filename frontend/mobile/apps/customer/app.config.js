@@ -39,7 +39,6 @@ module.exports = {
       'expo-location',
       'expo-notifications',
       ['@sentry/react-native/expo', { url: 'https://sentry.io/', project: 'pecafoo-customer', organization: 'pecafoo' }]
-    ],
-    runtimeVersion: '1.0.0'
+    ]
   }
 };
