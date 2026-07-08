@@ -30,7 +30,6 @@ module.exports = {
     plugins: [
       'expo-notifications',
       ['@sentry/react-native/expo', { url: 'https://sentry.io/', project: 'pecafoo-admin', organization: 'pecafoo' }]
-    ],
-    runtimeVersion: '1.0.0'
+    ]
   }
 };

@@ -6,10 +6,10 @@
   "dependencies": {
     "@pecafoo/api": "*",
     "@pecafoo/storage": "*",
-    "expo-auth-session": "~6.2.1",
-    "expo-web-browser": "~14.2.0"
+    "expo-auth-session": "~57.0.2",
+    "expo-web-browser": "~57.0.0"
   },
   "peerDependencies": {
-    "react": "19.0.0"
+    "react": "19.2.3"
   }
 }
