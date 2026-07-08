@@ -6,11 +6,11 @@
   "dependencies": {
     "@pecafoo/theme": "*",
     "@pecafoo/utils": "*",
-    "@expo/vector-icons": "^15.0.2"
+    "@expo/vector-icons": "^15.1.1"
   },
   "peerDependencies": {
     "react": "19.2.3",
-    "react-native": "0.79.6",
+    "react-native": "0.86.0",
     "react-native-reanimated": "*"
   }
 }
