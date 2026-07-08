@@ -16,6 +16,5 @@ config.resolver.nodeModulesPaths = [
 ];
 
 // Ensure we don't get duplicate React instances
-config.resolver.disableHierarchicalLookup = true;
 
 module.exports = config;
