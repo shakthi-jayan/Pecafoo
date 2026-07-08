@@ -11,6 +11,11 @@ module.exports = {
     userInterfaceStyle: 'light',
     newArchEnabled: true,
     splash: { image: './assets/splash.png', resizeMode: 'contain', backgroundColor: '#F97316' },
+    extra: {
+      eas: {
+        projectId: "f1f2aad6-924b-4972-8839-a681227c7cbf"
+      }
+    },
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.pecafoo.restaurant',

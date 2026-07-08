@@ -11,6 +11,11 @@ module.exports = {
     userInterfaceStyle: 'light',
     newArchEnabled: true,
     splash: { image: './assets/splash.png', resizeMode: 'contain', backgroundColor: '#22C55E' },
+    extra: {
+      eas: {
+        projectId: "e64d5094-6a53-42f7-9b04-25fb050e9f90"
+      }
+    },
     ios: {
       supportsTablet: false,
       bundleIdentifier: 'com.pecafoo.delivery',
