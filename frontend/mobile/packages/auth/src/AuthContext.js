@@ -1,15 +1,13 @@
 import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
 import { Alert } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
 import { onForceLogout } from '@pecafoo/api';
 import {
   getTokens, setTokens, clearTokens,
   getUser, setUser, clearUser,
   getActiveRole, setActiveRole, clearRole,
 } from '@pecafoo/storage';
+import { signInWithGoogle, signOutFirebase } from './firebaseClient';
 import authService from './authService';
-
-WebBrowser.maybeCompleteAuthSession();
 
 const AuthContext = createContext(null);
 
@@ -106,17 +104,27 @@ export const AuthProvider = ({ children, defaultRole }) => {
     return data;
   }, [saveAuth, defaultRole]);
 
-  // ── Google Login via expo-auth-session ──
-  const googleLogin = useCallback(async (idToken) => {
+  // ── Google Login via Firebase Authentication ──
+  // Same flow as the web app:
+  //   Native Google Sign-In → Firebase → Get ID Token → Backend verifies → JWT
+  const googleLogin = useCallback(async () => {
+    // 1. Sign in with Google natively, authenticate with Firebase,
+    //    and get the Firebase ID token
+    const firebaseIdToken = await signInWithGoogle();
+
+    // 2. Send the Firebase ID token to the Django backend
+    //    (same endpoint as the web app: POST /api/auth/firebase/)
     const { data } = await authService.firebaseAuth({
-      firebase_token: idToken,
+      firebase_token: firebaseIdToken,
     });
 
+    // 3. Handle role selection if needed
     if (data.needs_role_selection) {
       setPendingLogin(data);
       return data;
     }
 
+    // 4. Save the backend-issued JWT and user data
     await saveAuth(data.user, data.tokens);
     return data;
   }, [saveAuth]);
@@ -161,6 +169,8 @@ export const AuthProvider = ({ children, defaultRole }) => {
       if (tokens?.refresh) {
         await authService.logout({ refresh: tokens.refresh });
       }
+      // Sign out of Firebase + Google Sign-In (matches web app's firebaseSignOut)
+      await signOutFirebase();
     } catch {
       // Silent — we're logging out regardless
     } finally {

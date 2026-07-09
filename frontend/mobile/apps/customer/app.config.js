@@ -12,10 +12,10 @@ module.exports = {
     newArchEnabled: true,
     splash: { image: './assets/splash.png', resizeMode: 'contain', backgroundColor: '#D946EF' },
     extra: {
-  eas: {
-    projectId: "db7a2d0a-7121-4040-9a25-c949853d2e92"
-  }
-},
+      eas: {
+        projectId: "db7a2d0a-7121-4040-9a25-c949853d2e92"
+      }
+    },
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.pecafoo.customer',
@@ -38,7 +38,12 @@ module.exports = {
     plugins: [
       'expo-location',
       'expo-notifications',
-      ['@sentry/react-native/expo', { url: 'https://sentry.io/', project: 'pecafoo-customer', organization: 'pecafoo' }]
+      ['@sentry/react-native/expo', { url: 'https://sentry.io/', project: 'pecafoo-customer', organization: 'pecafoo' }],
+      ['@react-native-google-signin/google-signin', {
+        iosUrlScheme: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
+          ? `com.googleusercontent.apps.${process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID.split('.')[0]}`
+          : undefined,
+      }]
     ]
   }
 };
